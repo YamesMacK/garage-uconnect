@@ -12,6 +12,8 @@
     color: #e8e8e8;
     min-height: 100vh;
     padding: max(env(safe-area-inset-top), 24px) 20px max(env(safe-area-inset-bottom), 24px);
+    max-width: 480px;
+    margin: 0 auto;
   }
   h1 {
     font-size: 22px;
@@ -19,40 +21,44 @@
     letter-spacing: -0.02em;
     margin-bottom: 4px;
   }
-  .sub {
+  .sub { color: #888; font-size: 13px; margin-bottom: 24px; }
+  .group-label {
+    font-size: 10px;
     color: #888;
-    font-size: 13px;
-    margin-bottom: 28px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+    margin: 22px 0 10px;
   }
   .opt {
     display: block;
     background: #161616;
     border: 1px solid #262626;
     border-radius: 14px;
-    padding: 18px 18px 16px;
-    margin-bottom: 12px;
+    padding: 16px 18px 14px;
+    margin-bottom: 10px;
     text-decoration: none;
     color: inherit;
   }
   .opt:active { background: #1c1c1c; }
   .opt-title {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 600;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
   }
   .opt-desc {
-    font-size: 13px;
+    font-size: 12px;
     color: #999;
     line-height: 1.45;
   }
   .opt-meta {
     display: flex;
     gap: 6px;
-    margin-top: 10px;
+    margin-top: 9px;
     flex-wrap: wrap;
   }
   .tag {
-    font-size: 10px;
+    font-size: 9px;
     color: #888;
     background: #1f1f1f;
     border: 1px solid #2c2c2c;
@@ -63,33 +69,55 @@
   }
   .back {
     display: inline-block;
-    margin-top: 24px;
+    margin-top: 28px;
     color: #5b9eff;
-    font-size: 14px;
+    font-size: 13px;
     text-decoration: none;
   }
 </style>
 </head>
 <body>
   <h1>Dashboard design ideas</h1>
-  <div class="sub">Three directions to flip through. Tap one.</div>
+  <div class="sub">Six directions. Tap one. All use the same mock data.</div>
+
+  <div class="group-label">Round 1 — overall layout</div>
 
   <a class="opt" href="1-minimal.html">
     <div class="opt-title">1 · Minimal</div>
-    <div class="opt-desc">Pure black canvas, oversized numerals, single column, system fonts. Stripe/Linear/Apple-Watch energy. Restraint over decoration.</div>
-    <div class="opt-meta"><span class="tag">monochrome</span><span class="tag">tall scroll</span><span class="tag">no chrome</span></div>
+    <div class="opt-desc">Pure black, oversized numerals, single column. Stripe/Linear/Apple-Watch energy.</div>
+    <div class="opt-meta"><span class="tag">monochrome</span><span class="tag">no chrome</span></div>
   </a>
 
   <a class="opt" href="2-cluster.html">
     <div class="opt-title">2 · Instrument cluster</div>
-    <div class="opt-desc">Automotive feel — SVG gauge dials for fuel and oil life, tach-style range, dark with chrome accents, Bebas/Orbitron numerals. Looks like a truck cluster.</div>
-    <div class="opt-meta"><span class="tag">gauges</span><span class="tag">automotive</span><span class="tag">dense info</span></div>
+    <div class="opt-desc">Automotive feel — arc gauges, chrome accents, Bebas Neue. Dense info.</div>
+    <div class="opt-meta"><span class="tag">arc gauges</span><span class="tag">chrome</span></div>
   </a>
 
   <a class="opt" href="3-mapfirst.html">
     <div class="opt-title">3 · Map-first</div>
-    <div class="opt-desc">Google Map fills the top 60%. Glass tiles below, floating Lock/Unlock/Start buttons over the map. iOS-native vibe.</div>
-    <div class="opt-meta"><span class="tag">map hero</span><span class="tag">glass</span><span class="tag">FAB buttons</span></div>
+    <div class="opt-desc">Google Map fills 60%. Glass tiles below, FAB buttons floating over the map.</div>
+    <div class="opt-meta"><span class="tag">map hero</span><span class="tag">glass</span></div>
+  </a>
+
+  <div class="group-label">Round 2 — gauge styles (incl. oil reset)</div>
+
+  <a class="opt" href="4-rings.html">
+    <div class="opt-title">4 · Activity rings</div>
+    <div class="opt-desc">Apple Watch concentric rings — fuel/oil/battery layered on one big dial. Vibrant gradients.</div>
+    <div class="opt-meta"><span class="tag">concentric</span><span class="tag">gradient</span><span class="tag">iOS</span></div>
+  </a>
+
+  <a class="opt" href="5-analog.html">
+    <div class="opt-title">5 · Analog dial</div>
+    <div class="opt-desc">Skeuomorphic round instruments — bezel, glass, tick marks, needle. Cormorant Garamond + brass.</div>
+    <div class="opt-meta"><span class="tag">skeuomorphic</span><span class="tag">needle</span><span class="tag">brass</span></div>
+  </a>
+
+  <a class="opt" href="6-donut.html">
+    <div class="opt-title">6 · Modern donut</div>
+    <div class="opt-desc">Soft gradient-filled donuts — Strava/Stripe-app feel. Inter font. Numbers inside the rings.</div>
+    <div class="opt-meta"><span class="tag">flat</span><span class="tag">gradient</span><span class="tag">teal+orange</span></div>
   </a>
 
   <a class="back" href="../">← back to current dashboard</a>
