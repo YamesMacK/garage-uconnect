@@ -5,11 +5,21 @@ Runs in GitHub Actions on a schedule. Reads credentials from env vars
 (MOPAR_EMAIL, MOPAR_PASSWORD, MOPAR_PIN). Writes dashboard/data.json
 which the PWA reads via fetch().
 
+Architecture notes (do not regress):
+  * py-uconnect's `client.api.get_vehicle(vin)` returns a raw dict.
+    The Vehicle dataclass is populated by passing that dict through
+    `_update_vehicle(v, dict)`. We do this manually per VIN so a 502
+    on a sibling vehicle (the broken Challenger) doesn't kill the
+    whole poll — `client.refresh()` has no per-vehicle try/except.
+  * Vehicle attribute names from py-uconnect (NOT obvious):
+      - tire pressure: `wheel_front_left_pressure`, etc. (not tire_pressure_*)
+      - fuel level pct: `fuel_amount` (not fuel_level_percent)
+      - oil life pct: `oil_level` (we ignore this; we use a 5k baseline)
+
 Oil tracking strategy (since 2026-04-29):
-  Always use a baseline-counter against a 5,000-mile interval.
-  Ignore the truck's reported oil-life percentage entirely.
-  Baseline is auto-populated on first run for any new VIN, then only
-  changes when the user hits "Reset" after an oil change.
+  Use a baseline-counter against a 5,000-mile interval. Ignore the truck's
+  reported oilLevel. Baseline auto-populates on first run for any new VIN,
+  then only changes when the user re-anchors after an oil change.
 """
 
 import json
@@ -20,6 +30,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from py_uconnect import Client, brands
+from py_uconnect.client import Vehicle, Location, _update_vehicle
 
 ROOT = Path(__file__).parent.parent
 DATA_FILE = ROOT / "dashboard" / "data.json"
@@ -33,7 +44,6 @@ ALLOWED_VINS = {
 
 
 # ─── Number coercion helpers ────────────────────────────────────────────────
-# py-uconnect returns API values as strings (sometimes literally "null")
 def to_float(v):
     if v is None:
         return None
@@ -100,14 +110,7 @@ def save_oil_baseline(baseline: dict) -> None:
     OIL_BASELINE_FILE.write_text(json.dumps(baseline, indent=2))
 
 
-def compute_oil(vin: str, odometer_mi, baseline: dict) -> tuple[dict, dict]:
-    """
-    Return (oil_block_for_data_json, possibly_updated_baseline_dict).
-
-    If this VIN has no baseline yet, anchor it to the current odometer so the
-    dashboard shows a full 5,000 mi until next change. James can hit Reset
-    after his next oil change to re-anchor to truth.
-    """
+def compute_oil(vin: str, odometer_mi, baseline: dict):
     if odometer_mi is None:
         return ({
             "interval_mi": OIL_CHANGE_INTERVAL_MILES,
@@ -117,8 +120,10 @@ def compute_oil(vin: str, odometer_mi, baseline: dict) -> tuple[dict, dict]:
         }, baseline)
 
     entry = baseline.get(vin)
+    # Tolerate both the legacy bare-number form and the structured form.
+    if isinstance(entry, (int, float)):
+        entry = {"odometer_at_last_change_mi": entry}
     if not entry or "odometer_at_last_change_mi" not in entry:
-        # First-run anchor
         baseline[vin] = {
             "odometer_at_last_change_mi": round(odometer_mi),
             "set_at": datetime.now(timezone.utc).isoformat(),
@@ -140,55 +145,91 @@ def compute_oil(vin: str, odometer_mi, baseline: dict) -> tuple[dict, dict]:
     }, baseline)
 
 
+# ─── Resilient per-vehicle fetch ───────────────────────────────────────────
+def fetch_vehicle(client, vin_entry: dict) -> Vehicle:
+    """Build a populated Vehicle for a single VIN without using
+    client.refresh() (which crashes on the broken Challenger)."""
+    vin = vin_entry["vin"]
+
+    vehicle = Vehicle(
+        vin=vin,
+        nickname=vin_entry.get("nickname") or "",
+        make=vin_entry.get("make") or "",
+        model=vin_entry.get("modelDescription") or "",
+        year=str(vin_entry.get("year") or vin_entry.get("tsoModelYear") or ""),
+        region=vin_entry.get("soldRegion") or "",
+    )
+    vehicle.sdp = vin_entry.get("sdp")
+    vehicle.image_url = vin_entry.get("vehicleImageURL")
+    vehicle.fuel_type = vin_entry.get("fuelType")
+
+    info = client.api.get_vehicle(vin)
+    _update_vehicle(vehicle, info)
+
+    # Location is a separate API call; tolerate failure.
+    try:
+        loc = client.api.get_vehicle_location(vin)
+        updated = (
+            datetime.fromtimestamp(loc["timeStamp"] / 1000).astimezone()
+            if "timeStamp" in loc
+            else None
+        )
+        vehicle.location = Location(
+            longitude=loc.get("longitude"),
+            latitude=loc.get("latitude"),
+            altitude=loc.get("altitude"),
+            bearing=loc.get("bearing"),
+            is_approximate=loc.get("isLocationApprox"),
+            updated=updated,
+        )
+    except Exception:
+        pass
+
+    return vehicle
+
+
 # ─── Per-vehicle serializer ────────────────────────────────────────────────
-def serialize_vehicle(v, oil_baseline: dict) -> tuple[dict, dict]:
-    """Convert a py-uconnect Vehicle to dashboard JSON shape.
-    Returns (vehicle_dict, updated_oil_baseline)."""
+def serialize_vehicle(v: Vehicle, oil_baseline: dict):
     odometer_mi = normalize_distance(v.odometer, v.odometer_unit)
     range_mi = normalize_distance(v.distance_to_empty, v.distance_to_empty_unit)
 
-    # Tires — kPa → PSI
-    tires_psi = {}
-    tires_warn = {}
-    for corner in ("front_left", "front_right", "rear_left", "rear_right"):
-        pressure_attr = f"tire_pressure_{corner}"
-        unit_attr = f"tire_pressure_{corner}_unit"
-        warn_attr = f"tire_pressure_{corner}_warning"
-        tires_psi[corner] = normalize_pressure(
-            getattr(v, pressure_attr, None),
-            getattr(v, unit_attr, None),
-        )
-        warn_val = getattr(v, warn_attr, None)
-        tires_warn[corner] = bool(warn_val) if warn_val is not None else False
+    tires_psi = {
+        "front_left":  normalize_pressure(v.wheel_front_left_pressure,  v.wheel_front_left_pressure_unit),
+        "front_right": normalize_pressure(v.wheel_front_right_pressure, v.wheel_front_right_pressure_unit),
+        "rear_left":   normalize_pressure(v.wheel_rear_left_pressure,   v.wheel_rear_left_pressure_unit),
+        "rear_right":  normalize_pressure(v.wheel_rear_right_pressure,  v.wheel_rear_right_pressure_unit),
+    }
+    tires_warning = {
+        "front_left":  bool(v.wheel_front_left_pressure_warning)  if v.wheel_front_left_pressure_warning  is not None else False,
+        "front_right": bool(v.wheel_front_right_pressure_warning) if v.wheel_front_right_pressure_warning is not None else False,
+        "rear_left":   bool(v.wheel_rear_left_pressure_warning)   if v.wheel_rear_left_pressure_warning   is not None else False,
+        "rear_right":  bool(v.wheel_rear_right_pressure_warning)  if v.wheel_rear_right_pressure_warning  is not None else False,
+    }
 
-    # Location
     location = None
     if v.location:
         location = {
             "lat": to_float(v.location.latitude),
             "lng": to_float(v.location.longitude),
-            "ts": getattr(v.location, "timestamp", None),
+            "ts": str(v.location.updated) if v.location.updated else None,
+            "place": None,
         }
-        # Best-effort label (poll.py doesn't reverse-geocode; the dashboard
-        # falls back to coords if `place` is missing).
-        location["place"] = None
 
-    # Oil 5k tracker
     oil_block, oil_baseline = compute_oil(v.vin, odometer_mi, oil_baseline)
 
     return ({
         "vin": v.vin,
-        "year": getattr(v, "year", None),
-        "make": getattr(v, "make", None),
-        "model": getattr(v, "model", None),
-        "nickname": getattr(v, "nickname", None) or "Garage",
+        "year": v.year or None,
+        "make": v.make or None,
+        "model": v.model or None,
+        "nickname": v.nickname or None,
         "odometer_mi": odometer_mi,
         "range_mi": range_mi,
-        "fuel_pct": to_int(getattr(v, "fuel_level_percent", None)),
-        "fuel_low": bool(getattr(v, "fuel_low_warning", False)),
-        "battery_v": to_float(getattr(v, "battery_voltage", None)),
+        "fuel_pct": to_int(v.fuel_amount),
+        "fuel_low": bool(v.fuel_low) if v.fuel_low is not None else False,
+        "battery_v": to_float(v.battery_voltage),
         "tires_psi": tires_psi,
-        "tires_warning": tires_warn,
+        "tires_warning": tires_warning,
         "location": location,
         "oil": oil_block,
     }, oil_baseline)
@@ -206,8 +247,6 @@ def main() -> None:
 
     client = Client(email=email, password=password, pin=pin, brand=brands.RAM_US)
 
-    # Lower-level API access avoids client.refresh() which has no per-vehicle
-    # try/except and crashes on the broken Challenger 502.
     try:
         listed = client.api.list_vehicles()
     except Exception as e:
@@ -218,8 +257,8 @@ def main() -> None:
     oil_baseline = load_oil_baseline()
     vehicles_out = []
 
-    for vehicle_summary in listed:
-        vin = getattr(vehicle_summary, "vin", None) or vehicle_summary.get("vin")
+    for entry in listed:
+        vin = entry.get("vin")
         if not vin:
             continue
         if vin not in ALLOWED_VINS:
@@ -227,14 +266,14 @@ def main() -> None:
             continue
 
         try:
-            v = client.api.get_vehicle(vin)
-            vd, oil_baseline = serialize_vehicle(v, oil_baseline)
+            vehicle = fetch_vehicle(client, entry)
+            vd, oil_baseline = serialize_vehicle(vehicle, oil_baseline)
             vehicles_out.append(vd)
-            odo = vd.get("odometer_mi")
             mtn = (vd.get("oil") or {}).get("miles_to_next")
-            print(f"  ✓ {vin}: odo={odo} mi · oil_to_next={mtn} mi")
+            print(f"  ✓ {vin}: odo={vd.get('odometer_mi')} mi · oil_to_next={mtn} mi")
         except Exception as e:
-            print(f"  ! {vin}: fetch failed — {e}", file=sys.stderr)
+            print(f"  ! {vin}: fetch failed — {type(e).__name__}: {e}", file=sys.stderr)
+            traceback.print_exc()
 
     if not vehicles_out:
         print("No vehicles fetched successfully — leaving data.json untouched", file=sys.stderr)
@@ -246,7 +285,7 @@ def main() -> None:
     }
 
     DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
-    DATA_FILE.write_text(json.dumps(output, indent=2))
+    DATA_FILE.write_text(json.dumps(output, indent=2, default=str))
     save_oil_baseline(oil_baseline)
     print(f"Wrote {DATA_FILE}")
 
