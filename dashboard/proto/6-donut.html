@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f1117">
+<title>Garage · Donut</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #0f1117;
+    --surface: #181b23;
+    --surface-2: #1f232c;
+    --line: rgba(255, 255, 255, 0.06);
+    --line-2: rgba(255, 255, 255, 0.10);
+    --fg: #f4f5f8;
+    --dim: #8b8f9b;
+    --teal: #2dd4bf;
+    --teal-deep: #0d9488;
+    --orange: #fb923c;
+    --orange-deep: #c2410c;
+    --indigo: #818cf8;
+    --indigo-deep: #4f46e5;
+    --rose: #fb7185;
+    --good: #34d399;
+  }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background:
+      radial-gradient(ellipse at 100% 0%, rgba(45, 212, 191, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 0% 100%, rgba(129, 140, 248, 0.06) 0%, transparent 50%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--fg);
+    min-height: 100vh;
+    padding: max(env(safe-area-inset-top), 22px) 16px max(env(safe-area-inset-bottom), 100px);
+    max-width: 480px;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'tnum';
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+  }
+  .vehicle {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .vehicle h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .vehicle .year {
+    font-size: 13px;
+    color: var(--dim);
+    font-weight: 500;
+  }
+  .live {
+    background: rgba(52, 211, 153, 0.12);
+    border: 1px solid rgba(52, 211, 153, 0.25);
+    color: var(--good);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 11px;
+    border-radius: 100px;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .live::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--good);
+  }
+
+  /* Big hero card with odo + range */
+  .hero {
+    background: linear-gradient(135deg, var(--surface) 0%, var(--surface-2) 100%);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 18px 18px 16px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    right: -50px; top: -50px;
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, rgba(45,212,191,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-label {
+    font-size: 11px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .hero-value {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 0.95;
+  }
+  .hero-value .u {
+    font-size: 16px;
+    color: var(--dim);
+    font-weight: 600;
+    margin-left: 6px;
+    letter-spacing: 0;
+  }
+  .hero-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+  }
+  .hero-foot-item .lbl {
+    font-size: 10px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-weight: 600;
+  }
+  .hero-foot-item .val {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-top: 2px;
+  }
+  .hero-foot-item .val .u {
+    font-size: 11px;
+    color: var(--dim);
+    font-weight: 500;
+    margin-left: 2px;
+  }
+
+  /* Donut row: 3 charts side by side */
+  .donuts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .donut-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 16px 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .donut-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+  }
+  .donut-label {
+    font-size: 11px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-weight: 600;
+  }
+  .reset-btn {
+    background: rgba(251, 146, 60, 0.12);
+    border: 1px solid rgba(251, 146, 60, 0.3);
+    color: var(--orange);
+    font-family: inherit;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border-radius: 100px;
+    cursor: pointer;
+  }
+  .reset-btn:active { background: rgba(251,146,60,0.22); }
+
+  .donut-svg {
+    width: 100%;
+    aspect-ratio: 1;
+    max-height: 140px;
+    display: block;
+    margin: 6px auto 0;
+  }
+  .donut-center-value {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+  .donut-center-unit {
+    font-size: 11px;
+    fill: var(--dim);
+    font-weight: 600;
+    text-anchor: middle;
+    letter-spacing: 0.04em;
+  }
+  .donut-foot {
+    text-align: center;
+    font-size: 11px;
+    color: var(--dim);
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  /* Battery row (full-width) */
+  .battery-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .battery-left .lbl {
+    font-size: 11px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .battery-left .val {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+  }
+  .battery-left .val .u {
+    font-size: 12px;
+    color: var(--dim);
+    font-weight: 600;
+    margin-left: 3px;
+  }
+  .battery-right {
+    flex: 1;
+    text-align: right;
+  }
+  .battery-bar {
+    height: 6px;
+    background: var(--line-2);
+    border-radius: 100px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .battery-bar > span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--indigo) 0%, var(--teal) 100%);
+    border-radius: 100px;
+  }
+  .battery-status {
+    font-size: 11px;
+    color: var(--good);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  /* Tire grid */
+  .tires-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+  }
+  .tires-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 14px;
+  }
+  .tires-head .lbl {
+    font-size: 11px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-weight: 600;
+  }
+  .tires-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 4px;
+  }
+  .tire {
+    text-align: center;
+  }
+  .tire-pos {
+    font-size: 9px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .tire-val {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+  }
+  .tire-val .u {
+    font-size: 10px;
+    color: var(--dim);
+    font-weight: 500;
+    margin-left: 2px;
+  }
+
+  /* Map */
+  .map-card {
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    height: 200px;
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .map-card iframe { width: 100%; height: 100%; border: 0; }
+  .map-link {
+    position: absolute;
+    bottom: 12px; right: 12px;
+    background: var(--fg);
+    color: var(--bg);
+    padding: 8px 14px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  /* Commands */
+  .commands {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    padding: 12px 16px max(env(safe-area-inset-bottom), 16px);
+    background: linear-gradient(180deg, transparent 0%, rgba(15,17,23,0.92) 40%, var(--bg) 100%);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .cmd {
+    background: var(--surface-2);
+    border: 1px solid var(--line-2);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    padding: 14px 0;
+    border-radius: 14px;
+    cursor: pointer;
+  }
+  .cmd:active { background: #2a2f3b; transform: scale(0.97); }
+  .cmd-primary {
+    background: linear-gradient(135deg, var(--orange) 0%, var(--orange-deep) 100%);
+    border-color: rgba(251,146,60,0.6);
+    color: #1a0a00;
+    box-shadow: 0 4px 14px rgba(251,146,60,0.3);
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="vehicle">
+      <h1>Ram 2500</h1>
+      <span class="year">· 2022</span>
+    </div>
+    <span class="live">Live · 2m</span>
+  </div>
+
+  <div class="hero">
+    <div class="hero-label">Odometer</div>
+    <div class="hero-value">143,061<span class="u">mi</span></div>
+    <div class="hero-foot">
+      <div class="hero-foot-item">
+        <div class="lbl">Range</div>
+        <div class="val">175<span class="u">mi</span></div>
+      </div>
+      <div class="hero-foot-item">
+        <div class="lbl">Fuel</div>
+        <div class="val">43<span class="u">%</span></div>
+      </div>
+      <div class="hero-foot-item">
+        <div class="lbl">VIN</div>
+        <div class="val" style="font-size:11px;color:var(--dim);font-weight:500">…G305274</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="donuts">
+    <!-- Fuel donut -->
+    <div class="donut-card">
+      <div class="donut-head">
+        <span class="donut-label">Fuel</span>
+      </div>
+      <svg class="donut-svg" viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="dgFuel" x1="0%" x2="100%" y1="0%" y2="100%">
+            <stop offset="0%" stop-color="#fb923c"/>
+            <stop offset="100%" stop-color="#f97316"/>
+          </linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(251,146,60,0.12)" stroke-width="10"/>
+        <!-- 43% of full circle: 2π·40 = 251.3, 43% = 108 -->
+        <circle cx="50" cy="50" r="40" fill="none" stroke="url(#dgFuel)" stroke-width="10"
+                stroke-linecap="round" stroke-dasharray="108 251" transform="rotate(-90 50 50)"/>
+        <text x="50" y="46" class="donut-center-value" fill="#f4f5f8">43</text>
+        <text x="50" y="64" class="donut-center-unit">PERCENT</text>
+      </svg>
+      <div class="donut-foot">175 mi range</div>
+    </div>
+
+    <!-- Oil life donut with reset -->
+    <div class="donut-card">
+      <div class="donut-head">
+        <span class="donut-label">Oil · 5K</span>
+        <button class="reset-btn" id="resetOil">Reset</button>
+      </div>
+      <svg class="donut-svg" viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="dgOil" x1="0%" x2="100%" y1="0%" y2="100%">
+            <stop offset="0%" stop-color="#2dd4bf"/>
+            <stop offset="100%" stop-color="#0d9488"/>
+          </linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(45,212,191,0.12)" stroke-width="10"/>
+        <!-- Full ring = 5000 mi to next change -->
+        <circle cx="50" cy="50" r="40" fill="none" stroke="url(#dgOil)" stroke-width="10"
+                stroke-linecap="round" stroke-dasharray="251 251" transform="rotate(-90 50 50)"/>
+        <text x="50" y="46" class="donut-center-value" fill="#f4f5f8">5K</text>
+        <text x="50" y="64" class="donut-center-unit">MILES</text>
+      </svg>
+      <div class="donut-foot">to next change</div>
+    </div>
+  </div>
+
+  <div class="battery-card">
+    <div class="battery-left">
+      <div class="lbl">Battery</div>
+      <div class="val">13.7<span class="u">V</span></div>
+    </div>
+    <div class="battery-right">
+      <span class="battery-status">● HEALTHY</span>
+      <div class="battery-bar"><span style="width: 95%"></span></div>
+    </div>
+  </div>
+
+  <div class="tires-card">
+    <div class="tires-head">
+      <span class="lbl">Tire Pressure</span>
+      <span class="lbl" style="color: var(--orange)">PSI</span>
+    </div>
+    <div class="tires-grid">
+      <div class="tire"><div class="tire-pos">FL</div><div class="tire-val">69</div></div>
+      <div class="tire"><div class="tire-pos">FR</div><div class="tire-val">68</div></div>
+      <div class="tire"><div class="tire-pos">RL</div><div class="tire-val">68</div></div>
+      <div class="tire"><div class="tire-pos">RR</div><div class="tire-val">67</div></div>
+    </div>
+  </div>
+
+  <div class="map-card">
+    <iframe loading="lazy" src="https://maps.google.com/maps?q=29.620816,-95.527005&z=14&output=embed"></iframe>
+    <a class="map-link" target="_blank" href="https://www.google.com/maps?q=29.620816,-95.527005">Open in Maps</a>
+  </div>
+
+  <div class="commands">
+    <button class="cmd">Lock</button>
+    <button class="cmd">Unlock</button>
+    <button class="cmd cmd-primary">Start</button>
+  </div>
+</body>
+</html>

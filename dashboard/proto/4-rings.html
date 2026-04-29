@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Garage · Rings</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #000;
+    --panel: #111;
+    --panel-2: #161616;
+    --line: rgba(255,255,255,0.10);
+    --fg: #fff;
+    --dim: #8a8a8e;
+    --ring-fuel-a: #ff2d55;
+    --ring-fuel-b: #ff9f0a;
+    --ring-oil-a: #34d399;
+    --ring-oil-b: #a3e635;
+    --ring-batt-a: #5b9eff;
+    --ring-batt-b: #b388ff;
+  }
+  body {
+    font-family: -apple-system, 'SF Pro Display', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    min-height: 100vh;
+    padding: max(env(safe-area-inset-top), 22px) 18px max(env(safe-area-inset-bottom), 100px);
+    max-width: 480px;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'tnum';
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .vehicle-name {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .vehicle-name .year {
+    color: var(--dim);
+    font-weight: 500;
+    font-size: 14px;
+    margin-left: 4px;
+  }
+  .live {
+    font-size: 12px;
+    color: #34d399;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+  }
+  .live::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 8px #34d399;
+  }
+
+  /* Hero: stacked rings on big circular canvas */
+  .rings-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, var(--bg) 70%);
+    border-radius: 24px;
+    padding: 24px 0 16px;
+    margin-bottom: 14px;
+    border: 1px solid var(--line);
+    position: relative;
+  }
+  .rings-svg {
+    width: 280px;
+    height: 280px;
+    filter: drop-shadow(0 0 40px rgba(255, 159, 10, 0.08));
+  }
+  .rings-center {
+    position: absolute;
+    text-align: center;
+    pointer-events: none;
+  }
+  .rings-odo-label {
+    font-size: 10px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .rings-odo {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1;
+  }
+  .rings-odo .u {
+    font-size: 13px;
+    color: var(--dim);
+    font-weight: 500;
+    margin-left: 3px;
+  }
+  .rings-odo-sub {
+    font-size: 11px;
+    color: var(--dim);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  /* Legend below rings */
+  .legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .legend-tile {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 10px 8px 12px;
+    text-align: center;
+    position: relative;
+  }
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .legend-dot.fuel { background: linear-gradient(135deg, #ff2d55, #ff9f0a); }
+  .legend-dot.oil  { background: linear-gradient(135deg, #34d399, #a3e635); }
+  .legend-dot.batt { background: linear-gradient(135deg, #5b9eff, #b388ff); }
+  .legend-label {
+    font-size: 10px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .legend-value {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .legend-value .u {
+    font-size: 11px;
+    color: var(--dim);
+    font-weight: 500;
+    margin-left: 2px;
+  }
+  .legend-sub {
+    font-size: 10px;
+    color: var(--dim);
+    margin-top: 4px;
+  }
+  .legend-tile-oil {
+    /* Oil tile with reset chip in corner */
+  }
+  .reset-chip {
+    position: absolute;
+    top: 6px; right: 6px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--dim);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 3px 6px;
+    border-radius: 100px;
+    cursor: pointer;
+  }
+  .reset-chip:active { background: rgba(255,255,255,0.10); }
+
+  /* Tire row */
+  .tires {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin-bottom: 14px;
+  }
+  .tire {
+    text-align: center;
+  }
+  .tire-pos {
+    font-size: 9px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .tire-val {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .tire-val .u {
+    font-size: 10px;
+    color: var(--dim);
+    font-weight: 500;
+    margin-left: 2px;
+  }
+
+  /* Map */
+  .map {
+    height: 200px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .map iframe {
+    width: 100%; height: 100%;
+    border: 0;
+    filter: invert(0.92) hue-rotate(180deg) saturate(0.45);
+  }
+  .map-link {
+    position: absolute;
+    bottom: 10px; right: 10px;
+    background: rgba(255,255,255,0.95);
+    color: #000;
+    padding: 6px 10px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 700;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* Sticky commands */
+  .commands {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    padding: 12px 18px max(env(safe-area-inset-bottom), 16px);
+    background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.9) 50%, var(--bg) 100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    gap: 8px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .cmd {
+    flex: 1;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.14);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    padding: 14px 0;
+    border-radius: 14px;
+    backdrop-filter: blur(10px);
+  }
+  .cmd:active { background: rgba(255,255,255,0.14); transform: scale(0.97); }
+  .cmd-primary {
+    background: linear-gradient(135deg, #ff9f0a 0%, #ff2d55 100%);
+    border-color: rgba(255,159,10,0.6);
+    color: #000;
+  }
+  .cmd-primary:active { filter: brightness(0.9); }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="vehicle-name">Ram 2500 <span class="year">· 2022</span></div>
+    <span class="live">Live · 2m</span>
+  </div>
+
+  <div class="rings-wrap">
+    <svg class="rings-svg" viewBox="0 0 280 280">
+      <defs>
+        <linearGradient id="grFuel" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ff2d55"/>
+          <stop offset="100%" stop-color="#ff9f0a"/>
+        </linearGradient>
+        <linearGradient id="grOil" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#34d399"/>
+          <stop offset="100%" stop-color="#a3e635"/>
+        </linearGradient>
+        <linearGradient id="grBatt" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5b9eff"/>
+          <stop offset="100%" stop-color="#b388ff"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Outer ring: Fuel 43% -->
+      <circle cx="140" cy="140" r="120" fill="none" stroke="rgba(255,45,85,0.15)" stroke-width="18"/>
+      <circle cx="140" cy="140" r="120" fill="none" stroke="url(#grFuel)" stroke-width="18"
+              stroke-linecap="round" stroke-dasharray="324 750" transform="rotate(-90 140 140)"/>
+
+      <!-- Middle ring: Oil life 100% (full ring = 5000mi remaining) -->
+      <circle cx="140" cy="140" r="96" fill="none" stroke="rgba(52,211,153,0.15)" stroke-width="18"/>
+      <circle cx="140" cy="140" r="96" fill="none" stroke="url(#grOil)" stroke-width="18"
+              stroke-linecap="round" stroke-dasharray="603 603" transform="rotate(-90 140 140)"/>
+
+      <!-- Inner ring: Battery 13.7V → ~95% of 14.4V max -->
+      <circle cx="140" cy="140" r="72" fill="none" stroke="rgba(91,158,255,0.15)" stroke-width="18"/>
+      <circle cx="140" cy="140" r="72" fill="none" stroke="url(#grBatt)" stroke-width="18"
+              stroke-linecap="round" stroke-dasharray="430 452" transform="rotate(-90 140 140)"/>
+    </svg>
+    <div class="rings-center">
+      <div class="rings-odo-label">Odometer</div>
+      <div class="rings-odo">143,061<span class="u">MI</span></div>
+      <div class="rings-odo-sub">175 mi · 43% fuel</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-tile">
+      <div class="legend-label"><span class="legend-dot fuel"></span>Fuel</div>
+      <div class="legend-value">43<span class="u">%</span></div>
+      <div class="legend-sub">175 mi range</div>
+    </div>
+    <div class="legend-tile legend-tile-oil">
+      <button class="reset-chip" id="resetOil">Reset</button>
+      <div class="legend-label"><span class="legend-dot oil"></span>Oil 5K</div>
+      <div class="legend-value">5K<span class="u">MI</span></div>
+      <div class="legend-sub">to next change</div>
+    </div>
+    <div class="legend-tile">
+      <div class="legend-label"><span class="legend-dot batt"></span>Battery</div>
+      <div class="legend-value">13.7<span class="u">V</span></div>
+      <div class="legend-sub">healthy</div>
+    </div>
+  </div>
+
+  <div class="tires">
+    <div class="tire"><div class="tire-pos">FL</div><div class="tire-val">69<span class="u">PSI</span></div></div>
+    <div class="tire"><div class="tire-pos">FR</div><div class="tire-val">68<span class="u">PSI</span></div></div>
+    <div class="tire"><div class="tire-pos">RL</div><div class="tire-val">68<span class="u">PSI</span></div></div>
+    <div class="tire"><div class="tire-pos">RR</div><div class="tire-val">67<span class="u">PSI</span></div></div>
+  </div>
+
+  <div class="map">
+    <iframe loading="lazy" src="https://maps.google.com/maps?q=29.620816,-95.527005&z=14&output=embed"></iframe>
+    <a class="map-link" target="_blank" href="https://www.google.com/maps?q=29.620816,-95.527005">Open Maps</a>
+  </div>
+
+  <div class="commands">
+    <button class="cmd">Lock</button>
+    <button class="cmd">Unlock</button>
+    <button class="cmd cmd-primary">Start</button>
+  </div>
+</body>
+</html>
