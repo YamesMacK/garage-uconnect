@@ -200,6 +200,56 @@ body {
 }
 .cmd-primary:active { background: #b66920; }
 .cmd[disabled] { opacity: 0.5; cursor: default; }
+.cmd.pending {
+  background: rgba(240, 168, 80, 0.18);
+  border-color: rgba(240, 168, 80, 0.5);
+  color: #f0a850;
+}
+.cmd-primary.pending {
+  background: rgba(201, 122, 43, 0.7);
+  color: #1a0f08;
+}
+
+/* ---- Settings panel ---- */
+.panel {
+  display: none;
+  background: rgba(232, 220, 196, 0.04);
+  border: 1px solid rgba(232, 220, 196, 0.18);
+  border-radius: 4px;
+  padding: 14px;
+  flex-direction: column;
+  gap: 10px;
+}
+.panel.show { display: flex; }
+.panel-label {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8a7d65;
+}
+.panel input {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(232, 220, 196, 0.18);
+  color: #e8dcc4;
+  font-family: 'Lora', serif;
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 3px;
+  outline: none;
+  width: 100%;
+}
+.panel input:focus { border-color: rgba(240, 168, 80, 0.5); }
+.panel-row { display: flex; gap: 6px; }
+.panel-row .cmd { flex: 1; padding: 10px 0; font-size: 11px; }
+.panel-help {
+  font-style: italic;
+  font-size: 11px;
+  color: #5a4f3e;
+  line-height: 1.5;
+}
+.panel-help a { color: #8a7d65; }
 
 /* ---- Footer / settings ---- */
 .foot {
@@ -273,9 +323,27 @@ body {
     <button class="cmd cmd-primary" data-cmd="start">Start</button>
   </div>
 
+  <div class="panel" id="settings">
+    <div class="panel-label">GitHub Token</div>
+    <input id="patInput" type="password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…">
+    <div class="panel-help">
+      Fine-grained PAT with <em>Actions: Read &amp; Write</em> on this repo.
+      Stored in your browser only. Required to send lock / unlock / start.
+    </div>
+    <div class="panel-row">
+      <button class="cmd" id="patSave">Save</button>
+      <button class="cmd" id="patClear">Clear</button>
+      <button class="cmd" id="patClose">Close</button>
+    </div>
+  </div>
+
   <div class="foot">
     <span id="vin">—</span>
-    <button id="refresh">refresh</button>
+    <span>
+      <button id="settingsBtn">settings</button>
+      <span style="color:#3a3328">·</span>
+      <button id="refresh">refresh</button>
+    </span>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -433,16 +501,104 @@ async function load() {
   }
 }
 
-// ----- buttons (Phase 1: placeholder) -----
-document.querySelectorAll('.cmd[data-cmd]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    toast(`${btn.dataset.cmd} — Phase 2 wires this up`);
+// ----- remote commands -----
+const REPO = 'YamesMacK/garage-uconnect';
+const WORKFLOW = 'command.yml';
+// Dashboard label → send_command.py command name
+const CMD_MAP = { lock: 'lock', unlock: 'unlock', start: 'engine_on' };
+
+const getPat = () => localStorage.getItem('gh_pat') || '';
+const setPat = (v) => localStorage.setItem('gh_pat', v);
+const clearPat = () => localStorage.removeItem('gh_pat');
+
+function refreshCmdEnabled() {
+  const has = !!getPat();
+  document.querySelectorAll('.cmd[data-cmd]').forEach(b => {
+    b.disabled = !has;
+    b.title = has ? '' : 'Set a GitHub token in settings first';
   });
+}
+
+async function sendCommand(label, btn) {
+  const cmd = CMD_MAP[label];
+  if (!cmd) return;
+  const pat = getPat();
+  if (!pat) {
+    toast('Set a GitHub token in settings first');
+    return;
+  }
+  btn.classList.add('pending');
+  btn.disabled = true;
+  const prevText = btn.textContent;
+  btn.textContent = '…';
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW}/dispatches`,
+      {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': `Bearer ${pat}`,
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+        body: JSON.stringify({ ref: 'main', inputs: { command: cmd } }),
+      }
+    );
+    if (res.status === 204) {
+      toast(`${label} sent — truck takes 30-60s to respond`);
+    } else if (res.status === 401 || res.status === 403) {
+      toast('GitHub auth failed — check your token');
+    } else if (res.status === 404) {
+      toast('Workflow not found — has it been deployed yet?');
+    } else {
+      const txt = await res.text();
+      toast(`HTTP ${res.status}: ${txt.slice(0, 80)}`);
+    }
+  } catch (err) {
+    toast(`Error: ${err.message}`);
+  } finally {
+    btn.classList.remove('pending');
+    btn.textContent = prevText;
+    refreshCmdEnabled();
+  }
+}
+
+document.querySelectorAll('.cmd[data-cmd]').forEach(btn => {
+  btn.addEventListener('click', () => sendCommand(btn.dataset.cmd, btn));
 });
+
 document.getElementById('refresh').addEventListener('click', () => {
   load();
   toast('refreshed');
 });
+
+// ----- settings panel -----
+const panel = document.getElementById('settings');
+const patInput = document.getElementById('patInput');
+
+document.getElementById('settingsBtn').addEventListener('click', () => {
+  patInput.value = getPat();
+  panel.classList.add('show');
+});
+document.getElementById('patClose').addEventListener('click', () => {
+  panel.classList.remove('show');
+});
+document.getElementById('patSave').addEventListener('click', () => {
+  const v = patInput.value.trim();
+  if (!v) { toast('Token is empty'); return; }
+  setPat(v);
+  refreshCmdEnabled();
+  panel.classList.remove('show');
+  toast('Token saved');
+});
+document.getElementById('patClear').addEventListener('click', () => {
+  clearPat();
+  patInput.value = '';
+  refreshCmdEnabled();
+  toast('Token cleared');
+});
+
+refreshCmdEnabled();
 
 // ----- service worker -----
 if ('serviceWorker' in navigator) {
