@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a141a">
+<title>Garage · Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #0a141a;
+    --bg-2: #0d1a22;
+    --card: #0f1f29;
+    --card-2: #122530;
+    --line: rgba(255,255,255,0.06);
+    --line-2: rgba(86, 178, 200, 0.18);
+    --fg: #e8eef2;
+    --dim: #7a8b95;
+    --dim-2: #5a6b75;
+    --teal: #22d3ee;
+    --teal-deep: #0891b2;
+    --green: #4ade80;
+    --green-deep: #16a34a;
+    --yellow: #facc15;
+    --yellow-deep: #ca8a04;
+    --red: #f87171;
+  }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background:
+      radial-gradient(ellipse at 0% 0%, rgba(34, 211, 238, 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 100% 30%, rgba(74, 222, 128, 0.04) 0%, transparent 50%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--fg);
+    min-height: 100vh;
+    padding: max(env(safe-area-inset-top), 18px) 14px max(env(safe-area-inset-bottom), 100px);
+    max-width: 480px;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'tnum';
+  }
+
+  /* Top bar */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px 14px;
+  }
+  .vname {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .vname .y {
+    color: var(--teal);
+    font-weight: 500;
+    font-size: 13px;
+    margin-left: 4px;
+    letter-spacing: 0.04em;
+  }
+  .live {
+    font-size: 11px;
+    color: var(--green);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .live::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 14px 12px;
+  }
+  .card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .card-label {
+    font-size: 11px;
+    color: var(--dim);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card-label::before {
+    content: '◆';
+    font-size: 8px;
+    color: var(--teal);
+    opacity: 0.9;
+  }
+  .card-label.up::before { content: '▲'; color: var(--green); }
+  .card-label.add::before { content: '+'; color: var(--teal); font-size: 11px; }
+  .card-label.osc::before { content: '~'; color: var(--yellow); }
+
+  /* Hero row: 3 gauges side by side */
+  .gauge-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .gauge-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 8px 10px;
+    position: relative;
+    text-align: center;
+  }
+  .gauge-card .card-label {
+    font-size: 10px;
+    margin-bottom: 4px;
+    justify-content: center;
+    width: 100%;
+    display: flex;
+  }
+  .gauge-svg {
+    width: 100%;
+    aspect-ratio: 2 / 1.15;
+    display: block;
+    margin: 0 auto;
+  }
+  .gauge-value {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-top: -36px;
+    position: relative;
+    margin-bottom: 4px;
+  }
+  .gauge-value .u {
+    font-size: 11px;
+    color: var(--dim);
+    font-weight: 600;
+    margin-left: 2px;
+    vertical-align: top;
+    padding-top: 2px;
+    display: inline-block;
+    letter-spacing: 0;
+  }
+  .gauge-pill {
+    display: inline-block;
+    background: var(--yellow);
+    color: #1a1305;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+  }
+  .gauge-pill.green { background: var(--green); color: #052010; }
+  .gauge-pill.red { background: var(--red); color: #2a0508; }
+  .gauge-axis {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--dim-2);
+    margin-top: 6px;
+    padding: 0 4px;
+    font-weight: 600;
+  }
+  .reset-chip {
+    position: absolute;
+    top: 6px; right: 6px;
+    background: rgba(34, 211, 238, 0.12);
+    border: 1px solid rgba(34, 211, 238, 0.3);
+    color: var(--teal);
+    font-family: inherit;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 3px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .reset-chip:active { background: rgba(34, 211, 238, 0.22); }
+
+  /* Big stat cards row (Sales Today / MRR style) */
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .stat-value {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    margin: 4px 0 8px;
+  }
+  .stat-value .u {
+    font-size: 13px;
+    color: var(--dim);
+    font-weight: 600;
+    margin-left: 4px;
+    letter-spacing: 0;
+  }
+  .stat-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--green);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .stat-trend::before {
+    content: '▲';
+    font-size: 10px;
+  }
+  .stat-trend.amber {
+    color: var(--yellow);
+  }
+  .stat-trend.amber::before { content: '●'; font-size: 9px; }
+  .stat-sub {
+    font-size: 11px;
+    color: var(--dim);
+    font-weight: 500;
+    margin-left: 6px;
+  }
+
+  /* Mini sparkline range card */
+  .mini-gauge {
+    width: 80px; height: 50px;
+    margin: 6px auto 0;
+    display: block;
+  }
+  .mini-gauge-pill {
+    display: inline-block;
+    background: var(--yellow);
+    color: #1a1305;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-top: 4px;
+    letter-spacing: 0.04em;
+  }
+
+  /* Tire leaderboard */
+  .tires-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 14px 8px;
+    margin-bottom: 8px;
+  }
+  .tires-card .card-head { margin-bottom: 10px; }
+  .tire-row {
+    display: grid;
+    grid-template-columns: 14px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .tire-row:last-child { border-bottom: none; }
+  .tire-arrow.up { color: var(--green); }
+  .tire-arrow.eq { color: var(--dim-2); }
+  .tire-arrow.dn { color: var(--red); }
+  .tire-arrow {
+    font-size: 11px;
+    text-align: center;
+  }
+  .tire-name {
+    color: var(--fg);
+    font-weight: 500;
+  }
+  .tire-name span {
+    color: var(--dim);
+    font-size: 10px;
+    margin-left: 6px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .tire-psi {
+    font-weight: 700;
+    color: var(--fg);
+    letter-spacing: -0.01em;
+    font-feature-settings: 'tnum';
+  }
+  .tire-psi .u {
+    font-size: 10px;
+    color: var(--dim);
+    font-weight: 500;
+    margin-left: 2px;
+  }
+
+  /* Map card */
+  .map-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 14px 12px;
+    margin-bottom: 8px;
+  }
+  .map-frame {
+    height: 180px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 8px;
+    position: relative;
+    background: #000;
+  }
+  .map-frame iframe {
+    width: 100%; height: 100%;
+    border: 0;
+    filter: brightness(0.85) saturate(0.85);
+  }
+  .map-link {
+    position: absolute;
+    bottom: 10px; right: 10px;
+    background: var(--teal);
+    color: #03252a;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* Sticky commands */
+  .commands {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    padding: 10px 14px max(env(safe-area-inset-bottom), 14px);
+    background: linear-gradient(180deg, transparent 0%, rgba(10,20,26,0.92) 40%, var(--bg) 100%);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .cmd {
+    background: var(--card-2);
+    border: 1px solid var(--line-2);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 12px 0;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .cmd:active { background: #1a3340; transform: scale(0.97); }
+  .cmd-primary {
+    background: linear-gradient(135deg, var(--teal) 0%, var(--teal-deep) 100%);
+    border-color: rgba(34,211,238,0.6);
+    color: #03252a;
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <span class="vname">Ram 2500<span class="y">· 2022</span></span>
+    <span class="live">LIVE · 2M</span>
+  </div>
+
+  <!-- Three half-circle gauges -->
+  <div class="gauge-row">
+    <!-- Fuel: 43% of 100, target pill = 15% (low warning) -->
+    <div class="gauge-card">
+      <span class="card-label osc">Fuel</span>
+      <svg class="gauge-svg" viewBox="0 0 100 60">
+        <defs>
+          <linearGradient id="gFuel" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#facc15"/>
+            <stop offset="100%" stop-color="#fde047"/>
+          </linearGradient>
+        </defs>
+        <!-- track -->
+        <path d="M 8 50 A 42 42 0 0 1 92 50" fill="none" stroke="#1a3340" stroke-width="6" stroke-linecap="round"/>
+        <!-- fill 43% of 180° = 77° → arc length proportional -->
+        <!-- arc length total = π·42 = 132. 43% = 56.7 -->
+        <path d="M 8 50 A 42 42 0 0 1 92 50" fill="none" stroke="url(#gFuel)" stroke-width="6"
+              stroke-linecap="round" stroke-dasharray="56.7 132" pathLength="132"/>
+      </svg>
+      <div class="gauge-value">43<span class="u">%</span></div>
+      <span class="gauge-pill">15% LOW</span>
+      <div class="gauge-axis"><span>0</span><span>100</span></div>
+    </div>
+
+    <!-- Oil life: 5000mi remaining -->
+    <div class="gauge-card">
+      <button class="reset-chip" id="resetOil">Reset</button>
+      <span class="card-label up">Oil · 5K</span>
+      <svg class="gauge-svg" viewBox="0 0 100 60">
+        <defs>
+          <linearGradient id="gOil" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#16a34a"/>
+            <stop offset="100%" stop-color="#4ade80"/>
+          </linearGradient>
+        </defs>
+        <path d="M 8 50 A 42 42 0 0 1 92 50" fill="none" stroke="#1a3340" stroke-width="6" stroke-linecap="round"/>
+        <!-- 100% fill -->
+        <path d="M 8 50 A 42 42 0 0 1 92 50" fill="none" stroke="url(#gOil)" stroke-width="6"
+              stroke-linecap="round" stroke-dasharray="132 132" pathLength="132"/>
+      </svg>
+      <div class="gauge-value">5,000<span class="u">MI</span></div>
+      <span class="gauge-pill green">5,000 MI</span>
+      <div class="gauge-axis"><span>0</span><span>5K</span></div>
+    </div>
+
+    <!-- Battery: 13.7V on 12-14.4V scale -->
+    <div class="gauge-card">
+      <span class="card-label">Battery</span>
+      <svg class="gauge-svg" viewBox="0 0 100 60">
+        <defs>
+          <linearGradient id="gBatt" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#0891b2"/>
+            <stop offset="100%" stop-color="#22d3ee"/>
+          </linearGradient>
+        </defs>
+        <path d="M 8 50 A 42 42 0 0 1 92 50" fill="none" stroke="#1a3340" stroke-width="6" stroke-linecap="round"/>
+        <!-- (13.7-12)/(14.4-12) = 0.708 → 70.8% -->
+        <path d="M 8 50 A 42 42 0 0 1 92 50" fill="none" stroke="url(#gBatt)" stroke-width="6"
+              stroke-linecap="round" stroke-dasharray="93.5 132" pathLength="132"/>
+      </svg>
+      <div class="gauge-value">13.7<span class="u">V</span></div>
+      <span class="gauge-pill green">12.0 V</span>
+      <div class="gauge-axis"><span>12</span><span>14.4</span></div>
+    </div>
+  </div>
+
+  <!-- Stats row: Odometer + Range mini-gauge -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="card-head">
+        <span class="card-label add">Odometer</span>
+      </div>
+      <div class="stat-value">143,061<span class="u">MI</span></div>
+      <div>
+        <span class="stat-trend">17 mi</span>
+        <span class="stat-sub">since last poll</span>
+      </div>
+    </div>
+
+    <div class="stat-card" style="text-align:center;">
+      <div class="card-head" style="justify-content: flex-start;">
+        <span class="card-label osc">Range</span>
+      </div>
+      <svg class="mini-gauge" viewBox="0 0 100 60">
+        <path d="M 8 50 A 42 42 0 0 1 92 50" fill="none" stroke="#1a3340" stroke-width="6" stroke-linecap="round"/>
+        <path d="M 8 50 A 42 42 0 0 1 92 50" fill="none" stroke="#facc15" stroke-width="6"
+              stroke-linecap="round" stroke-dasharray="58 132" pathLength="132"/>
+      </svg>
+      <div style="font-size: 22px; font-weight: 800; letter-spacing: -0.025em; margin-top: -22px; line-height: 1;">175<span style="font-size:11px; color:var(--dim); font-weight:600; margin-left:2px; vertical-align:top; padding-top:2px; display:inline-block;">MI</span></div>
+      <div class="mini-gauge-pill" style="margin-top: 8px;">405 MI</div>
+    </div>
+  </div>
+
+  <!-- Tire pressure leaderboard -->
+  <div class="tires-card">
+    <div class="card-head">
+      <span class="card-label up">Tire Pressure</span>
+      <span style="font-size:10px;color:var(--dim);font-weight:600;letter-spacing:0.04em;">PSI</span>
+    </div>
+    <div class="tire-row">
+      <span class="tire-arrow up">▲</span>
+      <span class="tire-name">Front Left <span>FL</span></span>
+      <span class="tire-psi">69<span class="u">psi</span></span>
+    </div>
+    <div class="tire-row">
+      <span class="tire-arrow eq">▬</span>
+      <span class="tire-name">Front Right <span>FR</span></span>
+      <span class="tire-psi">68<span class="u">psi</span></span>
+    </div>
+    <div class="tire-row">
+      <span class="tire-arrow eq">▬</span>
+      <span class="tire-name">Rear Left <span>RL</span></span>
+      <span class="tire-psi">68<span class="u">psi</span></span>
+    </div>
+    <div class="tire-row">
+      <span class="tire-arrow dn">▼</span>
+      <span class="tire-name">Rear Right <span>RR</span></span>
+      <span class="tire-psi">67<span class="u">psi</span></span>
+    </div>
+  </div>
+
+  <!-- Map card -->
+  <div class="map-card">
+    <div class="card-head">
+      <span class="card-label">Position</span>
+      <span style="font-size:10px;color:var(--dim);font-weight:600;font-feature-settings:'tnum';">29.62° N · 95.53° W</span>
+    </div>
+    <div class="map-frame">
+      <iframe loading="lazy" src="https://maps.google.com/maps?q=29.620816,-95.527005&z=14&output=embed"></iframe>
+      <a class="map-link" target="_blank" href="https://www.google.com/maps?q=29.620816,-95.527005">Open</a>
+    </div>
+  </div>
+
+  <div class="commands">
+    <button class="cmd">Lock</button>
+    <button class="cmd">Unlock</button>
+    <button class="cmd cmd-primary">Start</button>
+  </div>
+</body>
+</html>
