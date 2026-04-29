@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Dashboard — design ideas</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, system-ui, sans-serif;
+    background: #0a0a0a;
+    color: #e8e8e8;
+    min-height: 100vh;
+    padding: max(env(safe-area-inset-top), 24px) 20px max(env(safe-area-inset-bottom), 24px);
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .sub {
+    color: #888;
+    font-size: 13px;
+    margin-bottom: 28px;
+  }
+  .opt {
+    display: block;
+    background: #161616;
+    border: 1px solid #262626;
+    border-radius: 14px;
+    padding: 18px 18px 16px;
+    margin-bottom: 12px;
+    text-decoration: none;
+    color: inherit;
+  }
+  .opt:active { background: #1c1c1c; }
+  .opt-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .opt-desc {
+    font-size: 13px;
+    color: #999;
+    line-height: 1.45;
+  }
+  .opt-meta {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    font-size: 10px;
+    color: #888;
+    background: #1f1f1f;
+    border: 1px solid #2c2c2c;
+    padding: 3px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .back {
+    display: inline-block;
+    margin-top: 24px;
+    color: #5b9eff;
+    font-size: 14px;
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+  <h1>Dashboard design ideas</h1>
+  <div class="sub">Three directions to flip through. Tap one.</div>
+
+  <a class="opt" href="1-minimal.html">
+    <div class="opt-title">1 · Minimal</div>
+    <div class="opt-desc">Pure black canvas, oversized numerals, single column, system fonts. Stripe/Linear/Apple-Watch energy. Restraint over decoration.</div>
+    <div class="opt-meta"><span class="tag">monochrome</span><span class="tag">tall scroll</span><span class="tag">no chrome</span></div>
+  </a>
+
+  <a class="opt" href="2-cluster.html">
+    <div class="opt-title">2 · Instrument cluster</div>
+    <div class="opt-desc">Automotive feel — SVG gauge dials for fuel and oil life, tach-style range, dark with chrome accents, Bebas/Orbitron numerals. Looks like a truck cluster.</div>
+    <div class="opt-meta"><span class="tag">gauges</span><span class="tag">automotive</span><span class="tag">dense info</span></div>
+  </a>
+
+  <a class="opt" href="3-mapfirst.html">
+    <div class="opt-title">3 · Map-first</div>
+    <div class="opt-desc">Google Map fills the top 60%. Glass tiles below, floating Lock/Unlock/Start buttons over the map. iOS-native vibe.</div>
+    <div class="opt-meta"><span class="tag">map hero</span><span class="tag">glass</span><span class="tag">FAB buttons</span></div>
+  </a>
+
+  <a class="back" href="../">← back to current dashboard</a>
+</body>
+</html>
