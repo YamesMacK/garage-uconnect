@@ -1,0 +1,54 @@
+{
+  "updated_at": "2026-04-29T01:58:10.120431+00:00",
+  "vehicles": [
+    {
+      "vin": "3C6UR5FJ6NG305274",
+      "nickname": null,
+      "year": "2022",
+      "make": "Ram",
+      "model": "2500",
+      "odometer_miles": 142990.5,
+      "range_miles": 247.9,
+      "distance_to_service_miles": null,
+      "days_to_service": null,
+      "fuel_low": false,
+      "fuel_level_percent": 65,
+      "battery_voltage": 13.6,
+      "ignition_on": null,
+      "trunk_locked": null,
+      "doors": {
+        "driver_locked": null,
+        "passenger_locked": null,
+        "rear_left_locked": null,
+        "rear_right_locked": null
+      },
+      "windows": {
+        "driver_closed": null,
+        "passenger_closed": null
+      },
+      "tires_psi": {
+        "front_left": 70.0,
+        "front_right": 70.0,
+        "rear_left": 69.0,
+        "rear_right": 69.0
+      },
+      "tire_warnings": {
+        "front_left": false,
+        "front_right": false,
+        "rear_left": false,
+        "rear_right": false
+      },
+      "location": {
+        "latitude": 30.396814,
+        "longitude": -95.555118,
+        "updated": "2026-04-28 17:18:16.379000-05:00"
+      },
+      "oil_change": {
+        "source": "vehicle",
+        "oil_life_percent": 63
+      },
+      "supported_commands": []
+    }
+  ],
+  "errors": []
+}

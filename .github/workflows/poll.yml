@@ -1,0 +1,66 @@
+name: Poll Ram & Deploy Dashboard
+
+on:
+  schedule:
+    # Every 30 minutes. Cron is UTC.
+    - cron: "*/30 * * * *"
+  workflow_dispatch:  # Manual trigger button in Actions tab
+  push:
+    branches: [main]
+
+# Required for GitHub Pages deploy
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# Don't run multiple polls in parallel
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Poll Stellantis API
+        env:
+          MOPAR_EMAIL: ${{ secrets.MOPAR_EMAIL }}
+          MOPAR_PASSWORD: ${{ secrets.MOPAR_PASSWORD }}
+          MOPAR_PIN: ${{ secrets.MOPAR_PIN }}
+        run: python scripts/poll.py
+
+      - name: Commit updated data.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dashboard/data.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update vehicle data [skip ci]"
+            git push
+          fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload dashboard artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dashboard
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
