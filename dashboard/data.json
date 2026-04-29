@@ -1,54 +1,43 @@
 {
-  "updated_at": "2026-04-29T17:46:32.968436+00:00",
+  "last_updated": "2026-04-29T19:15:16.496980+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
-      "nickname": null,
-      "year": "2022",
+      "year": "0",
       "make": "Ram",
       "model": "2500",
-      "odometer_miles": 143061.4,
-      "range_miles": 174.6,
-      "distance_to_service_miles": null,
-      "days_to_service": null,
+      "nickname": null,
+      "odometer_mi": 143061.4,
+      "range_mi": 174.6,
+      "fuel_pct": 43,
       "fuel_low": false,
-      "fuel_level_percent": 43,
-      "battery_voltage": 13.7,
-      "ignition_on": null,
-      "trunk_locked": null,
-      "doors": {
-        "driver_locked": null,
-        "passenger_locked": null,
-        "rear_left_locked": null,
-        "rear_right_locked": null
-      },
-      "windows": {
-        "driver_closed": null,
-        "passenger_closed": null
-      },
+      "battery_v": 13.7,
       "tires_psi": {
         "front_left": 69.0,
         "front_right": 68.0,
         "rear_left": 68.0,
         "rear_right": 67.0
       },
-      "tire_warnings": {
+      "tires_warning": {
         "front_left": false,
         "front_right": false,
         "rear_left": false,
         "rear_right": false
       },
       "location": {
-        "latitude": 29.620816,
-        "longitude": -95.527005,
-        "updated": "2026-04-29 14:32:21.051000+00:00"
+        "lat": 29.620816,
+        "lng": -95.527005,
+        "ts": "2026-04-29 09:32:21.051000-05:00",
+        "place": null
       },
-      "oil_change": {
-        "source": "vehicle",
-        "oil_life_percent": 62
-      },
-      "supported_commands": []
+      "oil": {
+        "interval_mi": 5000,
+        "baseline_mi": 143061,
+        "miles_since": 0,
+        "miles_to_next": 5000,
+        "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
+        "auto_anchored": true
+      }
     }
-  ],
-  "errors": []
+  ]
 }
