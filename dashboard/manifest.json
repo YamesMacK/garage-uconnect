@@ -1,13 +1,12 @@
 {
-  "name": "AJM Garage",
+  "name": "Garage",
   "short_name": "Garage",
-  "description": "Ram 2500 dashboard",
+  "description": "Personal vehicle telemetry — Ram 2500",
   "start_url": "./",
-  "scope": "./",
   "display": "standalone",
+  "background_color": "#0e1620",
+  "theme_color": "#0e1620",
   "orientation": "portrait",
-  "background_color": "#0A1620",
-  "theme_color": "#014F80",
   "icons": [
     {
       "src": "icon-192.png",
