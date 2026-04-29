@@ -1,691 +1,459 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#014F80" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Garage" />
-<link rel="manifest" href="manifest.json" />
-<link rel="apple-touch-icon" href="icon-192.png" />
-<title>Garage · Ram 2500</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0e1620">
+<title>Garage</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;600;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body {
+  min-height: 100vh;
+  font-family: 'Lora', serif;
+  color: #e8dcc4;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(240, 168, 80, 0.04), transparent 70%),
+    repeating-radial-gradient(circle at 26% 28%,
+      transparent, transparent 14px,
+      rgba(232, 220, 196, 0.10) 14px, rgba(232, 220, 196, 0.10) 15px),
+    repeating-radial-gradient(circle at 74% 68%,
+      transparent, transparent 11px,
+      rgba(232, 220, 196, 0.08) 11px, rgba(232, 220, 196, 0.08) 12px),
+    repeating-radial-gradient(circle at 50% 96%,
+      transparent, transparent 18px,
+      rgba(232, 220, 196, 0.06) 18px, rgba(232, 220, 196, 0.06) 19px),
+    linear-gradient(170deg, #0e1620 0%, #0a1015 100%);
+  background-attachment: fixed;
+}
+body {
+  padding: max(env(safe-area-inset-top), 20px) 16px max(env(safe-area-inset-bottom), 20px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 480px;
+  margin: 0 auto;
+}
 
-  :root {
-    --red: #C42027;
-    --red-deep: #8E1518;
-    --navy: #014F80;
-    --navy-deep: #002A45;
-    --navy-mid: #013A5E;
-    --bg: #0A1620;
-    --surface: #11202E;
-    --surface-2: #18293A;
-    --line: rgba(255, 255, 255, 0.08);
-    --line-strong: rgba(255, 255, 255, 0.16);
-    --ink: #F2F4F7;
-    --ink-dim: #9AA8B8;
-    --ink-faint: #5A6878;
-    --good: #34D399;
-    --warn: #FBBF24;
-    --bad: #F87171;
-    --display: 'Bebas Neue', 'Oswald', sans-serif;
-    --body: 'Manrope', system-ui, sans-serif;
-    --mono: 'JetBrains Mono', ui-monospace, monospace;
-  }
+/* ---- Header ---- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 4px 4px 12px;
+  border-bottom: 1.5px solid rgba(232, 220, 196, 0.18);
+}
+.title {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #e8dcc4;
+}
+.title em { font-style: normal; color: #f0a850; }
+.sync {
+  font-style: italic;
+  font-size: 12px;
+  color: #8a7d65;
+}
+.sync.stale { color: #d47842; }
 
-  *, *::before, *::after { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
-  body {
-    font-family: var(--body);
-    background: var(--bg);
-    color: var(--ink);
-    min-height: 100vh;
-    min-height: 100dvh;
-    -webkit-font-smoothing: antialiased;
-    background-image:
-      radial-gradient(circle at 15% 0%, rgba(196, 32, 39, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 85% 100%, rgba(1, 79, 128, 0.12) 0%, transparent 50%);
-  }
+/* ---- Bento ---- */
+.bento {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.tile {
+  background: rgba(232, 220, 196, 0.035);
+  border: 1px solid rgba(232, 220, 196, 0.14);
+  border-radius: 4px;
+  padding: 14px 14px 12px;
+  min-height: 86px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+.tile-wide { grid-column: span 2; }
 
-  .app {
-    max-width: 480px;
-    margin: 0 auto;
-    padding: max(env(safe-area-inset-top), 16px) 16px max(env(safe-area-inset-bottom), 24px);
-  }
+.tile-label {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8a7d65;
+}
+.tile-value {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 800;
+  font-size: 32px;
+  line-height: 1;
+  color: #e8dcc4;
+}
+.tile-value.small { font-size: 22px; }
+.unit {
+  font-size: 13px;
+  color: #8a7d65;
+  font-weight: 600;
+  margin-left: 3px;
+  letter-spacing: 0.05em;
+}
+.tile-sub {
+  font-style: italic;
+  font-size: 12px;
+  color: #8a7d65;
+}
+.tile-sub.warn { color: #d47842; font-style: normal; font-weight: 600; letter-spacing: 0.05em; }
+.accent { color: #f0a850; }
 
-  /* ─── Header ─────────────────────────────────────────── */
-  .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 4px 0 18px;
-    border-bottom: 1px solid var(--line);
-    margin-bottom: 18px;
-  }
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .brand-mark {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, var(--red) 0%, var(--red-deep) 100%);
-    display: grid;
-    place-items: center;
-    font-family: var(--display);
-    font-size: 18px;
-    letter-spacing: 0.5px;
-    color: white;
-    transform: skewX(-8deg);
-  }
-  .brand-mark span { transform: skewX(8deg); }
-  .brand-name {
-    font-family: var(--display);
-    font-size: 22px;
-    letter-spacing: 2px;
-    color: var(--ink);
-  }
-  .brand-name em {
-    color: var(--red);
-    font-style: normal;
-  }
-  .live-dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--good);
-    box-shadow: 0 0 8px var(--good);
-    margin-right: 6px;
-    animation: pulse 2s ease-in-out infinite;
-  }
-  .stale-dot {
-    background: var(--ink-faint);
-    box-shadow: none;
-    animation: none;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-  .timestamp {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--ink-dim);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
+.tires {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 14px;
+  margin-top: 6px;
+}
+.tire {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  color: #e8dcc4;
+}
+.tire.warn { color: #d47842; }
+.tire-pos {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-size: 10px;
+  color: #8a7d65;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+}
 
-  /* ─── Vehicle title ──────────────────────────────────── */
-  .v-head {
-    margin: 4px 0 24px;
-    position: relative;
-  }
-  .v-head::before {
-    content: '';
-    position: absolute;
-    left: -16px;
-    top: 50%;
-    width: 4px;
-    height: 70%;
-    background: var(--red);
-    transform: translateY(-50%);
-  }
-  .v-year {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--red);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 2px;
-  }
-  .v-name {
-    font-family: var(--display);
-    font-size: 36px;
-    letter-spacing: 1.5px;
-    line-height: 1;
-    color: var(--ink);
-  }
-  .v-vin {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--ink-faint);
-    margin-top: 6px;
-    letter-spacing: 1px;
-  }
+.bar {
+  height: 3px;
+  background: rgba(232, 220, 196, 0.10);
+  margin-top: 8px;
+  overflow: hidden;
+  border-radius: 1px;
+}
+.bar > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #c97a2b, #f0a850);
+  transition: width 0.4s;
+}
+.bar.warn > span { background: #d44a2b; }
 
-  /* ─── Hero: odometer + oil life ──────────────────────── */
-  .hero {
-    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
-    border-radius: 16px;
-    padding: 22px 20px 24px;
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 14px;
-    border: 1px solid var(--line-strong);
-  }
-  .hero::after {
-    content: '';
-    position: absolute;
-    right: -40px;
-    top: -40px;
-    width: 180px;
-    height: 180px;
-    background: radial-gradient(circle, rgba(196, 32, 39, 0.18) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .hero-label {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: rgba(255, 255, 255, 0.55);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 6px;
-  }
-  .hero-value {
-    font-family: var(--display);
-    font-size: 64px;
-    letter-spacing: 1px;
-    line-height: 0.95;
-    color: white;
-    margin: 0;
-  }
-  .hero-value .unit {
-    font-family: var(--body);
-    font-size: 16px;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.6);
-    letter-spacing: 0.5px;
-    margin-left: 6px;
-  }
-  .hero-sub {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.7);
-    margin-top: 8px;
-    font-weight: 500;
-  }
+.reset-pill {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  text-transform: uppercase;
+  border: 1px solid rgba(232, 220, 196, 0.25);
+  color: #8a7d65;
+  background: transparent;
+  padding: 3px 8px;
+  cursor: pointer;
+  border-radius: 100px;
+}
+.reset-pill:active { background: rgba(232, 220, 196, 0.08); }
 
-  .oil-bar-wrap { margin-top: 18px; }
-  .oil-bar-meta {
-    display: flex;
-    justify-content: space-between;
-    font-family: var(--mono);
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .oil-bar-meta strong { color: white; font-weight: 600; }
-  .oil-bar {
-    height: 8px;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  /* For oil LIFE remaining: green when high, red when low */
-  .oil-bar-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.6s ease;
-    background: var(--good);
-  }
-  .oil-bar-fill.warn { background: var(--warn); }
-  .oil-bar-fill.bad  { background: var(--bad); }
+/* ---- Commands ---- */
+.commands {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  margin-top: 4px;
+}
+.cmd {
+  background: rgba(232, 220, 196, 0.04);
+  border: 1px solid rgba(232, 220, 196, 0.18);
+  color: #e8dcc4;
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 14px 0;
+  cursor: pointer;
+  border-radius: 3px;
+}
+.cmd:active { background: rgba(232, 220, 196, 0.10); }
+.cmd-primary {
+  background: #c97a2b;
+  border-color: #d4884a;
+  color: #1a0f08;
+}
+.cmd-primary:active { background: #b66920; }
+.cmd[disabled] { opacity: 0.5; cursor: default; }
 
-  /* ─── Bento grid ─────────────────────────────────────── */
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 14px;
-  }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 14px 14px 16px;
-    position: relative;
-    overflow: hidden;
-  }
-  .card.full { grid-column: span 2; }
-  .card-label {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--ink-faint);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 4px;
-  }
-  .card-value {
-    font-family: var(--display);
-    font-size: 32px;
-    letter-spacing: 1px;
-    line-height: 1;
-    color: var(--ink);
-  }
-  .card-value .unit {
-    font-family: var(--body);
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--ink-dim);
-    margin-left: 4px;
-    letter-spacing: 0;
-  }
-  .card-sub {
-    font-size: 11px;
-    color: var(--ink-dim);
-    margin-top: 6px;
-    font-weight: 500;
-  }
-  .card.accent { border-top: 2px solid var(--red); }
-  .card-warn { color: var(--warn); }
-  .card-bad  { color: var(--bad); }
+/* ---- Footer / settings ---- */
+.foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 4px 0;
+  font-family: 'Lora', serif;
+  font-style: italic;
+  font-size: 11px;
+  color: #5a4f3e;
+}
+.foot button {
+  background: transparent;
+  border: none;
+  color: #8a7d65;
+  font-family: inherit;
+  font-style: italic;
+  font-size: 11px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 4px 0;
+}
 
-  /* Mini-bar inside cards (for fuel %) */
-  .mini-bar {
-    height: 4px;
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: 10px;
-  }
-  .mini-bar-fill {
-    height: 100%;
-    background: var(--good);
-    border-radius: 2px;
-    transition: width 0.5s ease;
-  }
-  .mini-bar-fill.warn { background: var(--warn); }
-  .mini-bar-fill.bad  { background: var(--bad); }
+/* ---- Toast ---- */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: #1a2230;
+  border: 1px solid rgba(232, 220, 196, 0.25);
+  color: #e8dcc4;
+  padding: 12px 18px;
+  border-radius: 4px;
+  font-family: 'Lora', serif;
+  font-size: 13px;
+  font-style: italic;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 100;
+  max-width: 320px;
+  text-align: center;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-  /* ─── Tire pressure 4-corner ─────────────────────────── */
-  .tires {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    grid-template-rows: auto auto;
-    gap: 14px 32px;
-    margin-top: 10px;
-    align-items: center;
-    justify-items: center;
-  }
-  .tire {
-    text-align: center;
-    font-family: var(--display);
-    font-size: 26px;
-    letter-spacing: 0.5px;
-    color: var(--ink);
-    line-height: 1;
-  }
-  .tire .lbl {
-    font-family: var(--mono);
-    font-size: 9px;
-    color: var(--ink-faint);
-    letter-spacing: 1.5px;
-    display: block;
-    margin-top: 4px;
-    font-weight: 400;
-  }
-  .tire.warn { color: var(--warn); }
-  .tire.bad { color: var(--bad); }
-  .truck-icon {
-    grid-row: 1 / 3;
-    grid-column: 2;
-    width: 40px;
-    height: 78px;
-    border: 1px solid var(--line-strong);
-    border-radius: 5px;
-    background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface) 100%);
-    position: relative;
-  }
-  .truck-icon::before {
-    /* cab */
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 6px;
-    transform: translateX(-50%);
-    width: 65%;
-    height: 22px;
-    background: var(--surface-2);
-    border-radius: 3px;
-    border: 1px solid var(--line);
-  }
-  .truck-icon::after {
-    content: 'RAM';
-    position: absolute;
-    left: 50%;
-    bottom: 8px;
-    transform: translateX(-50%);
-    font-family: var(--display);
-    font-size: 10px;
-    color: var(--red);
-    letter-spacing: 1.5px;
-  }
-
-  /* ─── Map card ───────────────────────────────────────── */
-  .map-card {
-    grid-column: span 2;
-    height: 200px;
-    padding: 0;
-    overflow: hidden;
-    position: relative;
-    border: 1px solid var(--line);
-  }
-  .map-card iframe {
-    width: 100%;
-    height: 100%;
-    border: 0;
-    filter: invert(1) hue-rotate(180deg) brightness(0.92) saturate(1.2);
-  }
-  .map-overlay {
-    position: absolute;
-    top: 10px;
-    left: 12px;
-    background: rgba(10, 22, 32, 0.85);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--line-strong);
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-family: var(--mono);
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--ink);
-    pointer-events: none;
-  }
-  .map-link {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    background: var(--red);
-    color: white;
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-family: var(--mono);
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    text-decoration: none;
-    font-weight: 600;
-  }
-  .map-empty {
-    height: 100%;
-    display: grid;
-    place-items: center;
-    color: var(--ink-faint);
-    font-family: var(--mono);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  /* ─── Footer ─────────────────────────────────────────── */
-  .footer {
-    margin-top: 24px;
-    padding-top: 16px;
-    border-top: 1px solid var(--line);
-    text-align: center;
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--ink-faint);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-  .footer .red-bar {
-    display: inline-block;
-    width: 24px;
-    height: 2px;
-    background: var(--red);
-    vertical-align: middle;
-    margin: 0 8px;
-  }
-
-  /* ─── Loading / error ────────────────────────────────── */
-  .loading {
-    text-align: center;
-    padding: 80px 20px;
-    color: var(--ink-dim);
-    font-family: var(--mono);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-  }
-  .loading::before {
-    content: '';
-    display: block;
-    width: 32px;
-    height: 32px;
-    border: 2px solid var(--line-strong);
-    border-top-color: var(--red);
-    border-radius: 50%;
-    margin: 0 auto 16px;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .error {
-    background: rgba(248, 113, 113, 0.08);
-    border: 1px solid rgba(248, 113, 113, 0.3);
-    border-radius: 12px;
-    padding: 16px;
-    color: var(--bad);
-    font-size: 13px;
-    margin: 20px 0;
-  }
-  .error strong { display: block; margin-bottom: 4px; }
+/* ---- Empty / loading ---- */
+.empty {
+  text-align: center;
+  padding: 40px 16px;
+  color: #5a4f3e;
+  font-style: italic;
+}
 </style>
 </head>
 <body>
-<div class="app" id="app">
-  <div class="loading">Loading garage&hellip;</div>
-</div>
+
+  <div class="header">
+    <div class="title" id="title">Garage <em>·</em> 2500</div>
+    <div class="sync" id="sync">loading…</div>
+  </div>
+
+  <div class="bento" id="bento">
+    <div class="empty" style="grid-column: span 2;">Awaiting first sync…</div>
+  </div>
+
+  <div class="commands">
+    <button class="cmd" data-cmd="lock">Lock</button>
+    <button class="cmd" data-cmd="unlock">Unlock</button>
+    <button class="cmd cmd-primary" data-cmd="start">Start</button>
+  </div>
+
+  <div class="foot">
+    <span id="vin">—</span>
+    <button id="refresh">refresh</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
 
 <script>
-const $app = document.getElementById('app');
+const OIL_INTERVAL = 5000;
 
-function timeAgo(iso) {
-  if (!iso) return '—';
-  const then = new Date(iso).getTime();
-  const now = Date.now();
-  const sec = Math.floor((now - then) / 1000);
-  if (sec < 60) return `${sec}s ago`;
-  if (sec < 3600) return `${Math.floor(sec / 60)}m ago`;
-  if (sec < 86400) return `${Math.floor(sec / 3600)}h ago`;
-  return `${Math.floor(sec / 86400)}d ago`;
+// ----- format helpers -----
+const fmtMi = (n) => n == null ? '—' : Math.round(n).toLocaleString('en-US');
+const fmtV  = (n) => n == null ? '—' : n.toFixed(1);
+
+function relTime(iso) {
+  if (!iso) return 'never';
+  const t = new Date(iso).getTime();
+  const diff = Date.now() - t;
+  const m = Math.round(diff / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m} min ago`;
+  const h = Math.round(m / 60);
+  if (h < 24) return `${h} hr ago`;
+  const d = Math.round(h / 24);
+  return `${d} day${d > 1 ? 's' : ''} ago`;
 }
 
-function isStale(iso, thresholdMin = 90) {
-  if (!iso) return true;
-  return (Date.now() - new Date(iso).getTime()) > thresholdMin * 60 * 1000;
+// ----- toast -----
+let toastTimer = null;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
 }
 
-function fmt(v, digits = 0) {
-  if (v == null) return '—';
-  return Number(v).toLocaleString('en-US', { maximumFractionDigits: digits });
-}
-
-function tireClass(v, warning) {
-  if (warning) return 'bad';
-  if (v == null) return '';
-  if (v < 30) return 'bad';
-  if (v < 50) return 'warn';
-  return '';
-}
-
-function fuelClass(pct) {
-  if (pct == null) return '';
-  if (pct < 15) return 'bad';
-  if (pct < 30) return 'warn';
-  return '';
-}
-
-function oilLifeClass(pct) {
-  if (pct == null) return '';
-  if (pct < 15) return 'bad';
-  if (pct < 30) return 'warn';
-  return '';
-}
-
+// ----- render -----
 function render(data) {
-  if (!data || !data.vehicles || data.vehicles.length === 0) {
-    $app.innerHTML = `<div class="error"><strong>No vehicles in data.json</strong>Run scripts/poll.py to populate it.</div>`;
+  if (!data || !data.vehicles || !data.vehicles.length) {
+    document.getElementById('bento').innerHTML =
+      '<div class="empty" style="grid-column: span 2;">No vehicles in data.json yet.</div>';
     return;
   }
 
-  const stale = isStale(data.updated_at);
   const v = data.vehicles[0];
+  document.getElementById('title').innerHTML =
+    `${v.nickname || 'Garage'} <em>·</em> ${v.year || ''}`;
+  document.getElementById('vin').textContent = v.vin || '—';
+
+  // Sync time + staleness
+  const sync = document.getElementById('sync');
+  const updated = data.last_updated || v.last_updated;
+  sync.textContent = `synced ${relTime(updated)}`;
+  const ageMin = updated ? (Date.now() - new Date(updated).getTime()) / 60000 : 999;
+  sync.classList.toggle('stale', ageMin > 90);
+
+  // Fuel bar pct + warn flag
+  const fuelPct = v.fuel_pct != null ? v.fuel_pct : 0;
+  const fuelWarn = !!v.fuel_low;
+
+  // Oil 5k math
+  const oil = v.oil || {};
+  const milesToNext = oil.miles_to_next != null ? oil.miles_to_next : OIL_INTERVAL;
+  const milesSince  = oil.miles_since  != null ? oil.miles_since  : 0;
+  const oilPctUsed  = Math.min(100, (milesSince / OIL_INTERVAL) * 100);
+  const oilOverdue  = milesToNext <= 0;
+  const oilSoon     = milesToNext > 0 && milesToNext < 500;
+
+  // Tires
   const t = v.tires_psi || {};
-  const tw = v.tire_warnings || {};
-
-  // Oil life — direct from truck (or fallback baseline calc)
-  const oilHTML = (() => {
-    if (!v.oil_change) {
-      return `
-        <div class="oil-bar-wrap">
-          <div class="oil-bar-meta"><span>Oil life · <strong>NOT REPORTED</strong></span></div>
-          <div class="oil-bar"><div class="oil-bar-fill" style="width:0%"></div></div>
-        </div>`;
-    }
-    const pct = v.oil_change.oil_life_percent;
-    const cls = oilLifeClass(pct);
-    const sourceLabel = v.oil_change.source === 'vehicle'
-      ? 'Reported by truck'
-      : `${fmt(v.oil_change.miles_until_due)} mi until due`;
-    return `
-      <div class="oil-bar-wrap">
-        <div class="oil-bar-meta">
-          <span>Oil life · <strong>${pct}%</strong> remaining</span>
-          <span>${sourceLabel}</span>
-        </div>
-        <div class="oil-bar"><div class="oil-bar-fill ${cls}" style="width:${pct}%"></div></div>
-      </div>`;
-  })();
-
-  // Map (OSM iframe); transparent on localhost, works on real domains
-  const loc = v.location;
-  const mapHTML = (loc && loc.latitude && loc.longitude) ? `
-    <div class="card map-card">
-      <iframe loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=${loc.longitude - 0.005}%2C${loc.latitude - 0.003}%2C${loc.longitude + 0.005}%2C${loc.latitude + 0.003}&layer=mapnik&marker=${loc.latitude}%2C${loc.longitude}"></iframe>
-      <div class="map-overlay">📍 ${loc.latitude.toFixed(4)}, ${loc.longitude.toFixed(4)}</div>
-      <a class="map-link" target="_blank" rel="noopener" href="https://www.google.com/maps?q=${loc.latitude},${loc.longitude}">Open</a>
-    </div>` : `
-    <div class="card map-card"><div class="map-empty">No location data</div></div>`;
-
-  const tireBox = (val, warn, label) => {
-    const cls = tireClass(val, warn);
-    return `<div class="tire ${cls}">${val != null ? val.toFixed(0) : '—'}<span class="lbl">${label}</span></div>`;
+  const tw = v.tires_warning || {};
+  const tireRow = (pos, label) => {
+    const psi = t[pos];
+    const warn = tw[pos];
+    return `<div class="tire${warn ? ' warn' : ''}">
+      <span class="tire-pos">${label}</span>
+      <span>${psi != null ? Math.round(psi) : '—'}</span>
+    </div>`;
   };
 
-  const fuelPct = v.fuel_level_percent;
-  const fuelCls = fuelClass(fuelPct);
-  const battV = v.battery_voltage;
-  const battCls = battV != null && battV < 12.4 ? 'card-bad' : '';
+  // Location
+  const loc = v.location || {};
+  const hasLoc = loc.lat != null && loc.lng != null;
+  const placeText = loc.place || (hasLoc ? 'GPS lock' : 'No fix');
+  const coordText = hasLoc
+    ? `N ${loc.lat.toFixed(3)}°  ·  W ${Math.abs(loc.lng).toFixed(3)}°`
+    : '—';
 
-  $app.innerHTML = `
-    <div class="topbar">
-      <div class="brand">
-        <div class="brand-mark"><span>AJM</span></div>
-        <div class="brand-name">GARA<em>G</em>E</div>
+  document.getElementById('bento').innerHTML = `
+    <div class="tile tile-wide">
+      <div class="tile-label">Odometer</div>
+      <div class="tile-value">${fmtMi(v.odometer_mi)}<span class="unit">MI</span></div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-label">Range</div>
+      <div class="tile-value">${fmtMi(v.range_mi)}<span class="unit">MI</span></div>
+      <div class="tile-sub${fuelWarn ? ' warn' : ''}">Fuel — ${fuelPct}%${fuelWarn ? ' · low' : ''}</div>
+      <div class="bar${fuelWarn ? ' warn' : ''}"><span style="width:${fuelPct}%"></span></div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-label">Oil · 5k</div>
+      <div class="tile-value ${oilOverdue ? '' : 'accent'}" style="${oilOverdue ? 'color:#d44a2b' : ''}">
+        ${oilOverdue ? 'DUE' : fmtMi(milesToNext)}<span class="unit">${oilOverdue ? '' : 'MI'}</span>
       </div>
-      <div class="timestamp">
-        <span class="live-dot ${stale ? 'stale-dot' : ''}"></span>
-        ${stale ? 'STALE' : 'LIVE'} · ${timeAgo(data.updated_at)}
+      <div class="tile-sub${oilOverdue || oilSoon ? ' warn' : ''}">
+        ${oilOverdue ? `${fmtMi(-milesToNext)} mi past due` : oilSoon ? 'change soon' : 'to next change'}
+      </div>
+      <button class="reset-pill" id="resetOil">Reset</button>
+    </div>
+
+    <div class="tile">
+      <div class="tile-label">Battery</div>
+      <div class="tile-value">${fmtV(v.battery_v)}<span class="unit">V</span></div>
+      <div class="tile-sub">${v.battery_v == null ? '—' : v.battery_v < 12.4 ? 'low' : 'healthy'}</div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-label">Tire PSI</div>
+      <div class="tires">
+        ${tireRow('front_left',  'FL')}
+        ${tireRow('front_right', 'FR')}
+        ${tireRow('rear_left',   'RL')}
+        ${tireRow('rear_right',  'RR')}
       </div>
     </div>
 
-    <div class="v-head">
-      <div class="v-year">${v.year}</div>
-      <div class="v-name">${(v.make || '').toUpperCase()} ${(v.model || '').toUpperCase()}</div>
-      <div class="v-vin">VIN ${v.vin}</div>
-    </div>
-
-    <!-- Hero: odometer + oil life bar -->
-    <div class="hero">
-      <div class="hero-label">Odometer</div>
-      <div class="hero-value">${fmt(v.odometer_miles)}<span class="unit">mi</span></div>
-      ${v.distance_to_service_miles != null
-        ? `<div class="hero-sub">${fmt(v.distance_to_service_miles)} mi to next dealer service${v.days_to_service != null ? ` · ${v.days_to_service} days` : ''}</div>`
-        : ''}
-      ${oilHTML}
-    </div>
-
-    <!-- Bento grid -->
-    <div class="grid">
-      <div class="card accent">
-        <div class="card-label"><span>Range</span></div>
-        <div class="card-value ${v.fuel_low ? 'card-bad' : ''}">${fmt(v.range_miles)}<span class="unit">mi</span></div>
-        ${v.fuel_low ? '<div class="card-sub card-bad">⚠ Fuel low</div>' : ''}
-      </div>
-
-      <div class="card">
-        <div class="card-label"><span>Fuel</span></div>
-        <div class="card-value ${fuelCls === 'bad' ? 'card-bad' : fuelCls === 'warn' ? 'card-warn' : ''}">${fuelPct != null ? fuelPct : '—'}<span class="unit">%</span></div>
-        <div class="mini-bar"><div class="mini-bar-fill ${fuelCls}" style="width:${fuelPct || 0}%"></div></div>
-      </div>
-
-      <div class="card">
-        <div class="card-label"><span>Battery</span></div>
-        <div class="card-value ${battCls}">${battV != null ? battV.toFixed(1) : '—'}<span class="unit">V</span></div>
-        <div class="card-sub">${battV == null ? '—' : battV < 12.0 ? '⚠ Critical' : battV < 12.4 ? '⚠ Low' : 'Healthy'}</div>
-      </div>
-
-      <div class="card">
-        <div class="card-label"><span>Oil Life</span></div>
-        <div class="card-value ${v.oil_change && oilLifeClass(v.oil_change.oil_life_percent)}">${v.oil_change ? v.oil_change.oil_life_percent : '—'}<span class="unit">%</span></div>
-        <div class="card-sub">${v.oil_change ? (v.oil_change.source === 'vehicle' ? 'From truck' : 'Calculated') : 'Not reported'}</div>
-      </div>
-
-      <div class="card full">
-        <div class="card-label"><span>Tire Pressure</span><span style="color:var(--ink-faint)">PSI</span></div>
-        <div class="tires">
-          ${tireBox(t.front_left, tw.front_left, 'FL')}
-          <div class="truck-icon"></div>
-          ${tireBox(t.front_right, tw.front_right, 'FR')}
-          ${tireBox(t.rear_left, tw.rear_left, 'RL')}
-          ${tireBox(t.rear_right, tw.rear_right, 'RR')}
-        </div>
-      </div>
-
-      ${mapHTML}
-    </div>
-
-    <div class="footer">
-      AJM Framers <span class="red-bar"></span> Garage v2
+    <div class="tile tile-wide">
+      <div class="tile-label">Position</div>
+      <div class="tile-value small">${placeText.toUpperCase()}</div>
+      <div class="tile-sub">${coordText}</div>
     </div>
   `;
-}
 
-async function load() {
-  try {
-    const r = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const data = await r.json();
-    render(data);
-  } catch (err) {
-    $app.innerHTML = `
-      <div class="error">
-        <strong>Couldn't load data.json</strong>
-        ${err.message}<br><br>
-        Make sure scripts/poll.py has run successfully and committed dashboard/data.json.
-      </div>`;
+  // wire up reset (Phase 2 will replace this)
+  const reset = document.getElementById('resetOil');
+  if (reset) {
+    reset.addEventListener('click', () => {
+      toast('Reset wiring ships in Phase 2 (with command auth)');
+    });
   }
 }
 
-load();
-setInterval(load, 5 * 60 * 1000);
+// ----- fetch -----
+async function load() {
+  try {
+    const res = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    render(data);
+  } catch (err) {
+    document.getElementById('bento').innerHTML =
+      `<div class="empty" style="grid-column: span 2;">Couldn't load data.json<br><span style="font-size:11px">${err.message}</span></div>`;
+    document.getElementById('sync').textContent = 'sync error';
+    document.getElementById('sync').classList.add('stale');
+  }
+}
 
+// ----- buttons (Phase 1: placeholder) -----
+document.querySelectorAll('.cmd[data-cmd]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    toast(`${btn.dataset.cmd} — Phase 2 wires this up`);
+  });
+});
+document.getElementById('refresh').addEventListener('click', () => {
+  load();
+  toast('refreshed');
+});
+
+// ----- service worker -----
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
+
+load();
+// auto-refresh on tab focus
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') load();
+});
 </script>
 </body>
 </html>
