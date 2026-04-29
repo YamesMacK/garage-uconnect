@@ -1,0 +1,50 @@
+name: Send vehicle command
+
+# Triggered manually (or via the GitHub API from the PWA) to send a remote
+# command to the Ram via py-uconnect. Lock / unlock / remote start, etc.
+
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: "Command to send to the truck"
+        type: choice
+        required: true
+        options:
+          - lock
+          - unlock
+          - engine_on
+          - engine_off
+          - lights_horn
+          - refresh_location
+
+permissions:
+  contents: read
+
+# Don't fire two commands at once — they can confuse the truck modem.
+concurrency:
+  group: vehicle-command
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Send command
+        env:
+          MOPAR_EMAIL: ${{ secrets.MOPAR_EMAIL }}
+          MOPAR_PASSWORD: ${{ secrets.MOPAR_PASSWORD }}
+          MOPAR_PIN: ${{ secrets.MOPAR_PIN }}
+        run: python scripts/send_command.py "${{ inputs.command }}"

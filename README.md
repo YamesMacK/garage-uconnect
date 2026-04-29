@@ -1,8 +1,8 @@
 # Garage — Ram 2500 Dashboard
 
-iPhone PWA dashboard for the 2022 Ram 2500. Polls Stellantis cloud directly via
-[`py-uconnect`](https://github.com/hass-uconnect/py-uconnect). Runs on free
-GitHub Actions + free GitHub Pages.
+Personal iPhone PWA dashboard for the 2022 Ram 2500. Polls the Stellantis cloud
+directly via [`py-uconnect`](https://github.com/hass-uconnect/py-uconnect). Runs
+on free GitHub Actions + free GitHub Pages. Not affiliated with any employer.
 
 ```
 [Stellantis cloud]  ←── login (Mopar email/password/PIN)
@@ -14,176 +14,176 @@ GitHub Actions + free GitHub Pages.
 [GitHub Pages serves the PWA from /dashboard]
         ↓
 [iPhone home screen icon → reads data.json]
+        ↓
+[lock / unlock / start buttons → workflow_dispatch → send_command.py]
 ```
 
-## What this version reports for your specific Ram
-
-Confirmed working from your test_connection output:
+## What this Ram reports
 
 | Metric | Status | Notes |
 |---|---|---|
-| Odometer | ✅ | 142,990 mi at last check |
-| Range to empty | ✅ | 248 mi |
-| Fuel level % | ✅ | 65% |
-| Fuel low warning | ✅ | Boolean flag from truck |
-| **Oil life %** | ✅ | **63% — direct from truck**, no baseline math needed |
-| Battery voltage | ✅ | 13.6V |
-| Tire pressure (all 4) | ✅ | Auto-converted kPa → PSI |
+| Odometer | ✅ | km from API → mi |
+| Range to empty | ✅ | km → mi |
+| Fuel level % | ✅ | |
+| Fuel low warning | ✅ | Boolean from truck |
+| Battery voltage | ✅ | |
+| Tire pressure (all 4) | ✅ | kPa → PSI |
 | Tire warnings | ✅ | Per-corner boolean |
-| GPS location | ✅ | Lat/lng + last-updated timestamp |
-| Door lock state | ❌ | Not reported by your truck |
+| GPS location | ✅ | Lat/lng + timestamp |
+| Door lock state | ❌ | Not reported by this truck |
 | Window state | ❌ | Not reported |
 | Ignition state | ❌ | Not reported |
-| Days/miles to dealer service | ❌ | Truck reports null |
+| Days/miles to dealer service | ❌ | Reports null |
 
-Your Mopar account also has a **2023 Dodge Challenger** that returns HTTP 502
-on every status call. It's been added to the allowlist as **excluded** — poll.py
-skips it automatically. If you ever fix whatever's causing that 502 (modem
-asleep, expired subscription, etc.), add its VIN to `ALLOWED_VINS` in
-`scripts/poll.py` to include it.
+The Mopar account also has a 2023 Dodge Challenger that returns HTTP 502 on
+every status call. It's filtered out by the VIN allowlist in `scripts/poll.py`.
+
+## Oil change tracking — 5,000 mi baseline
+
+The dashboard ignores the truck's reported oil-life percentage and uses a
+fixed **5,000 mile** interval against a baseline odometer reading stored in
+`dashboard/oil_baseline.json`.
+
+- On the first poll for a new VIN, the baseline auto-anchors to the current
+  odometer. The dashboard will read "5,000 mi to next change" until you drive.
+- After your next oil change, run `scripts/reset_oil_baseline.py` (or hit the
+  Reset pill on the dashboard once that's wired) to anchor the baseline to
+  the odometer reading at the moment of the change.
+- The "Oil · 5k" tile shows miles remaining; turns red and reads "DUE" once
+  past 5,000 mi since the baseline.
+
+## Remote commands from the dashboard
+
+The Lock / Unlock / Start buttons fire a `workflow_dispatch` against
+[`.github/workflows/command.yml`](.github/workflows/command.yml), which runs
+`scripts/send_command.py` on a GitHub-hosted runner with the Mopar secrets.
+
+### One-time setup
+
+Because the dashboard is a static PWA in a public repo, the GitHub API call
+needs a token. The token lives in your iPhone's `localStorage` only — never
+committed to the repo.
+
+1. Visit https://github.com/settings/personal-access-tokens/new
+2. Choose **Fine-grained personal access token**
+3. Resource owner: your account · Repository access: **Only select repositories**
+   → `YamesMacK/garage-uconnect`
+4. Repository permissions → **Actions: Read and write** (everything else: No access)
+5. Set an expiration (90 days is fine; you can rotate)
+6. Generate, copy the token (`github_pat_…`)
+7. Open the dashboard on your phone → **settings** in the footer → paste → Save
+
+The token is now stored on that device only. Clear it from the same panel.
+
+### What each button does
+
+| Button | py-uconnect command | Notes |
+|---|---|---|
+| Lock | `COMMAND_DOORS_LOCK` | |
+| Unlock | `COMMAND_DOORS_UNLOCK` | |
+| Start | `COMMAND_ENGINE_ON` | Remote-start; truck runs ~10 min |
+
+Each command takes 30–60s end to end (GitHub Actions cold-start ~20s,
+Stellantis acks the truck ~10–30s). The button shows a pending state until
+the dispatch returns.
+
+You can also fire commands from your PC — see the script at
+`scripts/send_command.py`.
 
 ## Setup checklist
 
-### 1. Create the GitHub repository
-
-```powershell
-cd C:\Users\JamesMacKinnon\Desktop\garage-uconnect
-
-# Create empty repo on github.com first (private recommended), then:
-git init
-git add .
-git commit -m "Initial garage dashboard"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/garage-uconnect.git
-git push -u origin main
-```
-
-### 2. Add Mopar credentials as GitHub Secrets
+### 1. Mopar credentials → GitHub Secrets
 
 Repo → Settings → Secrets and variables → Actions → New repository secret.
 
-| Secret name | Value |
+| Secret | Value |
 |---|---|
-| `MOPAR_EMAIL` | Your Mopar account email |
-| `MOPAR_PASSWORD` | Your Mopar account password |
-| `MOPAR_PIN` | Your 4-digit Mopar PIN |
+| `MOPAR_EMAIL` | Mopar account email |
+| `MOPAR_PASSWORD` | Mopar account password |
+| `MOPAR_PIN` | 4-digit Mopar PIN |
 
-### 3. Enable GitHub Pages
+### 2. Enable GitHub Pages
 
-Repo → Settings → Pages → Source: **GitHub Actions** (not "Deploy from branch").
+Repo → Settings → Pages → Source: **GitHub Actions**.
 
-### 4. Push and watch the first run
+### 3. Watch the first poll run
 
-```powershell
-git push
-```
+Actions tab → "Poll Ram & Deploy Dashboard" runs every 30 min. First run
+takes ~90 seconds. Dashboard URL appears at Settings → Pages.
 
-Go to the **Actions** tab. Watch "Poll Ram & Deploy Dashboard" run. First run
-typically takes ~90 seconds. When it succeeds, your dashboard URL appears at
-Settings → Pages.
+### 4. Install on iPhone
 
-### 5. Install on iPhone
-
-1. Open the URL in **Safari** (not Chrome — only Safari can install PWAs)
-2. Share button → Add to Home Screen
-3. Done — tap the home screen icon and it opens fullscreen like a native app
+1. Open the URL in **Safari** (Chrome can't install PWAs)
+2. Share → Add to Home Screen
+3. Tap the icon — opens fullscreen like a native app
 
 ## File map
 
 ```
 garage-uconnect/
 ├─ scripts/
-│  ├─ poll.py                  # Main polling script (runs in CI)
-│  ├─ test_connection.py       # One-off diagnostic — already verified working
-│  ├─ reset_oil_baseline.py    # Optional, only needed if truck stops reporting oil life
-│  └─ send_command.py          # CLI: lock/unlock/start the truck remotely
+│  ├─ poll.py                  # Polling script (CI). 5k oil tracker lives here.
+│  ├─ test_connection.py       # One-off diagnostic
+│  ├─ reset_oil_baseline.py    # Re-anchor oil baseline after a change
+│  └─ send_command.py          # CLI: lock/unlock/start (also runs in CI)
 ├─ dashboard/
 │  ├─ index.html               # The PWA (single file, embedded CSS/JS)
-│  ├─ manifest.json            # PWA install metadata
-│  ├─ sw.js                    # Service worker for offline cache
-│  ├─ icon-192.png             # PWA icon (small)
-│  ├─ icon-512.png             # PWA icon (large)
+│  ├─ manifest.json
+│  ├─ sw.js                    # Service worker (cached shell, live data.json)
+│  ├─ icon-192.png · icon-512.png
 │  ├─ data.json                # ← Updated by poll.py every 30 min
-│  └─ oil_baseline.json        # ← Optional fallback for oil tracking
+│  └─ oil_baseline.json        # Per-VIN baseline odometer for 5k tracker
 ├─ .github/workflows/
-│  └─ poll.yml                 # Cron schedule + Pages deploy
-├─ requirements.txt            # Just py-uconnect
-├─ .env.example                # Template for local dev
+│  ├─ poll.yml                 # Cron + Pages deploy
+│  └─ command.yml              # workflow_dispatch for lock/unlock/start
+├─ requirements.txt
+├─ .env.example
 ├─ .gitignore
-└─ README.md                   # This file
-```
-
-## Remote commands
-
-`send_command.py` lets you lock/unlock and remote-start from your PC. Same
-data path the iPhone Mopar app uses.
-
-```powershell
-$env:MOPAR_EMAIL = "you@example.com"
-$env:MOPAR_PASSWORD = "your_password"
-$env:MOPAR_PIN = "1234"
-
-python scripts\send_command.py lock
-python scripts\send_command.py unlock
-python scripts\send_command.py engine_on
-python scripts\send_command.py engine_off
-python scripts\send_command.py lights_horn       # honk + flash
-python scripts\send_command.py refresh_location  # force GPS refresh
+└─ README.md
 ```
 
 ## VIN allowlist
 
-`poll.py`, `reset_oil_baseline.py`, and `send_command.py` all reference your
-Ram's VIN explicitly. If you ever swap trucks or want to add more vehicles,
-edit `ALLOWED_VINS` near the top of `poll.py` (and `reset_oil_baseline.py`)
-and `TARGET_VIN` in `send_command.py`.
-
-The allowlist also keeps the Challenger from breaking the poll. If you
-ever sort out whatever's wrong with the Challenger (502 error on every
-status call), add its VIN to the allowlist and the dashboard frontend will
-need a small update to handle multi-vehicle layout.
+`poll.py`, `reset_oil_baseline.py`, and `send_command.py` reference the Ram's
+VIN explicitly. To add a vehicle, edit `ALLOWED_VINS` in `poll.py` /
+`reset_oil_baseline.py` and `TARGET_VIN` in `send_command.py`. The dashboard
+frontend currently renders only `data.vehicles[0]` — multi-vehicle support
+needs a small layout change.
 
 ## Troubleshooting
 
-**Dashboard shows "STALE"**
-- Check the Actions tab — did the latest run succeed?
-- A poll fails when py-uconnect's auth fails or the API returns an error.
-  Click the failed run to see the exact error.
-- "Stale" means data.json is more than 90 minutes old. Cron runs every 30m
-  so you should always be <30m fresh.
+**Dashboard shows "STALE"** — Check the Actions tab for the latest poll run.
+"STALE" means data.json is older than 90 minutes; cron runs every 30m so
+you should always be < 30m fresh.
 
-**`Authentication failed` in Actions**
-- Confirm the three secrets (`MOPAR_EMAIL`, `MOPAR_PASSWORD`, `MOPAR_PIN`)
-  exist at Settings → Secrets and variables → Actions
-- Re-create them if unsure — secrets can't be viewed after creation
-- Mopar can rate-limit if py-uconnect retries too fast. Wait 15 minutes.
+**Authentication failed in Actions** — Re-create the three Mopar secrets at
+Settings → Secrets and variables → Actions.
 
-**HTTP 502 on the Challenger**
-- Already filtered out by the VIN allowlist. Ignore.
-- If you want the Challenger to work, the underlying issue is likely:
-  - Connected services subscription expired (check Mopar account)
-  - Modem hasn't connected in a while (drive it 10 min, try again)
-  - The car was deactivated from the account at some point
+**Lock/Unlock/Start does nothing** — Open the in-app settings panel and
+verify the GitHub PAT is set. If it is, check the Actions tab for the latest
+"Send vehicle command" run; py-uconnect's auth or the truck modem may be
+the actual blocker.
 
-**Tire pressures look wrong**
-- Should be 65-80 PSI for a 2500. If you see ~30, the conversion broke.
-  Check `test_output.json` to see the raw `pressure.unit` field — if it's
-  not `kPa`, edit `normalize_pressure()` in poll.py.
+**HTTP 502 on the Challenger** — Filtered out by the VIN allowlist. Likely
+expired connected services subscription or a sleeping modem.
 
-**Stale GPS location**
-- Location updates only when the truck wakes up. To force a fresh reading:
-  `python scripts\send_command.py refresh_location`
+**Tire pressures wrong** — Should be 65–80 PSI for a 2500. If you see ~30,
+the kPa → PSI conversion broke. Check the raw `unit` field in the API
+response and adjust `normalize_pressure()` in `poll.py`.
 
-## Risks / honest caveats
+**Stale GPS** — The truck only updates location when it wakes up. To force:
+`python scripts/send_command.py refresh_location` (or wire it to a button).
 
-- **py-uconnect is reverse-engineered.** Stellantis could break it any time.
-  Maintainers are responsive (last release Mar 2026, 28 versions shipped),
-  but a 1-2 week outage if Mopar changes auth is plausible.
+## Caveats
+
+- **py-uconnect is reverse-engineered.** Stellantis can break it any time.
 - **Mopar password sits in GitHub Secrets.** Encrypted at rest, never logged,
-  but it's a credential. If that bothers you, run poll.py via Windows Task
-  Scheduler on your home PC instead and skip GitHub Actions.
-- **GitHub Pages exposes data.json publicly.** The URL is unguessable but
-  discoverable if your repo is public. Recommend making the **repo private**
-  (GitHub Pages still works for private repos on Pro, $4/mo).
-- **No real-time updates.** Cron runs every 30 minutes. If you need live
-  data, open the Mopar app — that's what they built.
+  but it is a credential. Rotate periodically.
+- **Public repo, public Pages.** The URL is unguessable but discoverable.
+  Anyone with it can read VIN, odometer, GPS, fuel/oil/battery state.
+  They cannot send commands without a PAT scoped to this repo.
+- **PAT lives in iPhone localStorage.** If the device is compromised, the
+  attacker can fire workflow_dispatch on this repo. Revoke the token at
+  https://github.com/settings/tokens to kill it instantly.
+- **No real-time data.** Cron runs every 30 minutes. For live data, use
+  the Mopar app.
