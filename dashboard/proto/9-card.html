@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a141a">
+<title>Garage · Lake Conroe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600;1,700&family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #08121a;
+    --bg-2: #0a141c;
+    --card: #0e1c24;
+    --card-2: #0a1620;
+    --tile: rgba(232, 220, 196, 0.025);
+    --tile-2: rgba(232, 220, 196, 0.04);
+    --line: rgba(232, 220, 196, 0.08);
+    --line-2: rgba(232, 220, 196, 0.14);
+    --cream: #e8d8b4;
+    --cream-2: #f4e6c4;
+    --dim: #8a7d65;
+    --dim-2: #5a4f3e;
+    --amber: #d68a3a;
+    --amber-2: #f0a850;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'Inter', system-ui, sans-serif;
+  }
+  body {
+    font-family: var(--sans);
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(214, 138, 58, 0.04) 0%, transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--cream);
+    min-height: 100vh;
+    padding: max(env(safe-area-inset-top), 30px) 18px max(env(safe-area-inset-bottom), 30px);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* The whole dashboard is one big card */
+  .card {
+    max-width: 380px;
+    margin: 0 auto;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(214, 138, 58, 0.05) 0%, transparent 55%),
+      linear-gradient(170deg, #112028 0%, #0a141a 70%, #08121a 100%);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 26px 22px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 16px;
+  }
+  .title {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1;
+    color: var(--cream-2);
+  }
+  .title .sep {
+    color: var(--amber);
+    margin: 0 4px;
+    font-style: italic;
+    font-weight: 500;
+  }
+  .sync {
+    font-family: var(--sans);
+    font-size: 9.5px;
+    font-weight: 600;
+    color: var(--dim);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* Grid of tiles */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .tile {
+    background: var(--tile);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 14px 13px;
+    position: relative;
+    overflow: hidden;
+  }
+  .tile-wide { grid-column: span 2; }
+  .tile-label {
+    font-family: var(--sans);
+    font-size: 10px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.20em;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .tile-value {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--cream-2);
+    letter-spacing: -0.005em;
+  }
+  .tile-value.amber { color: var(--amber-2); }
+  .tile-value .u {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--dim);
+    font-weight: 500;
+    letter-spacing: 0;
+    margin-left: 3px;
+    vertical-align: top;
+    padding-top: 7px;
+    display: inline-block;
+    font-style: normal;
+  }
+  .tile-value.small { font-size: 26px; }
+  .tile-value.small .u { padding-top: 4px; }
+  .tile-sub {
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--dim);
+    margin-top: 8px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .tile-sub.warn {
+    color: var(--amber);
+    font-weight: 600;
+  }
+
+  /* Fuel bar inside Range tile */
+  .bar {
+    height: 3px;
+    background: rgba(232, 220, 196, 0.08);
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .bar > span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--amber) 0%, var(--amber-2) 100%);
+    border-radius: 2px;
+  }
+  .bar.warn > span { background: #d44a2b; }
+
+  /* Reset pill */
+  .reset {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: transparent;
+    border: 1px solid rgba(214, 138, 58, 0.5);
+    color: var(--amber-2);
+    font-family: var(--sans);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border-radius: 100px;
+    cursor: pointer;
+  }
+  .reset:active { background: rgba(214, 138, 58, 0.12); }
+
+  /* Tire grid inside the Tire PSI tile */
+  .tires-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 18px;
+    margin-top: 4px;
+  }
+  .tire {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .tire-pos {
+    font-family: var(--sans);
+    font-size: 9px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+    min-width: 16px;
+  }
+  .tire-num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--cream-2);
+    line-height: 1;
+  }
+
+  /* Location tile is full-width with place + coords */
+  .loc-place {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 600;
+    font-size: 26px;
+    color: var(--cream-2);
+    line-height: 1;
+  }
+  .loc-coords {
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--dim);
+    margin-top: 8px;
+    letter-spacing: 0.04em;
+    font-feature-settings: 'tnum';
+  }
+
+  /* Action row at the bottom */
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .btn {
+    background: transparent;
+    border: 1px solid var(--line-2);
+    color: var(--cream);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    padding: 14px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn:active { background: var(--tile-2); transform: scale(0.97); }
+  .btn-primary {
+    background: var(--amber);
+    border-color: var(--amber-2);
+    color: #1a0d04;
+    box-shadow: 0 4px 14px rgba(214, 138, 58, 0.25);
+  }
+  .btn-primary:active { background: var(--amber-2); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <div class="title">Garage<span class="sep">/</span>2500</div>
+      <div class="sync">Synced 2m ago</div>
+    </div>
+
+    <div class="grid">
+      <!-- Odometer (wide) -->
+      <div class="tile tile-wide">
+        <div class="tile-label">Odometer</div>
+        <div class="tile-value">142,990<span class="u">mi</span></div>
+      </div>
+
+      <!-- Range -->
+      <div class="tile">
+        <div class="tile-label">Range</div>
+        <div class="tile-value">248<span class="u">mi</span></div>
+        <div class="tile-sub">Fuel 65%</div>
+        <div class="bar"><span style="width: 65%"></span></div>
+      </div>
+
+      <!-- Oil (with reset) -->
+      <div class="tile">
+        <button class="reset" id="resetOil">Reset</button>
+        <div class="tile-label">Oil · 5K</div>
+        <div class="tile-value amber">5,000<span class="u">mi</span></div>
+        <div class="tile-sub">to next change</div>
+      </div>
+
+      <!-- Battery -->
+      <div class="tile">
+        <div class="tile-label">Battery</div>
+        <div class="tile-value">13.6<span class="u">V</span></div>
+        <div class="tile-sub">healthy</div>
+      </div>
+
+      <!-- Tire PSI -->
+      <div class="tile">
+        <div class="tile-label">Tire PSI</div>
+        <div class="tires-grid">
+          <div class="tire"><span class="tire-pos">FL</span><span class="tire-num">70</span></div>
+          <div class="tire"><span class="tire-pos">FR</span><span class="tire-num">70</span></div>
+          <div class="tire"><span class="tire-pos">RL</span><span class="tire-num">69</span></div>
+          <div class="tire"><span class="tire-pos">RR</span><span class="tire-num">69</span></div>
+        </div>
+      </div>
+
+      <!-- Location (wide) -->
+      <div class="tile tile-wide">
+        <div class="tile-label">Location</div>
+        <div class="loc-place">Conroe, TX</div>
+        <div class="loc-coords">30.397, -95.555</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn">Lock</button>
+      <button class="btn">Unlock</button>
+      <button class="btn btn-primary">Start</button>
+    </div>
+  </div>
+</body>
+</html>
