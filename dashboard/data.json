@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-30T17:33:47.928831+00:00",
+  "last_updated": "2026-04-30T20:02:21.457057+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,16 +7,16 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 143332.3,
-      "range_mi": 244.8,
-      "fuel_pct": 64,
+      "odometer_mi": 143394.4,
+      "range_mi": 170.3,
+      "fuel_pct": 43,
       "fuel_low": false,
-      "battery_v": 13.8,
+      "battery_v": 13.7,
       "tires_psi": {
-        "front_left": 63.0,
-        "front_right": 63.0,
-        "rear_left": 62.0,
-        "rear_right": 62.0
+        "front_left": 66.0,
+        "front_right": 65.0,
+        "rear_left": 64.0,
+        "rear_right": 64.0
       },
       "tires_warning": {
         "front_left": false,
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 32.882573,
-        "lng": -96.766056,
-        "ts": "2026-04-30 16:07:30.487000+00:00",
-        "place": "Dallas, TX"
+        "lat": 32.075992,
+        "lng": -96.447339,
+        "ts": "2026-04-30 18:58:40.847000+00:00",
+        "place": "Corsicana, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 271,
-        "miles_to_next": 4729,
+        "miles_since": 333,
+        "miles_to_next": 4667,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
