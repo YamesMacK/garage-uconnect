@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-30T02:06:08.623331+00:00",
+  "last_updated": "2026-04-30T02:11:59.124370+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -28,7 +28,7 @@
         "lat": 30.396814,
         "lng": -95.555091,
         "ts": "2026-04-29 22:33:09.234000+00:00",
-        "place": null
+        "place": "Montgomery County, Texas"
       },
       "oil": {
         "interval_mi": 5000,
