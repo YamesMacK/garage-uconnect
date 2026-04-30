@@ -1,0 +1,44 @@
+name: Reset oil baseline
+
+# Triggered by the dashboard's "Reset" pill on the Oil tile (via the GitHub
+# API workflow_dispatch). Re-anchors dashboard/oil_baseline.json to the
+# current odometer reading from data.json so miles_to_next reads 5,000.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: oil-baseline
+  cancel-in-progress: false
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Re-anchor baseline
+        run: python scripts/reset_oil.py
+
+      - name: Commit updated baseline
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dashboard/oil_baseline.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Reset oil baseline to current odometer [skip ci]"
+            git push
+          fi

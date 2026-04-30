@@ -26,6 +26,8 @@ import json
 import os
 import sys
 import traceback
+import urllib.request
+import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -93,6 +95,71 @@ def normalize_pressure(value, unit):
     if u == "psi":
         return round(f, 1)
     return kpa_to_psi(f)
+
+
+# ─── Reverse geocoding (free via Nominatim) ────────────────────────────────
+def reverse_geocode(lat: float, lng: float) -> str | None:
+    """Return a short human-readable place name for (lat, lng), or None.
+    Uses OpenStreetMap Nominatim. No API key required, but the policy
+    requires a real User-Agent identifying the app."""
+    try:
+        params = urllib.parse.urlencode({
+            "lat": f"{lat:.6f}",
+            "lon": f"{lng:.6f}",
+            "format": "json",
+            "zoom": "14",  # neighborhood / suburb level
+            "addressdetails": "1",
+        })
+        url = f"https://nominatim.openstreetmap.org/reverse?{params}"
+        req = urllib.request.Request(url, headers={
+            "User-Agent": "garage-uconnect/1.0 (https://github.com/YamesMacK/garage-uconnect)",
+            "Accept-Language": "en-US",
+        })
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.load(resp)
+
+        addr = data.get("address") or {}
+        # Build a "City, State" or "Suburb, City" — short and readable
+        city = (
+            addr.get("city")
+            or addr.get("town")
+            or addr.get("village")
+            or addr.get("hamlet")
+            or addr.get("suburb")
+            or addr.get("neighbourhood")
+        )
+        state = addr.get("state_code") or addr.get("state")
+        # Abbreviate state if it's a US full name
+        US_STATE_ABBR = {
+            "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR",
+            "California": "CA", "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE",
+            "Florida": "FL", "Georgia": "GA", "Hawaii": "HI", "Idaho": "ID",
+            "Illinois": "IL", "Indiana": "IN", "Iowa": "IA", "Kansas": "KS",
+            "Kentucky": "KY", "Louisiana": "LA", "Maine": "ME", "Maryland": "MD",
+            "Massachusetts": "MA", "Michigan": "MI", "Minnesota": "MN", "Mississippi": "MS",
+            "Missouri": "MO", "Montana": "MT", "Nebraska": "NE", "Nevada": "NV",
+            "New Hampshire": "NH", "New Jersey": "NJ", "New Mexico": "NM", "New York": "NY",
+            "North Carolina": "NC", "North Dakota": "ND", "Ohio": "OH", "Oklahoma": "OK",
+            "Oregon": "OR", "Pennsylvania": "PA", "Rhode Island": "RI", "South Carolina": "SC",
+            "South Dakota": "SD", "Tennessee": "TN", "Texas": "TX", "Utah": "UT",
+            "Vermont": "VT", "Virginia": "VA", "Washington": "WA", "West Virginia": "WV",
+            "Wisconsin": "WI", "Wyoming": "WY", "District of Columbia": "DC",
+        }
+        if state in US_STATE_ABBR:
+            state = US_STATE_ABBR[state]
+
+        if city and state:
+            return f"{city}, {state}"
+        if city:
+            return city
+        # Fall back to display_name's first two comma-separated parts
+        dn = data.get("display_name") or ""
+        parts = [p.strip() for p in dn.split(",")]
+        if parts:
+            return ", ".join(parts[:2]) if len(parts) >= 2 else parts[0]
+    except Exception as e:
+        print(f"  · reverse-geocode failed: {e}")
+    return None
 
 
 # ─── Oil baseline ──────────────────────────────────────────────────────────
@@ -208,11 +275,14 @@ def serialize_vehicle(v: Vehicle, oil_baseline: dict):
 
     location = None
     if v.location:
+        lat = to_float(v.location.latitude)
+        lng = to_float(v.location.longitude)
+        place = reverse_geocode(lat, lng) if (lat is not None and lng is not None) else None
         location = {
-            "lat": to_float(v.location.latitude),
-            "lng": to_float(v.location.longitude),
+            "lat": lat,
+            "lng": lng,
             "ts": str(v.location.updated) if v.location.updated else None,
-            "place": None,
+            "place": place,
         }
 
     oil_block, oil_baseline = compute_oil(v.vin, odometer_mi, oil_baseline)

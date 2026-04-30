@@ -1,11 +1,11 @@
 {
-  "name": "Garage",
-  "short_name": "Garage",
+  "name": "Ram Truck 2500",
+  "short_name": "Ram 2500",
   "description": "Personal vehicle telemetry — Ram 2500",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#0e1620",
-  "theme_color": "#0e1620",
+  "background_color": "#08121a",
+  "theme_color": "#08121a",
   "orientation": "portrait",
   "icons": [
     {

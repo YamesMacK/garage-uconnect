@@ -2,8 +2,8 @@
    Strategy: cache the shell (HTML/CSS/manifest), always fetch data.json
    from network so the dashboard shows fresh data when online. */
 
-const CACHE = 'garage-v20260429-cmd1';
-const SHELL = ['./', './index.html', './manifest.json'];
+const CACHE = 'garage-v20260429-proto9';
+const SHELL = ['./', './index.html', './manifest.json', './img/truck-top.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)));
