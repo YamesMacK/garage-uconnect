@@ -3,353 +3,468 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0e1620">
-<title>Garage</title>
+<meta name="theme-color" content="#08121a">
+<title>Ram Truck 2500</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;600;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body {
-  min-height: 100vh;
-  font-family: 'Lora', serif;
-  color: #e8dcc4;
-  background:
-    radial-gradient(ellipse at 50% 30%, rgba(240, 168, 80, 0.04), transparent 70%),
-    repeating-radial-gradient(circle at 26% 28%,
-      transparent, transparent 14px,
-      rgba(232, 220, 196, 0.10) 14px, rgba(232, 220, 196, 0.10) 15px),
-    repeating-radial-gradient(circle at 74% 68%,
-      transparent, transparent 11px,
-      rgba(232, 220, 196, 0.08) 11px, rgba(232, 220, 196, 0.08) 12px),
-    repeating-radial-gradient(circle at 50% 96%,
-      transparent, transparent 18px,
-      rgba(232, 220, 196, 0.06) 18px, rgba(232, 220, 196, 0.06) 19px),
-    linear-gradient(170deg, #0e1620 0%, #0a1015 100%);
-  background-attachment: fixed;
-}
-body {
-  padding: max(env(safe-area-inset-top), 20px) 16px max(env(safe-area-inset-bottom), 20px);
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  max-width: 480px;
-  margin: 0 auto;
-}
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #08121a;
+    --card: #0e1c24;
+    --tile: rgba(232, 220, 196, 0.025);
+    --tile-2: rgba(232, 220, 196, 0.04);
+    --line: rgba(232, 220, 196, 0.08);
+    --line-2: rgba(232, 220, 196, 0.14);
+    --cream: #e8d8b4;
+    --cream-2: #f4e6c4;
+    --dim: #8a7d65;
+    --amber: #d68a3a;
+    --amber-2: #f0a850;
+    --warn: #d44a2b;
+    --sans: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+  body {
+    font-family: var(--sans);
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(214, 138, 58, 0.04) 0%, transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--cream);
+    min-height: 100vh;
+    padding: max(env(safe-area-inset-top), 30px) 18px max(env(safe-area-inset-bottom), 30px);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'tnum';
+  }
 
-/* ---- Header ---- */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  padding: 4px 4px 12px;
-  border-bottom: 1.5px solid rgba(232, 220, 196, 0.18);
-}
-.title {
-  font-family: 'Big Shoulders Display', sans-serif;
-  font-weight: 800;
-  font-size: 24px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #e8dcc4;
-}
-.title em { font-style: normal; color: #f0a850; }
-.sync {
-  font-style: italic;
-  font-size: 12px;
-  color: #8a7d65;
-}
-.sync.stale { color: #d47842; }
+  /* Card container */
+  .card {
+    max-width: 380px;
+    margin: 0 auto;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(214, 138, 58, 0.05) 0%, transparent 55%),
+      linear-gradient(170deg, #112028 0%, #0a141a 70%, #08121a 100%);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 26px 22px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  }
 
-/* ---- Bento ---- */
-.bento {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-.tile {
-  background: rgba(232, 220, 196, 0.035);
-  border: 1px solid rgba(232, 220, 196, 0.14);
-  border-radius: 4px;
-  padding: 14px 14px 12px;
-  min-height: 86px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  position: relative;
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-}
-.tile-wide { grid-column: span 2; }
+  /* Header */
+  .header {
+    text-align: center;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 16px;
+  }
+  .title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--cream-2);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .sync {
+    font-size: 9.5px;
+    font-weight: 600;
+    color: var(--dim);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .sync.stale { color: var(--warn); }
 
-.tile-label {
-  font-family: 'Big Shoulders Display', sans-serif;
-  font-weight: 600;
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: #8a7d65;
-}
-.tile-value {
-  font-family: 'Big Shoulders Display', sans-serif;
-  font-weight: 800;
-  font-size: 32px;
-  line-height: 1;
-  color: #e8dcc4;
-}
-.tile-value.small { font-size: 22px; }
-.unit {
-  font-size: 13px;
-  color: #8a7d65;
-  font-weight: 600;
-  margin-left: 3px;
-  letter-spacing: 0.05em;
-}
-.tile-sub {
-  font-style: italic;
-  font-size: 12px;
-  color: #8a7d65;
-}
-.tile-sub.warn { color: #d47842; font-style: normal; font-weight: 600; letter-spacing: 0.05em; }
-.accent { color: #f0a850; }
+  /* Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .tile {
+    background: var(--tile);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 14px 13px;
+    position: relative;
+    overflow: hidden;
+  }
+  .tile-wide { grid-column: span 2; }
+  .tile-label {
+    font-size: 10px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .tile-value {
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--cream-2);
+    letter-spacing: -0.025em;
+  }
+  .tile-value.amber { color: var(--amber-2); }
+  .tile-value.warn { color: var(--warn); }
+  .tile-value .u {
+    font-size: 12px;
+    color: var(--dim);
+    font-weight: 600;
+    letter-spacing: 0;
+    margin-left: 3px;
+    vertical-align: top;
+    padding-top: 4px;
+    display: inline-block;
+  }
+  .tile-sub {
+    font-size: 11px;
+    color: var(--dim);
+    margin-top: 8px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .tile-sub.warn { color: var(--warn); font-weight: 600; }
 
-.tires {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px 14px;
-  margin-top: 6px;
-}
-.tire {
-  font-family: 'Big Shoulders Display', sans-serif;
-  font-weight: 600;
-  font-size: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  color: #e8dcc4;
-}
-.tire.warn { color: #d47842; }
-.tire-pos {
-  font-family: 'Big Shoulders Display', sans-serif;
-  font-size: 10px;
-  color: #8a7d65;
-  letter-spacing: 0.12em;
-  font-weight: 600;
-}
+  /* Half-round fuel gauge inside Range tile */
+  .range-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .range-text { flex: 1; }
+  .fuel-arc {
+    width: 78px;
+    height: 56px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .fuel-arc svg { width: 100%; height: 100%; display: block; }
+  .fuel-arc-track  { stroke: rgba(232, 220, 196, 0.08); }
+  .fuel-arc-fill   { stroke: url(#fuelArcGr); stroke-linecap: round; }
+  .fuel-arc-pct {
+    position: absolute;
+    left: 0; right: 0; bottom: 2px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--cream-2);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .fuel-arc-pct .u {
+    font-size: 9px;
+    color: var(--dim);
+    font-weight: 600;
+    margin-left: 1px;
+    vertical-align: top;
+  }
 
-.bar {
-  height: 3px;
-  background: rgba(232, 220, 196, 0.10);
-  margin-top: 8px;
-  overflow: hidden;
-  border-radius: 1px;
-}
-.bar > span {
-  display: block;
-  height: 100%;
-  background: linear-gradient(90deg, #c97a2b, #f0a850);
-  transition: width 0.4s;
-}
-.bar.warn > span { background: #d44a2b; }
+  /* Reset pill */
+  .reset {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: transparent;
+    border: 1px solid rgba(214, 138, 58, 0.5);
+    color: var(--amber-2);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border-radius: 100px;
+    cursor: pointer;
+  }
+  .reset:active { background: rgba(214, 138, 58, 0.12); }
+  .reset[disabled] { opacity: 0.5; cursor: default; }
 
-.reset-pill {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-family: 'Big Shoulders Display', sans-serif;
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  font-weight: 600;
-  text-transform: uppercase;
-  border: 1px solid rgba(232, 220, 196, 0.25);
-  color: #8a7d65;
-  background: transparent;
-  padding: 3px 8px;
-  cursor: pointer;
-  border-radius: 100px;
-}
-.reset-pill:active { background: rgba(232, 220, 196, 0.08); }
+  /* Tire layout — 4 corners with truck photo in the middle */
+  .tires-corners {
+    display: grid;
+    grid-template-columns: 1fr 70px 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 16px 18px;
+    align-items: center;
+    margin-top: 8px;
+    padding: 4px 0;
+  }
+  .truck-photo {
+    grid-row: 1 / 3;
+    grid-column: 2;
+    width: 70px;
+    height: auto;
+    aspect-ratio: 150 / 372;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.55));
+  }
+  .tire-cell { text-align: center; }
+  .tire-cell.tl, .tire-cell.bl { text-align: right; }
+  .tire-cell.tr, .tire-cell.br { text-align: left; }
+  .tire-pos {
+    display: block;
+    font-size: 9px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+  .tire-num {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--cream-2);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .tire-num.warn { color: var(--warn); }
 
-/* ---- Commands ---- */
-.commands {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 6px;
-  margin-top: 4px;
-}
-.cmd {
-  background: rgba(232, 220, 196, 0.04);
-  border: 1px solid rgba(232, 220, 196, 0.18);
-  color: #e8dcc4;
-  font-family: 'Big Shoulders Display', sans-serif;
-  font-weight: 800;
-  font-size: 13px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  padding: 14px 0;
-  cursor: pointer;
-  border-radius: 3px;
-}
-.cmd:active { background: rgba(232, 220, 196, 0.10); }
-.cmd-primary {
-  background: #c97a2b;
-  border-color: #d4884a;
-  color: #1a0f08;
-}
-.cmd-primary:active { background: #b66920; }
-.cmd[disabled] { opacity: 0.5; cursor: default; }
-.cmd.pending {
-  background: rgba(240, 168, 80, 0.18);
-  border-color: rgba(240, 168, 80, 0.5);
-  color: #f0a850;
-}
-.cmd-primary.pending {
-  background: rgba(201, 122, 43, 0.7);
-  color: #1a0f08;
-}
+  /* Location */
+  .loc-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .loc-place {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--cream-2);
+    letter-spacing: -0.01em;
+    text-align: right;
+    max-width: 60%;
+  }
+  .loc-map {
+    height: 160px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    position: relative;
+    background: #000;
+  }
+  .loc-map iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    filter: invert(0.92) hue-rotate(180deg) saturate(0.5) brightness(0.95);
+  }
+  .loc-link {
+    position: absolute;
+    bottom: 8px; right: 8px;
+    background: rgba(8, 18, 26, 0.85);
+    border: 1px solid var(--line-2);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: var(--cream);
+    padding: 4px 9px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    letter-spacing: 0.04em;
+  }
+  .loc-coords {
+    font-size: 10px;
+    color: var(--dim);
+    margin-top: 8px;
+    letter-spacing: 0.04em;
+    text-align: right;
+  }
 
-/* ---- Settings panel ---- */
-.panel {
-  display: none;
-  background: rgba(232, 220, 196, 0.04);
-  border: 1px solid rgba(232, 220, 196, 0.18);
-  border-radius: 4px;
-  padding: 14px;
-  flex-direction: column;
-  gap: 10px;
-}
-.panel.show { display: flex; }
-.panel-label {
-  font-family: 'Big Shoulders Display', sans-serif;
-  font-weight: 600;
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: #8a7d65;
-}
-.panel input {
-  background: rgba(0,0,0,0.25);
-  border: 1px solid rgba(232, 220, 196, 0.18);
-  color: #e8dcc4;
-  font-family: 'Lora', serif;
-  font-size: 13px;
-  padding: 8px 10px;
-  border-radius: 3px;
-  outline: none;
-  width: 100%;
-}
-.panel input:focus { border-color: rgba(240, 168, 80, 0.5); }
-.panel-row { display: flex; gap: 6px; }
-.panel-row .cmd { flex: 1; padding: 10px 0; font-size: 11px; }
-.panel-help {
-  font-style: italic;
-  font-size: 11px;
-  color: #5a4f3e;
-  line-height: 1.5;
-}
-.panel-help a { color: #8a7d65; }
+  /* Action row */
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .btn {
+    background: transparent;
+    border: 1px solid var(--line-2);
+    color: var(--cream);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 14px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn:active { background: var(--tile-2); transform: scale(0.97); }
+  .btn-primary {
+    background: var(--amber);
+    border-color: var(--amber-2);
+    color: #1a0d04;
+    box-shadow: 0 4px 14px rgba(214, 138, 58, 0.25);
+  }
+  .btn-primary:active { background: var(--amber-2); }
+  .btn[disabled] { opacity: 0.5; cursor: default; }
 
-/* ---- Footer / settings ---- */
-.foot {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 4px 0;
-  font-family: 'Lora', serif;
-  font-style: italic;
-  font-size: 11px;
-  color: #5a4f3e;
-}
-.foot button {
-  background: transparent;
-  border: none;
-  color: #8a7d65;
-  font-family: inherit;
-  font-style: italic;
-  font-size: 11px;
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 4px 0;
-}
+  /* Spinner feedback */
+  .btn .label { display: inline-block; }
+  .btn .spinner { display: none; }
+  .btn.loading .label { display: none; }
+  .btn.loading .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: btn-spin 0.7s linear infinite;
+    vertical-align: -3px;
+  }
+  @keyframes btn-spin { to { transform: rotate(360deg); } }
 
-/* ---- Toast ---- */
-.toast {
-  position: fixed;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%) translateY(100px);
-  background: #1a2230;
-  border: 1px solid rgba(232, 220, 196, 0.25);
-  color: #e8dcc4;
-  padding: 12px 18px;
-  border-radius: 4px;
-  font-family: 'Lora', serif;
-  font-size: 13px;
-  font-style: italic;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-  opacity: 0;
-  transition: all 0.3s;
-  z-index: 100;
-  max-width: 320px;
-  text-align: center;
-}
-.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  /* Settings panel */
+  .panel {
+    display: none;
+    background: var(--tile-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 12px;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .panel.show { display: flex; }
+  .panel-label {
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .panel input {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--line);
+    color: var(--cream);
+    font-family: var(--sans);
+    font-size: 13px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    outline: none;
+    width: 100%;
+  }
+  .panel input:focus { border-color: rgba(240, 168, 80, 0.5); }
+  .panel-help {
+    font-size: 11px;
+    color: var(--dim);
+    line-height: 1.5;
+  }
+  .panel-row { display: flex; gap: 6px; }
+  .panel-row .btn { flex: 1; padding: 10px 0; font-size: 11px; letter-spacing: 0.10em; }
 
-/* ---- Empty / loading ---- */
-.empty {
-  text-align: center;
-  padding: 40px 16px;
-  color: #5a4f3e;
-  font-style: italic;
-}
+  /* Footer */
+  .foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 4px 0;
+    font-size: 10px;
+    color: #5a4f3e;
+    letter-spacing: 0.04em;
+  }
+  .foot button {
+    background: transparent;
+    border: none;
+    color: var(--dim);
+    font-family: inherit;
+    font-size: 10px;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 4px 0;
+    letter-spacing: 0.04em;
+  }
+  .foot .vin { font-feature-settings: 'tnum'; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #142028;
+    border: 1px solid var(--line-2);
+    color: var(--cream);
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 100;
+    max-width: 320px;
+    text-align: center;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  .empty {
+    text-align: center;
+    padding: 40px 16px;
+    color: var(--dim);
+    font-style: italic;
+  }
 </style>
 </head>
 <body>
-
-  <div class="header">
-    <div class="title" id="title">Garage <em>·</em> 2500</div>
-    <div class="sync" id="sync">loading…</div>
-  </div>
-
-  <div class="bento" id="bento">
-    <div class="empty" style="grid-column: span 2;">Awaiting first sync…</div>
-  </div>
-
-  <div class="commands">
-    <button class="cmd" data-cmd="lock">Lock</button>
-    <button class="cmd" data-cmd="unlock">Unlock</button>
-    <button class="cmd cmd-primary" data-cmd="start">Start</button>
-  </div>
-
-  <div class="panel" id="settings">
-    <div class="panel-label">GitHub Token</div>
-    <input id="patInput" type="password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…">
-    <div class="panel-help">
-      Fine-grained PAT with <em>Actions: Read &amp; Write</em> on this repo.
-      Stored in your browser only. Required to send lock / unlock / start.
+  <div class="card">
+    <div class="header">
+      <div class="title" id="title">Ram Truck 2500</div>
+      <div class="sync" id="sync">loading…</div>
     </div>
-    <div class="panel-row">
-      <button class="cmd" id="patSave">Save</button>
-      <button class="cmd" id="patClear">Clear</button>
-      <button class="cmd" id="patClose">Close</button>
-    </div>
-  </div>
 
-  <div class="foot">
-    <span id="vin">—</span>
-    <span>
-      <button id="settingsBtn">settings</button>
-      <span style="color:#3a3328">·</span>
-      <button id="refresh">refresh</button>
-    </span>
+    <div id="grid" class="grid">
+      <div class="empty" style="grid-column: span 2;">Awaiting first sync…</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" data-cmd="lock"><span class="label">Lock</span><span class="spinner"></span></button>
+      <button class="btn" data-cmd="unlock"><span class="label">Unlock</span><span class="spinner"></span></button>
+      <button class="btn btn-primary" data-cmd="start"><span class="label">Start</span><span class="spinner"></span></button>
+    </div>
+
+    <div class="panel" id="settings">
+      <div class="panel-label">GitHub Token</div>
+      <input id="patInput" type="password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…">
+      <div class="panel-help">
+        Fine-grained PAT with <em>Actions: Read &amp; Write</em> on this repo.
+        Stored in your browser only. Required to send Lock / Unlock / Start / Reset Oil.
+      </div>
+      <div class="panel-row">
+        <button class="btn" id="patSave"><span class="label">Save</span></button>
+        <button class="btn" id="patClear"><span class="label">Clear</span></button>
+        <button class="btn" id="patClose"><span class="label">Close</span></button>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span class="vin" id="vin">—</span>
+      <span>
+        <button id="settingsBtn">settings</button>
+        &nbsp;·&nbsp;
+        <button id="refresh">refresh</button>
+      </span>
+    </div>
   </div>
 
   <div class="toast" id="toast"></div>
 
 <script>
 const OIL_INTERVAL = 5000;
+const REPO = 'YamesMacK/garage-uconnect';
+const CMD_WORKFLOW = 'command.yml';
+const RESET_OIL_WORKFLOW = 'reset_oil.yml';
+const CMD_MAP = { lock: 'lock', unlock: 'unlock', start: 'engine_on' };
+const SPINNER_MS = 3000;
 
 // ----- format helpers -----
 const fmtMi = (n) => n == null ? '—' : Math.round(n).toLocaleString('en-US');
@@ -361,11 +476,11 @@ function relTime(iso) {
   const diff = Date.now() - t;
   const m = Math.round(diff / 60000);
   if (m < 1) return 'just now';
-  if (m < 60) return `${m} min ago`;
+  if (m < 60) return `${m}m`;
   const h = Math.round(m / 60);
-  if (h < 24) return `${h} hr ago`;
+  if (h < 24) return `${h}h`;
   const d = Math.round(h / 24);
-  return `${d} day${d > 1 ? 's' : ''} ago`;
+  return `${d}d`;
 }
 
 // ----- toast -----
@@ -381,108 +496,137 @@ function toast(msg) {
 // ----- render -----
 function render(data) {
   if (!data || !data.vehicles || !data.vehicles.length) {
-    document.getElementById('bento').innerHTML =
+    document.getElementById('grid').innerHTML =
       '<div class="empty" style="grid-column: span 2;">No vehicles in data.json yet.</div>';
     return;
   }
 
   const v = data.vehicles[0];
-  document.getElementById('title').innerHTML =
-    `${v.nickname || 'Garage'} <em>·</em> ${v.year || ''}`;
   document.getElementById('vin').textContent = v.vin || '—';
 
-  // Sync time + staleness
   const sync = document.getElementById('sync');
   const updated = data.last_updated || v.last_updated;
-  sync.textContent = `synced ${relTime(updated)}`;
+  sync.textContent = `Synced ${relTime(updated)} ago`;
   const ageMin = updated ? (Date.now() - new Date(updated).getTime()) / 60000 : 999;
   sync.classList.toggle('stale', ageMin > 90);
 
-  // Fuel bar pct + warn flag
   const fuelPct = v.fuel_pct != null ? v.fuel_pct : 0;
   const fuelWarn = !!v.fuel_low;
 
-  // Oil 5k math
   const oil = v.oil || {};
   const milesToNext = oil.miles_to_next != null ? oil.miles_to_next : OIL_INTERVAL;
-  const milesSince  = oil.miles_since  != null ? oil.miles_since  : 0;
-  const oilPctUsed  = Math.min(100, (milesSince / OIL_INTERVAL) * 100);
-  const oilOverdue  = milesToNext <= 0;
-  const oilSoon     = milesToNext > 0 && milesToNext < 500;
+  const oilOverdue = milesToNext <= 0;
+  const oilSoon = milesToNext > 0 && milesToNext < 500;
 
-  // Tires
-  const t = v.tires_psi || {};
-  const tw = v.tires_warning || {};
-  const tireRow = (pos, label) => {
-    const psi = t[pos];
-    const warn = tw[pos];
-    return `<div class="tire${warn ? ' warn' : ''}">
+  const tirePsi = v.tires_psi || {};
+  const tireWarn = v.tires_warning || {};
+  const tireCell = (cls, label, pos) => {
+    const psi = tirePsi[pos];
+    const w = tireWarn[pos];
+    return `<div class="tire-cell ${cls}">
       <span class="tire-pos">${label}</span>
-      <span>${psi != null ? Math.round(psi) : '—'}</span>
+      <span class="tire-num${w ? ' warn' : ''}">${psi != null ? Math.round(psi) : '—'}</span>
     </div>`;
   };
 
-  // Location
   const loc = v.location || {};
   const hasLoc = loc.lat != null && loc.lng != null;
-  const placeText = loc.place || (hasLoc ? 'GPS lock' : 'No fix');
-  const coordText = hasLoc
-    ? `N ${loc.lat.toFixed(3)}°  ·  W ${Math.abs(loc.lng).toFixed(3)}°`
+  const place = loc.place || (hasLoc ? 'GPS lock' : 'No fix');
+  const coordStr = hasLoc
+    ? `${loc.lat.toFixed(3)}, ${loc.lng.toFixed(3)}`
     : '—';
+  const mapsUrl = hasLoc ? `https://www.google.com/maps?q=${loc.lat},${loc.lng}` : '#';
+  const embedUrl = hasLoc ? `https://maps.google.com/maps?q=${loc.lat},${loc.lng}&z=14&output=embed` : '';
 
-  document.getElementById('bento').innerHTML = `
-    <div class="tile tile-wide">
+  // arc length = π·42 = 131.95
+  const arcDash = (fuelPct / 100) * 131.95;
+
+  document.getElementById('grid').innerHTML = `
+    <!-- Odometer -->
+    <div class="tile">
       <div class="tile-label">Odometer</div>
-      <div class="tile-value">${fmtMi(v.odometer_mi)}<span class="unit">MI</span></div>
+      <div class="tile-value">${fmtMi(v.odometer_mi)}<span class="u">mi</span></div>
     </div>
 
+    <!-- Range with half-arc fuel gauge -->
     <div class="tile">
       <div class="tile-label">Range</div>
-      <div class="tile-value">${fmtMi(v.range_mi)}<span class="unit">MI</span></div>
-      <div class="tile-sub${fuelWarn ? ' warn' : ''}">Fuel — ${fuelPct}%${fuelWarn ? ' · low' : ''}</div>
-      <div class="bar${fuelWarn ? ' warn' : ''}"><span style="width:${fuelPct}%"></span></div>
+      <div class="range-row">
+        <div class="range-text">
+          <div class="tile-value">${fmtMi(v.range_mi)}<span class="u">mi</span></div>
+          <div class="tile-sub${fuelWarn ? ' warn' : ''}">Fuel${fuelWarn ? ' · low' : ''}</div>
+        </div>
+        <div class="fuel-arc">
+          <svg viewBox="0 0 100 60">
+            <defs>
+              <linearGradient id="fuelArcGr" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#d68a3a"/>
+                <stop offset="100%" stop-color="#f0a850"/>
+              </linearGradient>
+            </defs>
+            <path d="M 8 50 A 42 42 0 0 1 92 50"
+                  fill="none" class="fuel-arc-track" stroke-width="6"/>
+            <path d="M 8 50 A 42 42 0 0 1 92 50"
+                  fill="none" class="fuel-arc-fill" stroke-width="6"
+                  stroke-dasharray="${arcDash} 131.95"/>
+          </svg>
+          <div class="fuel-arc-pct">${fuelPct}<span class="u">%</span></div>
+        </div>
+      </div>
     </div>
 
+    <!-- Oil 5K with reset -->
     <div class="tile">
-      <div class="tile-label">Oil · 5k</div>
-      <div class="tile-value ${oilOverdue ? '' : 'accent'}" style="${oilOverdue ? 'color:#d44a2b' : ''}">
-        ${oilOverdue ? 'DUE' : fmtMi(milesToNext)}<span class="unit">${oilOverdue ? '' : 'MI'}</span>
+      <button class="reset" id="resetOilBtn">Reset</button>
+      <div class="tile-label">Oil · 5K</div>
+      <div class="tile-value ${oilOverdue ? 'warn' : 'amber'}">
+        ${oilOverdue ? 'DUE' : fmtMi(milesToNext)}<span class="u">${oilOverdue ? '' : 'mi'}</span>
       </div>
       <div class="tile-sub${oilOverdue || oilSoon ? ' warn' : ''}">
-        ${oilOverdue ? `${fmtMi(-milesToNext)} mi past due` : oilSoon ? 'change soon' : 'to next change'}
+        ${oilOverdue ? `${fmtMi(-milesToNext)} mi overdue` : oilSoon ? 'change soon' : 'to next change'}
       </div>
-      <button class="reset-pill" id="resetOil">Reset</button>
     </div>
 
+    <!-- Battery -->
     <div class="tile">
       <div class="tile-label">Battery</div>
-      <div class="tile-value">${fmtV(v.battery_v)}<span class="unit">V</span></div>
-      <div class="tile-sub">${v.battery_v == null ? '—' : v.battery_v < 12.4 ? 'low' : 'healthy'}</div>
+      <div class="tile-value">${fmtV(v.battery_v)}<span class="u">V</span></div>
+      <div class="tile-sub${v.battery_v != null && v.battery_v < 12.4 ? ' warn' : ''}">${v.battery_v == null ? '—' : v.battery_v < 12.4 ? 'low' : 'healthy'}</div>
     </div>
 
-    <div class="tile">
+    <!-- Tire PSI with truck photo -->
+    <div class="tile tile-wide">
       <div class="tile-label">Tire PSI</div>
-      <div class="tires">
-        ${tireRow('front_left',  'FL')}
-        ${tireRow('front_right', 'FR')}
-        ${tireRow('rear_left',   'RL')}
-        ${tireRow('rear_right',  'RR')}
+      <div class="tires-corners">
+        ${tireCell('tl', 'FL', 'front_left')}
+        <img class="truck-photo" src="img/truck-top.png" alt="Top-down view of Ram 2500" loading="lazy"/>
+        ${tireCell('tr', 'FR', 'front_right')}
+        ${tireCell('bl', 'RL', 'rear_left')}
+        ${tireCell('br', 'RR', 'rear_right')}
       </div>
     </div>
 
+    <!-- Location with Google Map -->
     <div class="tile tile-wide">
-      <div class="tile-label">Position</div>
-      <div class="tile-value small">${placeText.toUpperCase()}</div>
-      <div class="tile-sub">${coordText}</div>
+      <div class="loc-head">
+        <span class="tile-label" style="margin-bottom: 0;">Location</span>
+        <span class="loc-place">${place}</span>
+      </div>
+      ${hasLoc ? `
+        <div class="loc-map">
+          <iframe loading="lazy" src="${embedUrl}"></iframe>
+          <a class="loc-link" target="_blank" rel="noopener" href="${mapsUrl}">Open ↗</a>
+        </div>
+        <div class="loc-coords">${coordStr}</div>
+      ` : '<div class="tile-sub">No GPS fix</div>'}
     </div>
   `;
 
-  // wire up reset (Phase 2 will replace this)
-  const reset = document.getElementById('resetOil');
-  if (reset) {
-    reset.addEventListener('click', () => {
-      toast('Reset wiring ships in Phase 2 (with command auth)');
-    });
+  // wire reset button (only after tile renders)
+  const resetBtn = document.getElementById('resetOilBtn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => resetOil(resetBtn));
+    refreshResetEnabled();
   }
 }
 
@@ -494,62 +638,118 @@ async function load() {
     const data = await res.json();
     render(data);
   } catch (err) {
-    document.getElementById('bento').innerHTML =
+    document.getElementById('grid').innerHTML =
       `<div class="empty" style="grid-column: span 2;">Couldn't load data.json<br><span style="font-size:11px">${err.message}</span></div>`;
     document.getElementById('sync').textContent = 'sync error';
     document.getElementById('sync').classList.add('stale');
   }
 }
 
-// ----- remote commands -----
-const REPO = 'YamesMacK/garage-uconnect';
-const WORKFLOW = 'command.yml';
-// Dashboard label → send_command.py command name
-const CMD_MAP = { lock: 'lock', unlock: 'unlock', start: 'engine_on' };
-
+// ----- PAT in localStorage -----
 const getPat = () => localStorage.getItem('gh_pat') || '';
 const setPat = (v) => localStorage.setItem('gh_pat', v);
 const clearPat = () => localStorage.removeItem('gh_pat');
 
 function refreshCmdEnabled() {
   const has = !!getPat();
-  document.querySelectorAll('.cmd[data-cmd]').forEach(b => {
+  document.querySelectorAll('.btn[data-cmd]').forEach(b => {
     b.disabled = !has;
     b.title = has ? '' : 'Set a GitHub token in settings first';
   });
+  refreshResetEnabled();
 }
 
+function refreshResetEnabled() {
+  const has = !!getPat();
+  const r = document.getElementById('resetOilBtn');
+  if (r) {
+    r.disabled = !has;
+    r.title = has ? 'Reset oil-life baseline to current odometer' : 'Set a GitHub token in settings first';
+  }
+}
+
+// ----- workflow_dispatch -----
+async function dispatch(workflow, inputs = {}) {
+  const pat = getPat();
+  if (!pat) throw new Error('NO_PAT');
+  const res = await fetch(
+    `https://api.github.com/repos/${REPO}/actions/workflows/${workflow}/dispatches`,
+    {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `Bearer ${pat}`,
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+      body: JSON.stringify({ ref: 'main', inputs }),
+    }
+  );
+  return res;
+}
+
+// ----- send command (lock / unlock / start) — spinner feedback only -----
 async function sendCommand(label, btn) {
   const cmd = CMD_MAP[label];
   if (!cmd) return;
-  const pat = getPat();
-  if (!pat) {
+  if (!getPat()) {
     toast('Set a GitHub token in settings first');
     return;
   }
-  btn.classList.add('pending');
+  if (btn.classList.contains('loading')) return;
+  btn.classList.add('loading');
   btn.disabled = true;
-  const prevText = btn.textContent;
+
+  // Visual: spinner for ~3s regardless of how fast the dispatch returns,
+  // so the user gets clear feedback that the command was sent.
+  const spinUntil = Date.now() + SPINNER_MS;
+  let dispatchErr = null;
+  try {
+    const res = await dispatch(CMD_WORKFLOW, { command: cmd });
+    if (res.status !== 204) {
+      const txt = await res.text().catch(() => '');
+      dispatchErr = { status: res.status, txt };
+    }
+  } catch (err) {
+    dispatchErr = { msg: err.message };
+  }
+  const wait = Math.max(0, spinUntil - Date.now());
+  setTimeout(() => {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    refreshCmdEnabled();
+    if (dispatchErr) {
+      if (dispatchErr.status === 401 || dispatchErr.status === 403) {
+        toast('GitHub auth failed — check your token');
+      } else if (dispatchErr.status === 404) {
+        toast('Workflow not found — try refreshing');
+      } else if (dispatchErr.msg) {
+        toast(`Error: ${dispatchErr.msg}`);
+      } else {
+        toast(`HTTP ${dispatchErr.status}: ${(dispatchErr.txt || '').slice(0, 80)}`);
+      }
+    }
+  }, wait);
+}
+
+// ----- reset oil baseline -----
+async function resetOil(btn) {
+  if (!getPat()) {
+    toast('Set a GitHub token in settings first');
+    return;
+  }
+  if (!confirm('Reset oil baseline to current odometer? Use this after an oil change.')) return;
+  btn.disabled = true;
+  const original = btn.textContent;
   btn.textContent = '…';
   try {
-    const res = await fetch(
-      `https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW}/dispatches`,
-      {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/vnd.github+json',
-          'Authorization': `Bearer ${pat}`,
-          'X-GitHub-Api-Version': '2022-11-28',
-        },
-        body: JSON.stringify({ ref: 'main', inputs: { command: cmd } }),
-      }
-    );
+    const res = await dispatch(RESET_OIL_WORKFLOW, {});
     if (res.status === 204) {
-      toast(`${label} sent — truck takes 30-60s to respond`);
+      toast('Oil baseline reset — refreshing in ~30s');
+      setTimeout(load, 30000);
     } else if (res.status === 401 || res.status === 403) {
-      toast('GitHub auth failed — check your token');
+      toast('GitHub auth failed');
     } else if (res.status === 404) {
-      toast('Workflow not found — has it been deployed yet?');
+      toast('reset_oil workflow not deployed');
     } else {
       const txt = await res.text();
       toast(`HTTP ${res.status}: ${txt.slice(0, 80)}`);
@@ -557,16 +757,15 @@ async function sendCommand(label, btn) {
   } catch (err) {
     toast(`Error: ${err.message}`);
   } finally {
-    btn.classList.remove('pending');
-    btn.textContent = prevText;
-    refreshCmdEnabled();
+    btn.textContent = original;
+    refreshResetEnabled();
   }
 }
 
-document.querySelectorAll('.cmd[data-cmd]').forEach(btn => {
+// ----- wire buttons -----
+document.querySelectorAll('.btn[data-cmd]').forEach(btn => {
   btn.addEventListener('click', () => sendCommand(btn.dataset.cmd, btn));
 });
-
 document.getElementById('refresh').addEventListener('click', () => {
   load();
   toast('refreshed');
@@ -578,7 +777,7 @@ const patInput = document.getElementById('patInput');
 
 document.getElementById('settingsBtn').addEventListener('click', () => {
   patInput.value = getPat();
-  panel.classList.add('show');
+  panel.classList.toggle('show');
 });
 document.getElementById('patClose').addEventListener('click', () => {
   panel.classList.remove('show');
@@ -606,7 +805,6 @@ if ('serviceWorker' in navigator) {
 }
 
 load();
-// auto-refresh on tab focus
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') load();
 });
