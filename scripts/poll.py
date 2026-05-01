@@ -127,6 +127,7 @@ def reverse_geocode(lat: float, lng: float) -> str | None:
             or addr.get("hamlet")
             or addr.get("suburb")
             or addr.get("neighbourhood")
+            or addr.get("county")
         )
         state = addr.get("state_code") or addr.get("state")
         # Abbreviate state if it's a US full name
