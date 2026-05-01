@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-01T19:56:39.049422+00:00",
+  "last_updated": "2026-05-01T22:37:34.964786+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,11 +7,11 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 143593.9,
-      "range_mi": 243.6,
-      "fuel_pct": 64,
+      "odometer_mi": 143622.5,
+      "range_mi": 216.9,
+      "fuel_pct": 56,
       "fuel_low": false,
-      "battery_v": 13.3,
+      "battery_v": 14.1,
       "tires_psi": {
         "front_left": 63.0,
         "front_right": 63.0,
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.396801,
-        "lng": -95.555091,
-        "ts": "2026-05-01 16:41:27.063000+00:00",
-        "place": "Montgomery County, TX"
+        "lat": 30.159906,
+        "lng": -95.311847,
+        "ts": "2026-05-01 22:19:07.615000+00:00",
+        "place": "Porter Heights, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 533,
-        "miles_to_next": 4467,
+        "miles_since": 562,
+        "miles_to_next": 4438,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
