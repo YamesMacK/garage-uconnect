@@ -40,5 +40,13 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Reset oil baseline to current odometer [skip ci]"
-            git push
+            for attempt in 1 2 3 4 5; do
+              if git push; then
+                exit 0
+              fi
+              echo "Push rejected (attempt $attempt) — rebasing onto origin/main and retrying"
+              git pull --rebase origin main
+            done
+            echo "Push failed after 5 attempts" >&2
+            exit 1
           fi
