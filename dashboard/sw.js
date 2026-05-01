@@ -2,7 +2,7 @@
    Strategy: cache the shell (HTML/CSS/manifest), always fetch data.json
    from network so the dashboard shows fresh data when online. */
 
-const CACHE = 'garage-v20260430-flag';
+const CACHE = 'garage-v20260430-flag-icons';
 const SHELL = ['./', './index.html', './manifest.json', './img/truck-top.png', './img/hero-truck.png'];
 
 self.addEventListener('install', (e) => {
