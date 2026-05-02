@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-02T20:00:26.484881+00:00",
+  "last_updated": "2026-05-02T22:25:53.455500+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,15 +7,15 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 143803.3,
-      "range_mi": 285.8,
-      "fuel_pct": 78,
+      "odometer_mi": 143810.1,
+      "range_mi": 266.6,
+      "fuel_pct": 74,
       "fuel_low": false,
-      "battery_v": 14.2,
+      "battery_v": 13.8,
       "tires_psi": {
-        "front_left": 65.0,
-        "front_right": 65.0,
-        "rear_left": 64.0,
+        "front_left": 66.0,
+        "front_right": 64.0,
+        "rear_left": 66.0,
         "rear_right": 64.0
       },
       "tires_warning": {
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.485774,
-        "lng": -97.674294,
-        "ts": "2026-05-02 18:31:30.624000+00:00",
+        "lat": 30.570441,
+        "lng": -97.690379,
+        "ts": "2026-05-02 21:39:06.325000+00:00",
         "place": "Round Rock, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 742,
-        "miles_to_next": 4258,
+        "miles_since": 749,
+        "miles_to_next": 4251,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
