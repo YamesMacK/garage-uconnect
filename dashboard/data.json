@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-01T22:37:34.964786+00:00",
+  "last_updated": "2026-05-02T06:24:25.874485+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,16 +7,16 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 143622.5,
-      "range_mi": 216.9,
-      "fuel_pct": 56,
+      "odometer_mi": 143789.0,
+      "range_mi": 330.6,
+      "fuel_pct": 83,
       "fuel_low": false,
-      "battery_v": 14.1,
+      "battery_v": 13.9,
       "tires_psi": {
-        "front_left": 63.0,
-        "front_right": 63.0,
-        "rear_left": 62.0,
-        "rear_right": 62.0
+        "front_left": 65.0,
+        "front_right": 65.0,
+        "rear_left": 64.0,
+        "rear_right": 63.0
       },
       "tires_warning": {
         "front_left": false,
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.159906,
-        "lng": -95.311847,
-        "ts": "2026-05-01 22:19:07.615000+00:00",
-        "place": "Porter Heights, TX"
+        "lat": 30.485778,
+        "lng": -97.674266,
+        "ts": "2026-05-02 01:40:03.293000+00:00",
+        "place": "Round Rock, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 562,
-        "miles_to_next": 4438,
+        "miles_since": 728,
+        "miles_to_next": 4272,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
