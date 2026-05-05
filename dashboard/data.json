@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-05T11:52:45.681661+00:00",
+  "last_updated": "2026-05-05T20:48:04.143157+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,16 +7,16 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 144115.2,
-      "range_mi": 305.1,
-      "fuel_pct": 75,
+      "odometer_mi": 144182.9,
+      "range_mi": 226.8,
+      "fuel_pct": 56,
       "fuel_low": false,
       "battery_v": 13.9,
       "tires_psi": {
-        "front_left": 69.0,
-        "front_right": 68.0,
+        "front_left": 68.0,
+        "front_right": 67.0,
         "rear_left": 67.0,
-        "rear_right": 67.0
+        "rear_right": 66.0
       },
       "tires_warning": {
         "front_left": false,
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.396804,
-        "lng": -95.555118,
-        "ts": "2026-05-04 22:30:41.580000+00:00",
-        "place": "Montgomery County, TX"
+        "lat": 29.620802,
+        "lng": -95.527039,
+        "ts": "2026-05-05 14:13:55.179000+00:00",
+        "place": "Missouri City, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 1054,
-        "miles_to_next": 3946,
+        "miles_since": 1122,
+        "miles_to_next": 3878,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
