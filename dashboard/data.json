@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-09T17:57:31.921678+00:00",
+  "last_updated": "2026-05-09T19:15:44.124778+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,16 +7,16 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 144567.6,
-      "range_mi": 152.9,
-      "fuel_pct": 36,
+      "odometer_mi": 144591.2,
+      "range_mi": 106.3,
+      "fuel_pct": 29,
       "fuel_low": false,
-      "battery_v": 14.1,
+      "battery_v": 12.6,
       "tires_psi": {
-        "front_left": 63.0,
-        "front_right": 63.0,
-        "rear_left": 63.0,
-        "rear_right": 63.0
+        "front_left": 69.0,
+        "front_right": 69.0,
+        "rear_left": 69.0,
+        "rear_right": 69.0
       },
       "tires_warning": {
         "front_left": false,
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.39676,
-        "lng": -95.554866,
-        "ts": "2026-05-09 16:12:37.730000+00:00",
-        "place": "Montgomery County, TX"
+        "lat": 30.2084,
+        "lng": -95.455452,
+        "ts": "2026-05-09 19:15:00.952000+00:00",
+        "place": "The Woodlands, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 1507,
-        "miles_to_next": 3493,
+        "miles_since": 1530,
+        "miles_to_next": 3470,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
