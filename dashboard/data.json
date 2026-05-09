@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-09T22:08:00.899268+00:00",
+  "last_updated": "2026-05-09T23:25:11.538206+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,16 +7,16 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 144675.7,
-      "range_mi": 169.6,
-      "fuel_pct": 61,
+      "odometer_mi": 144683.1,
+      "range_mi": 149.8,
+      "fuel_pct": 59,
       "fuel_low": false,
       "battery_v": 13.5,
       "tires_psi": {
-        "front_left": 69.0,
-        "front_right": 68.0,
-        "rear_left": 68.0,
-        "rear_right": 69.0
+        "front_left": 67.0,
+        "front_right": 67.0,
+        "rear_left": 67.0,
+        "rear_right": 66.0
       },
       "tires_warning": {
         "front_left": false,
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 31.056464,
-        "lng": -94.75641,
-        "ts": "2026-05-09 21:15:15.112000+00:00",
-        "place": "Polk County, TX"
+        "lat": 31.003752,
+        "lng": -94.825552,
+        "ts": "2026-05-09 23:09:01.013000+00:00",
+        "place": "Corrigan, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 1615,
-        "miles_to_next": 3385,
+        "miles_since": 1622,
+        "miles_to_next": 3378,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
