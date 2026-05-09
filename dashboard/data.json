@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-09T21:10:38.912910+00:00",
+  "last_updated": "2026-05-09T22:08:00.899268+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,15 +7,15 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 144591.2,
-      "range_mi": 106.3,
-      "fuel_pct": 29,
+      "odometer_mi": 144675.7,
+      "range_mi": 169.6,
+      "fuel_pct": 61,
       "fuel_low": false,
-      "battery_v": 12.6,
+      "battery_v": 13.5,
       "tires_psi": {
         "front_left": 69.0,
-        "front_right": 69.0,
-        "rear_left": 69.0,
+        "front_right": 68.0,
+        "rear_left": 68.0,
         "rear_right": 69.0
       },
       "tires_warning": {
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.2084,
-        "lng": -95.455452,
-        "ts": "2026-05-09 19:15:00.952000+00:00",
-        "place": "The Woodlands, TX"
+        "lat": 31.056464,
+        "lng": -94.75641,
+        "ts": "2026-05-09 21:15:15.112000+00:00",
+        "place": "Polk County, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 1530,
-        "miles_to_next": 3470,
+        "miles_since": 1615,
+        "miles_to_next": 3385,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
