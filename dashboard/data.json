@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-10T17:03:49.533081+00:00",
+  "last_updated": "2026-05-10T18:31:47.191716+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,16 +7,16 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 144777.6,
-      "range_mi": 93.8,
-      "fuel_pct": 26,
+      "odometer_mi": 144781.9,
+      "range_mi": 89.5,
+      "fuel_pct": 25,
       "fuel_low": false,
-      "battery_v": 13.9,
+      "battery_v": 14.0,
       "tires_psi": {
-        "front_left": 65.0,
+        "front_left": 66.0,
         "front_right": 65.0,
-        "rear_left": 64.0,
-        "rear_right": 64.0
+        "rear_left": 66.0,
+        "rear_right": 65.0
       },
       "tires_warning": {
         "front_left": false,
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.396804,
-        "lng": -95.555084,
-        "ts": "2026-05-10 13:17:25.117000+00:00",
-        "place": "Montgomery County, TX"
+        "lat": 30.419299,
+        "lng": -95.502567,
+        "ts": "2026-05-10 18:14:28.920000+00:00",
+        "place": "Willis, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 1717,
-        "miles_to_next": 3283,
+        "miles_since": 1721,
+        "miles_to_next": 3279,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
