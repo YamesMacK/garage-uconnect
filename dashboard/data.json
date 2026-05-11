@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-11T19:51:11.199600+00:00",
+  "last_updated": "2026-05-11T21:19:55.804879+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,16 +7,16 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 145051.0,
-      "range_mi": 181.4,
-      "fuel_pct": 43,
+      "odometer_mi": 145083.3,
+      "range_mi": 148.5,
+      "fuel_pct": 35,
       "fuel_low": false,
-      "battery_v": 13.8,
+      "battery_v": 13.6,
       "tires_psi": {
-        "front_left": 65.0,
-        "front_right": 65.0,
-        "rear_left": 64.0,
-        "rear_right": 64.0
+        "front_left": 69.0,
+        "front_right": 68.0,
+        "rear_left": 67.0,
+        "rear_right": 67.0
       },
       "tires_warning": {
         "front_left": false,
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 32.882836,
-        "lng": -96.769075,
-        "ts": "2026-05-11 17:27:35.192000+00:00",
-        "place": "Dallas, TX"
+        "lat": 32.445762,
+        "lng": -96.665516,
+        "ts": "2026-05-11 20:24:57.589000+00:00",
+        "place": "Palmer, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 1990,
-        "miles_to_next": 3010,
+        "miles_since": 2022,
+        "miles_to_next": 2978,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
