@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-11T08:25:18.193054+00:00",
+  "last_updated": "2026-05-11T11:42:26.946618+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,16 +7,16 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 144786.9,
-      "range_mi": 83.3,
-      "fuel_pct": 23,
-      "fuel_low": false,
-      "battery_v": 12.7,
+      "odometer_mi": 144840.3,
+      "range_mi": 49.7,
+      "fuel_pct": 8,
+      "fuel_low": true,
+      "battery_v": 13.3,
       "tires_psi": {
-        "front_left": 67.0,
-        "front_right": 67.0,
-        "rear_left": 66.0,
-        "rear_right": 66.0
+        "front_left": 66.0,
+        "front_right": 66.0,
+        "rear_left": 65.0,
+        "rear_right": 65.0
       },
       "tires_warning": {
         "front_left": false,
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.396784,
-        "lng": -95.555084,
-        "ts": "2026-05-10 18:53:28.824000+00:00",
-        "place": "Montgomery County, TX"
+        "lat": 30.965028,
+        "lng": -95.880659,
+        "ts": "2026-05-11 11:15:37.794000+00:00",
+        "place": "Madisonville, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 1726,
-        "miles_to_next": 3274,
+        "miles_since": 1779,
+        "miles_to_next": 3221,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
