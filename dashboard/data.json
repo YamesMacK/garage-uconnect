@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-11T11:42:26.946618+00:00",
+  "last_updated": "2026-05-11T15:15:04.896371+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,13 +7,13 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 144840.3,
-      "range_mi": 49.7,
-      "fuel_pct": 8,
-      "fuel_low": true,
-      "battery_v": 13.3,
+      "odometer_mi": 145019.3,
+      "range_mi": 233.6,
+      "fuel_pct": 54,
+      "fuel_low": false,
+      "battery_v": 13.9,
       "tires_psi": {
-        "front_left": 66.0,
+        "front_left": 67.0,
         "front_right": 66.0,
         "rear_left": 65.0,
         "rear_right": 65.0
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.965028,
-        "lng": -95.880659,
-        "ts": "2026-05-11 11:15:37.794000+00:00",
-        "place": "Madisonville, TX"
+        "lat": 33.248254,
+        "lng": -96.643106,
+        "ts": "2026-05-11 14:45:10.534000+00:00",
+        "place": "McKinney, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 1779,
-        "miles_to_next": 3221,
+        "miles_since": 1958,
+        "miles_to_next": 3042,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
