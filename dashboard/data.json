@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-11T22:33:25.080174+00:00",
+  "last_updated": "2026-05-12T00:00:26.692793+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,14 +7,14 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 145176.5,
-      "range_mi": 50.3,
-      "fuel_pct": 7,
+      "odometer_mi": 145251.1,
+      "range_mi": 348.6,
+      "fuel_pct": 82,
       "fuel_low": false,
-      "battery_v": 13.6,
+      "battery_v": 13.7,
       "tires_psi": {
-        "front_left": 69.0,
-        "front_right": 69.0,
+        "front_left": 68.0,
+        "front_right": 68.0,
         "rear_left": 67.0,
         "rear_right": 67.0
       },
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 31.258443,
-        "lng": -95.990317,
-        "ts": "2026-05-11 21:53:46.621000+00:00",
-        "place": "Centerville, TX"
+        "lat": 30.396804,
+        "lng": -95.555118,
+        "ts": "2026-05-11 23:14:33.922000+00:00",
+        "place": "Montgomery County, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 2116,
-        "miles_to_next": 2884,
+        "miles_since": 2190,
+        "miles_to_next": 2810,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
