@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-16T20:02:05.422240+00:00",
+  "last_updated": "2026-05-16T21:23:51.372747+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,16 +7,16 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 145605.2,
-      "range_mi": 339.3,
+      "odometer_mi": 145606.5,
+      "range_mi": 331.2,
       "fuel_pct": 100,
       "fuel_low": false,
-      "battery_v": 12.5,
+      "battery_v": 13.3,
       "tires_psi": {
-        "front_left": 67.0,
-        "front_right": 66.0,
-        "rear_left": 66.0,
-        "rear_right": 66.0
+        "front_left": 66.0,
+        "front_right": 65.0,
+        "rear_left": 65.0,
+        "rear_right": 65.0
       },
       "tires_warning": {
         "front_left": false,
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.41931,
-        "lng": -95.492629,
-        "ts": "2026-05-16 20:00:03.509000+00:00",
+        "lat": 30.418678,
+        "lng": -95.48864,
+        "ts": "2026-05-16 20:48:25.211000+00:00",
         "place": "Willis, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 2544,
-        "miles_to_next": 2456,
+        "miles_since": 2546,
+        "miles_to_next": 2454,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
