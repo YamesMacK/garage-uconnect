@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-17T14:04:59.838529+00:00",
+  "last_updated": "2026-05-17T15:37:52.540692+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,11 +7,11 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 145627.6,
-      "range_mi": 304.5,
-      "fuel_pct": 96,
+      "odometer_mi": 145648.1,
+      "range_mi": 325.0,
+      "fuel_pct": 98,
       "fuel_low": false,
-      "battery_v": 13.0,
+      "battery_v": 13.9,
       "tires_psi": {
         "front_left": 66.0,
         "front_right": 66.0,
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.396804,
-        "lng": -95.555105,
-        "ts": "2026-05-17 01:17:57.786000+00:00",
+        "lat": 30.400301,
+        "lng": -95.609104,
+        "ts": "2026-05-17 15:24:58.222000+00:00",
         "place": "Montgomery County, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 2567,
-        "miles_to_next": 2433,
+        "miles_since": 2587,
+        "miles_to_next": 2413,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
