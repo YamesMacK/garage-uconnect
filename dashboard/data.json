@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-21T23:11:17.746430+00:00",
+  "last_updated": "2026-05-22T01:29:53.284102+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,13 +7,13 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 146427.9,
-      "range_mi": 161.6,
-      "fuel_pct": 35,
+      "odometer_mi": 146563.4,
+      "range_mi": 403.9,
+      "fuel_pct": 99,
       "fuel_low": false,
-      "battery_v": 13.7,
+      "battery_v": 13.5,
       "tires_psi": {
-        "front_left": 69.0,
+        "front_left": 68.0,
         "front_right": 68.0,
         "rear_left": 67.0,
         "rear_right": 67.0
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 32.040796,
-        "lng": -96.447646,
-        "ts": "2026-05-21 20:21:34.402000+00:00",
-        "place": "Corsicana, TX"
+        "lat": 30.396797,
+        "lng": -95.555091,
+        "ts": "2026-05-21 23:14:12.344000+00:00",
+        "place": "Montgomery County, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 3367,
-        "miles_to_next": 1633,
+        "miles_since": 3502,
+        "miles_to_next": 1498,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
