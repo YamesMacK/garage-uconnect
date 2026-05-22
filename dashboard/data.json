@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-22T09:30:58.897086+00:00",
+  "last_updated": "2026-05-22T12:21:50.711321+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -8,15 +8,15 @@
       "model": "2500",
       "nickname": null,
       "odometer_mi": 146563.4,
-      "range_mi": 403.9,
-      "fuel_pct": 99,
+      "range_mi": 344.9,
+      "fuel_pct": 97,
       "fuel_low": false,
-      "battery_v": 13.5,
+      "battery_v": 14.1,
       "tires_psi": {
-        "front_left": 68.0,
-        "front_right": 68.0,
-        "rear_left": 67.0,
-        "rear_right": 67.0
+        "front_left": 61.0,
+        "front_right": 61.0,
+        "rear_left": 61.0,
+        "rear_right": 61.0
       },
       "tires_warning": {
         "front_left": false,
@@ -25,9 +25,9 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.396797,
-        "lng": -95.555091,
-        "ts": "2026-05-21 23:14:12.344000+00:00",
+        "lat": 30.396732,
+        "lng": -95.55503,
+        "ts": "2026-05-22 12:03:50.482000+00:00",
         "place": "Montgomery County, TX"
       },
       "oil": {
