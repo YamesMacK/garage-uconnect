@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-29T23:49:30.632811+00:00",
+  "last_updated": "2026-05-30T03:38:07.474642+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -8,15 +8,15 @@
       "model": "2500",
       "nickname": null,
       "odometer_mi": 146896.5,
-      "range_mi": 179.6,
+      "range_mi": 175.2,
       "fuel_pct": 65,
       "fuel_low": false,
-      "battery_v": 13.7,
+      "battery_v": 14.0,
       "tires_psi": {
-        "front_left": 63.0,
-        "front_right": 63.0,
-        "rear_left": 62.0,
-        "rear_right": 63.0
+        "front_left": 66.0,
+        "front_right": 64.0,
+        "rear_left": 63.0,
+        "rear_right": 65.0
       },
       "tires_warning": {
         "front_left": false,
@@ -25,9 +25,9 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.420372,
-        "lng": -95.512921,
-        "ts": "2026-05-29 15:13:31.575000+00:00",
+        "lat": 30.420341,
+        "lng": -95.512887,
+        "ts": "2026-05-29 21:43:27.875000+00:00",
         "place": "Conroe, TX"
       },
       "oil": {
