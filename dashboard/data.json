@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-06-09T15:39:02.628013+00:00",
+  "last_updated": "2026-06-09T18:08:18.179177+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,15 +7,15 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 146976.6,
-      "range_mi": 16.2,
-      "fuel_pct": 9,
+      "odometer_mi": 146987.2,
+      "range_mi": 0.0,
+      "fuel_pct": 0,
       "fuel_low": true,
-      "battery_v": 13.9,
+      "battery_v": 12.1,
       "tires_psi": {
-        "front_left": 63.0,
+        "front_left": 64.0,
         "front_right": 64.0,
-        "rear_left": 66.0,
+        "rear_left": 64.0,
         "rear_right": 65.0
       },
       "tires_warning": {
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.420297,
-        "lng": -95.512997,
-        "ts": "2026-06-08 22:13:02.382000+00:00",
+        "lat": 30.42032,
+        "lng": -95.512983,
+        "ts": "2026-06-09 17:19:49.008000+00:00",
         "place": "Conroe, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 3916,
-        "miles_to_next": 1084,
+        "miles_since": 3926,
+        "miles_to_next": 1074,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
