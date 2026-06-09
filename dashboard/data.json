@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-06-09T20:28:06.818155+00:00",
+  "last_updated": "2026-06-09T22:09:29.186134+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,15 +7,15 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 146987.2,
-      "range_mi": 0.0,
-      "fuel_pct": 0,
-      "fuel_low": true,
-      "battery_v": 12.1,
+      "odometer_mi": 147005.8,
+      "range_mi": 58.4,
+      "fuel_pct": 31,
+      "fuel_low": false,
+      "battery_v": 12.5,
       "tires_psi": {
-        "front_left": 64.0,
-        "front_right": 64.0,
-        "rear_left": 64.0,
+        "front_left": 66.0,
+        "front_right": 65.0,
+        "rear_left": 66.0,
         "rear_right": 65.0
       },
       "tires_warning": {
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.42032,
-        "lng": -95.512983,
-        "ts": "2026-06-09 17:19:49.008000+00:00",
-        "place": "Conroe, TX"
+        "lat": 30.680452,
+        "lng": -95.526145,
+        "ts": "2026-06-09 21:35:18.257000+00:00",
+        "place": "Huntsville, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 3926,
-        "miles_to_next": 1074,
+        "miles_since": 3945,
+        "miles_to_next": 1055,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
