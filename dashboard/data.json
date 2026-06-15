@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-06-15T12:19:50.868124+00:00",
+  "last_updated": "2026-06-15T17:31:30.721387+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,16 +7,16 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 147079.8,
-      "range_mi": 83.9,
-      "fuel_pct": 40,
+      "odometer_mi": 147145.6,
+      "range_mi": 69.6,
+      "fuel_pct": 16,
       "fuel_low": false,
-      "battery_v": 13.5,
+      "battery_v": 13.9,
       "tires_psi": {
-        "front_left": 69.0,
-        "front_right": 68.0,
-        "rear_left": 67.0,
-        "rear_right": 67.0
+        "front_left": 65.0,
+        "front_right": 65.0,
+        "rear_left": 64.0,
+        "rear_right": 64.0
       },
       "tires_warning": {
         "front_left": false,
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.4203,
-        "lng": -95.512969,
-        "ts": "2026-06-12 21:32:29.541000+00:00",
-        "place": "Conroe, TX"
+        "lat": 29.620802,
+        "lng": -95.527039,
+        "ts": "2026-06-15 14:34:53.419000+00:00",
+        "place": "Missouri City, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 4019,
-        "miles_to_next": 981,
+        "miles_since": 4085,
+        "miles_to_next": 915,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
