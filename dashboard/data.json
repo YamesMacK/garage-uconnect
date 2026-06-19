@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-06-19T22:05:19.032320+00:00",
+  "last_updated": "2026-06-19T23:36:41.902070+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,16 +7,16 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 147880.1,
-      "range_mi": 336.2,
-      "fuel_pct": 83,
+      "odometer_mi": 147919.9,
+      "range_mi": 290.2,
+      "fuel_pct": 71,
       "fuel_low": false,
-      "battery_v": 13.9,
+      "battery_v": 12.5,
       "tires_psi": {
-        "front_left": 68.0,
-        "front_right": 67.0,
-        "rear_left": 67.0,
-        "rear_right": 66.0
+        "front_left": 66.0,
+        "front_right": 65.0,
+        "rear_left": 65.0,
+        "rear_right": 65.0
       },
       "tires_warning": {
         "front_left": false,
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 29.620816,
-        "lng": -95.526992,
-        "ts": "2026-06-19 12:52:13.728000+00:00",
-        "place": "Missouri City, TX"
+        "lat": 30.065659,
+        "lng": -95.433179,
+        "ts": "2026-06-19 22:12:12.201000+00:00",
+        "place": "Houston, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 4819,
-        "miles_to_next": 181,
+        "miles_since": 4859,
+        "miles_to_next": 141,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
