@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-06-21T14:28:35.520050+00:00",
+  "last_updated": "2026-06-21T16:16:03.737703+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,16 +7,16 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 148003.7,
-      "range_mi": 159.7,
-      "fuel_pct": 45,
+      "odometer_mi": 148039.2,
+      "range_mi": 120.5,
+      "fuel_pct": 34,
       "fuel_low": false,
-      "battery_v": 12.5,
+      "battery_v": 13.8,
       "tires_psi": {
-        "front_left": 67.0,
-        "front_right": 66.0,
-        "rear_left": 66.0,
-        "rear_right": 66.0
+        "front_left": 66.0,
+        "front_right": 65.0,
+        "rear_left": 63.0,
+        "rear_right": 63.0
       },
       "tires_warning": {
         "front_left": false,
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.396801,
-        "lng": -95.555139,
-        "ts": "2026-06-20 21:11:28.384000+00:00",
-        "place": "Montgomery County, TX"
+        "lat": 30.074252,
+        "lng": -95.532948,
+        "ts": "2026-06-21 14:38:27.171000+00:00",
+        "place": "Klein, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 4943,
-        "miles_to_next": 57,
+        "miles_since": 4978,
+        "miles_to_next": 22,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
