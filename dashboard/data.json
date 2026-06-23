@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-06-23T10:10:18.829761+00:00",
+  "last_updated": "2026-06-23T13:21:55.951808+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,16 +7,16 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 148224.3,
-      "range_mi": 265.3,
-      "fuel_pct": 68,
+      "odometer_mi": 148257.3,
+      "range_mi": 224.3,
+      "fuel_pct": 57,
       "fuel_low": false,
-      "battery_v": 13.5,
+      "battery_v": 13.2,
       "tires_psi": {
-        "front_left": 69.0,
-        "front_right": 69.0,
-        "rear_left": 68.0,
-        "rear_right": 68.0
+        "front_left": 66.0,
+        "front_right": 65.0,
+        "rear_left": 65.0,
+        "rear_right": 65.0
       },
       "tires_warning": {
         "front_left": false,
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.396804,
-        "lng": -95.555118,
-        "ts": "2026-06-22 23:23:36.226000+00:00",
-        "place": "Montgomery County, TX"
+        "lat": 30.192561,
+        "lng": -95.19861,
+        "ts": "2026-06-23 13:05:08.561000+00:00",
+        "place": "Keefer, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 5163,
-        "miles_to_next": -163,
+        "miles_since": 5196,
+        "miles_to_next": -196,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
