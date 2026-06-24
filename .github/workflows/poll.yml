@@ -14,16 +14,18 @@ permissions:
   pages: write
   id-token: write
 
-# Don't run multiple polls in parallel.
-# cancel-in-progress: true so a stuck Pages deploy can't block the next poll.
+# Don't run multiple polls in parallel. cancel-in-progress: false because
+# GitHub Pages does not support concurrent deployments — cancelling a run
+# mid-deploy can wedge the github-pages environment. Queue instead of cancel.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   poll:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    # Generous: poll (3m) + a slow Pages queue (deploy-pages waits up to 10m).
+    timeout-minutes: 16
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -83,4 +85,7 @@ jobs:
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v5
-        timeout-minutes: 5
+        # Let the action's own 10-minute poll govern; a 5-minute step cap
+        # guillotines a slow-but-healthy Pages queue (it builds in 2-3m fast,
+        # but the builder backlog can sit in deployment_queued past 5m).
+        timeout-minutes: 11
