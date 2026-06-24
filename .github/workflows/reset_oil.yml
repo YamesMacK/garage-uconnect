@@ -45,7 +45,10 @@ jobs:
                 exit 0
               fi
               echo "Push rejected (attempt $attempt) — rebasing onto origin/main and retrying"
-              git pull --rebase origin main
+              # -X theirs: on conflict keep THIS run's regenerated baseline
+              # (in a rebase the replayed commit is "theirs"). A plain rebase
+              # conflicts when both sides rewrite the file and strands the loop.
+              git pull --rebase -X theirs origin main
             done
             echo "Push failed after 5 attempts" >&2
             exit 1
