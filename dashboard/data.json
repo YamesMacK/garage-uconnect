@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-06-25T00:15:10.106868+00:00",
+  "last_updated": "2026-06-25T04:46:13.899631+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,14 +7,14 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 148476.6,
-      "range_mi": 324.4,
-      "fuel_pct": 87,
+      "odometer_mi": 148502.7,
+      "range_mi": 277.8,
+      "fuel_pct": 77,
       "fuel_low": false,
       "battery_v": 13.7,
       "tires_psi": {
         "front_left": 68.0,
-        "front_right": 67.0,
+        "front_right": 68.0,
         "rear_left": 67.0,
         "rear_right": 67.0
       },
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 30.252588,
-        "lng": -95.319081,
-        "ts": "2026-06-24 21:12:57.938000+00:00",
-        "place": "Grangerland, TX"
+        "lat": 30.396777,
+        "lng": -95.555105,
+        "ts": "2026-06-24 22:56:13.395000+00:00",
+        "place": "Montgomery County, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 5416,
-        "miles_to_next": -416,
+        "miles_since": 5442,
+        "miles_to_next": -442,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
