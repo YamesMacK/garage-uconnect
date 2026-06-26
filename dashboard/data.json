@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-06-26T20:48:18.823559+00:00",
+  "last_updated": "2026-06-26T22:15:58.175570+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,15 +7,15 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 148858.1,
-      "range_mi": 275.3,
-      "fuel_pct": 67,
+      "odometer_mi": 149038.9,
+      "range_mi": 55.9,
+      "fuel_pct": 9,
       "fuel_low": false,
-      "battery_v": 13.7,
+      "battery_v": 11.9,
       "tires_psi": {
-        "front_left": 68.0,
+        "front_left": 69.0,
         "front_right": 68.0,
-        "rear_left": 68.0,
+        "rear_left": 67.0,
         "rear_right": 67.0
       },
       "tires_warning": {
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 32.633329,
-        "lng": -96.701169,
-        "ts": "2026-06-26 18:21:47.929000+00:00",
-        "place": "Hutchins, TX"
+        "lat": 30.396811,
+        "lng": -95.555084,
+        "ts": "2026-06-26 21:50:33+00:00",
+        "place": "Montgomery County, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 5797,
-        "miles_to_next": -797,
+        "miles_since": 5978,
+        "miles_to_next": -978,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
