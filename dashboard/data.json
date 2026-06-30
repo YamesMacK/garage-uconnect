@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-06-30T12:10:47.145082+00:00",
+  "last_updated": "2026-06-30T15:11:53.617997+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,16 +7,16 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 149422.9,
-      "range_mi": 224.9,
-      "fuel_pct": 67,
+      "odometer_mi": 149423.6,
+      "range_mi": 215.0,
+      "fuel_pct": 66,
       "fuel_low": false,
-      "battery_v": 13.5,
+      "battery_v": 14.0,
       "tires_psi": {
-        "front_left": 68.0,
-        "front_right": 68.0,
-        "rear_left": 66.0,
-        "rear_right": 68.0
+        "front_left": 61.0,
+        "front_right": 61.0,
+        "rear_left": 62.0,
+        "rear_right": 61.0
       },
       "tires_warning": {
         "front_left": false,
@@ -25,16 +25,16 @@
         "rear_right": false
       },
       "location": {
-        "lat": 32.88481,
-        "lng": -96.770619,
-        "ts": "2026-06-30 00:03:41.056000+00:00",
+        "lat": 32.882832,
+        "lng": -96.769137,
+        "ts": "2026-06-30 13:25:09.161000+00:00",
         "place": "Dallas, TX"
       },
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 143061,
-        "miles_since": 6362,
-        "miles_to_next": -1362,
+        "miles_since": 6363,
+        "miles_to_next": -1363,
         "baseline_set_at": "2026-04-29T19:15:16.496275+00:00",
         "auto_anchored": true
       }
