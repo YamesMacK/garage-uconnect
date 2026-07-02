@@ -17,14 +17,15 @@ concurrency:
 jobs:
   reset:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
 
@@ -47,8 +48,10 @@ jobs:
               echo "Push rejected (attempt $attempt) — rebasing onto origin/main and retrying"
               # -X theirs: on conflict keep THIS run's regenerated baseline
               # (in a rebase the replayed commit is "theirs"). A plain rebase
-              # conflicts when both sides rewrite the file and strands the loop.
-              git pull --rebase -X theirs origin main
+              # conflicts when both sides rewrite the file and strands the
+              # loop. The || branch keeps a failed pull from aborting the
+              # step (set -e) and cleans up a half-done rebase.
+              git pull --rebase -X theirs origin main || { git rebase --abort 2>/dev/null || true; sleep 2; }
             done
             echo "Push failed after 5 attempts" >&2
             exit 1

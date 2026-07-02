@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#08121a">
+<!-- CSP: the PAT in localStorage can start the engine — cut off script
+     injection + exfiltration paths. connect-src covers data fetches and the
+     GitHub API; frame-src covers the Google Maps embed. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com; frame-src https://maps.google.com https://www.google.com; base-uri 'none'; form-action 'none'; object-src 'none'">
 <title>Ram Truck 2500</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -365,10 +369,10 @@
     z-index: 2;
   }
 
-  /* Action row — Lock + Unlock only (no paid Remote Start) */
+  /* Action row — remote commands via workflow_dispatch */
   .actions {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 8px;
     margin-top: 14px;
     padding-top: 14px;
@@ -379,29 +383,37 @@
     border: 1px solid var(--line-2);
     color: var(--cream);
     font-family: var(--sans);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    padding: 14px 0;
+    padding: 13px 0;
     border-radius: 10px;
     cursor: pointer;
     transition: background 0.15s, transform 0.1s;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 7px;
+    position: relative;
   }
   .btn:active { background: var(--tile-2); transform: scale(0.97); }
   .btn[disabled] { opacity: 0.5; cursor: default; }
-  .btn svg { width: 16px; height: 16px; }
+  /* Token not set: dimmed but still tappable — the tap explains itself
+     (iOS has no hover, so a title attribute alone is invisible). */
+  .btn.needs-token { opacity: 0.45; }
+  .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
 
-  /* Spinner feedback */
-  .btn .label-wrap { display: inline-flex; align-items: center; gap: 8px; }
+  /* Spinner feedback — label hidden with visibility (not display) so the
+     button keeps its size and VoiceOver keeps the accessible name. */
+  .btn .label-wrap { display: inline-flex; align-items: center; gap: 7px; }
   .btn .spinner { display: none; }
-  .btn.loading .label-wrap { display: none; }
+  .btn.loading .label-wrap { visibility: hidden; }
   .btn.loading .spinner {
     display: inline-block;
+    position: absolute;
+    left: 50%; top: 50%;
+    margin: -9px 0 0 -9px;
     width: 18px;
     height: 18px;
     border: 2px solid currentColor;
@@ -579,15 +591,43 @@
     <div class="actions">
       <button class="btn" data-cmd="lock">
         <span class="label-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
           <span class="label">Lock</span>
         </span>
         <span class="spinner"></span>
       </button>
       <button class="btn" data-cmd="unlock">
         <span class="label-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.9-1"/></svg>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.9-1"/></svg>
           <span class="label">Unlock</span>
+        </span>
+        <span class="spinner"></span>
+      </button>
+      <button class="btn" data-cmd="engine_on">
+        <span class="label-wrap">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v8"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/></svg>
+          <span class="label">Start</span>
+        </span>
+        <span class="spinner"></span>
+      </button>
+      <button class="btn" data-cmd="engine_off">
+        <span class="label-wrap">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+          <span class="label">Stop</span>
+        </span>
+        <span class="spinner"></span>
+      </button>
+      <button class="btn" data-cmd="lights_horn">
+        <span class="label-wrap">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4h4l6 5V5l-6 5H3z"/><path d="M17 9a5 5 0 0 1 0 6"/><path d="M19.5 6.5a9 9 0 0 1 0 11"/></svg>
+          <span class="label">Horn</span>
+        </span>
+        <span class="spinner"></span>
+      </button>
+      <button class="btn" data-cmd="refresh_location">
+        <span class="label-wrap">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          <span class="label">Locate</span>
         </span>
         <span class="spinner"></span>
       </button>
@@ -598,7 +638,8 @@
       <input id="patInput" type="password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…">
       <div class="panel-help">
         Fine-grained PAT with <em>Actions: Read &amp; Write</em> on this repo.
-        Stored in your browser only. Required for Lock / Unlock / Reset Oil.
+        Stored in your browser only. Required for all remote command buttons
+        and Reset Oil.
       </div>
       <div class="panel-row">
         <button class="btn" id="patSave"><span class="label-wrap"><span class="label">Save</span></span></button>
@@ -617,30 +658,54 @@
     </div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-const OIL_INTERVAL = 5000;
 const REPO = 'YamesMacK/garage-uconnect';
 const CMD_WORKFLOW = 'command.yml';
 const RESET_OIL_WORKFLOW = 'reset_oil.yml';
-const CMD_MAP = { lock: 'lock', unlock: 'unlock' };
-const SPINNER_MS = 3000;
+
+// Remote commands — must mirror command.yml's input options. Commands that
+// move metal or make noise get a confirmation prompt (pocket-tap guard).
+const COMMANDS = {
+  lock:             { label: 'Lock' },
+  unlock:           { label: 'Unlock', confirm: 'Unlock the truck?' },
+  engine_on:        { label: 'Start',  confirm: 'Remote-start the engine?' },
+  engine_off:       { label: 'Stop',   confirm: 'Shut the remote-started engine off?' },
+  lights_horn:      { label: 'Horn',   confirm: 'Sound the horn and flash the lights?' },
+  refresh_location: { label: 'Locate' },
+};
+
+// Escape externally-sourced strings before innerHTML interpolation —
+// place names come from OpenStreetMap and are not under our control.
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 const fmtMi = (n) => n == null ? '—' : Math.round(n).toLocaleString('en-US');
 const fmtV  = (n) => n == null ? '—' : n.toFixed(1);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-function relTime(iso) {
-  if (!iso) return 'never';
-  const t = new Date(iso).getTime();
-  const diff = Date.now() - t;
-  const m = Math.round(diff / 60000);
-  if (m < 1) return 'just now';
-  if (m < 60) return `${m}M`;
+// Safari rejects "YYYY-MM-DD HH:MM:SS" (space) — old polls emitted that.
+const parseTs = (iso) => iso ? new Date(String(iso).replace(' ', 'T')) : null;
+
+function ageMinutes(iso) {
+  const t = parseTs(iso);
+  return t && !isNaN(t) ? (Date.now() - t.getTime()) / 60000 : null;
+}
+
+function relDur(mins) {
+  const m = Math.round(mins);
+  if (m < 60) return `${m}m`;
   const h = Math.round(m / 60);
-  if (h < 24) return `${h}H`;
-  const d = Math.round(h / 24);
-  return `${d}D`;
+  if (h < 24) return `${h}h`;
+  return `${Math.round(h / 24)}d`;
+}
+
+function syncLabel(iso) {
+  const m = ageMinutes(iso);
+  if (m == null) return 'Never synced';
+  if (m < 1) return 'Synced just now';
+  return `Synced ${relDur(m)} ago`;
 }
 
 let toastTimer = null;
@@ -668,7 +733,7 @@ const ICON_BATT = `
   <line x1="16" y1="15" x2="19" y2="15"/>
 </svg>`;
 
-function render(data) {
+function render(data, locations) {
   if (!data || !data.vehicles || !data.vehicles.length) {
     document.getElementById('grid').innerHTML =
       '<div class="empty" style="grid-column: span 2;">No vehicles in data.json yet.</div>';
@@ -680,17 +745,21 @@ function render(data) {
 
   const sync = document.getElementById('sync');
   const updated = data.last_updated || v.last_updated;
-  sync.textContent = `Synced ${relTime(updated)} ago`;
-  const ageMin = updated ? (Date.now() - new Date(updated).getTime()) / 60000 : 999;
-  sync.classList.toggle('stale', ageMin > 90);
+  sync.textContent = syncLabel(updated);
+  const ageMin = ageMinutes(updated);
+  sync.classList.toggle('stale', ageMin == null || ageMin > 90);
 
-  const fuelPct = v.fuel_pct != null ? v.fuel_pct : 0;
+  // Unknown telemetry renders as unknown — never as a confident 0% / 5,000 mi.
+  const fuelKnown = v.fuel_pct != null;
+  const fuelPct = fuelKnown ? v.fuel_pct : 0;
   const fuelWarn = !!v.fuel_low;
 
   const oil = v.oil || {};
-  const milesToNext = oil.miles_to_next != null ? oil.miles_to_next : OIL_INTERVAL;
-  const oilOverdue = milesToNext <= 0;
-  const oilSoon = milesToNext > 0 && milesToNext < 500;
+  const oilKnown = oil.miles_to_next != null;
+  const milesToNext = oilKnown ? oil.miles_to_next : null;
+  const oilOverdue = oilKnown && milesToNext <= 0;
+  const oilSoon = oilKnown && milesToNext > 0 && milesToNext < 500;
+  const oilTruckPct = v.oil_level_pct != null ? ` · truck ${v.oil_level_pct}%` : '';
 
   const tirePsi = v.tires_psi || {};
   const tireWarn = v.tires_warning || {};
@@ -703,7 +772,9 @@ function render(data) {
     </div>`;
   };
 
-  const loc = v.location || {};
+  // Location lives in location.json (not committed to git); fall back to a
+  // legacy embedded location if an old data.json is still being served.
+  const loc = (locations && locations[v.vin]) || v.location || {};
   const hasLoc = loc.lat != null && loc.lng != null;
   const place = loc.place || (hasLoc ? 'GPS lock' : 'No fix');
   const coordStr = hasLoc
@@ -711,6 +782,10 @@ function render(data) {
     : '—';
   const mapsUrl = hasLoc ? `https://www.google.com/maps?q=${loc.lat},${loc.lng}` : '#';
   const embedUrl = hasLoc ? `https://maps.google.com/maps?q=${loc.lat},${loc.lng}&z=14&output=embed` : '';
+  const fixAgeMin = hasLoc ? ageMinutes(loc.ts) : null;
+  const fixOld = fixAgeMin != null && fixAgeMin > 180;
+  const fixLabel = fixAgeMin == null ? '' :
+    fixAgeMin < 1 ? 'fix just now' : `fix ${relDur(fixAgeMin)} ago`;
 
   const arcDash = (fuelPct / 100) * 131.95;
 
@@ -718,12 +793,32 @@ function render(data) {
   const battV = v.battery_v;
   const battLow = battV != null && battV < 12.4;
 
+  // Post-upgrade telemetry — tiles only appear once the truck reports them.
+  const ign = v.ignition_on;
+  const doors = v.doors_locked;
+  const statusTiles = (ign == null && doors == null) ? '' : `
+    <div class="tile">
+      <div class="tile-label">Ignition</div>
+      <div class="tile-value${ign ? ' amber' : ''}">${ign == null ? '—' : ign ? 'ON' : 'OFF'}</div>
+      <div class="tile-sub">remote status</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">Doors</div>
+      <div class="tile-value${doors === false ? ' warn' : ''}">${doors == null ? '—' : doors ? 'LOCKED' : 'UNLOCKED'}</div>
+      <div class="tile-sub${doors === false ? ' warn' : doors ? ' healthy' : ''}">${doors == null ? 'not reported' : doors ? 'all doors' : 'check truck'}</div>
+    </div>`;
+
+  const svcBits = [];
+  if (v.service_mi != null) svcBits.push(`${fmtMi(v.service_mi)} mi`);
+  if (v.days_to_service != null) svcBits.push(`${v.days_to_service} days`);
+  const odoSub = svcBits.length ? `mi · service in ${svcBits.join(' / ')}` : 'mi';
+
   document.getElementById('grid').innerHTML = `
     <!-- Odometer -->
     <div class="tile">
       <div class="tile-label">Odometer</div>
       <div class="tile-value">${fmtMi(v.odometer_mi)}</div>
-      <div class="tile-sub">mi</div>
+      <div class="tile-sub">${odoSub}</div>
     </div>
 
     <!-- Range with half-arc fuel gauge -->
@@ -746,9 +841,9 @@ function render(data) {
                   fill="none" class="fuel-arc-track" stroke-width="6"/>
             <path d="M 8 50 A 42 42 0 0 1 92 50"
                   fill="none" class="fuel-arc-fill" stroke-width="6"
-                  stroke-dasharray="${arcDash} 131.95"/>
+                  stroke-dasharray="${fuelKnown ? arcDash : 0} 131.95"/>
           </svg>
-          <div class="fuel-arc-pct">${fuelPct}<span class="u">%</span></div>
+          <div class="fuel-arc-pct">${fuelKnown ? `${fuelPct}<span class="u">%</span>` : '—'}</div>
           <div class="fuel-arc-label">Fuel</div>
         </div>
       </div>
@@ -759,10 +854,10 @@ function render(data) {
       ${ICON_OIL}
       <div class="tile-label">Oil Life · 5K</div>
       <div class="tile-value ${oilOverdue ? 'warn' : 'amber'}">
-        ${oilOverdue ? 'DUE' : fmtMi(milesToNext)}<span class="u">${oilOverdue ? '' : 'mi'}</span>
+        ${!oilKnown ? '—' : oilOverdue ? 'DUE' : fmtMi(milesToNext)}<span class="u">${oilKnown && !oilOverdue ? 'mi' : ''}</span>
       </div>
       <div class="tile-sub${oilOverdue || oilSoon ? ' warn' : ''}">
-        ${oilOverdue ? `${fmtMi(-milesToNext)} mi overdue` : oilSoon ? 'change soon' : 'to next change'}
+        ${!oilKnown ? `no data${oilTruckPct}` : oilOverdue ? `${fmtMi(-milesToNext)} mi overdue${oilTruckPct}` : oilSoon ? `change soon${oilTruckPct}` : `to next change${oilTruckPct}`}
       </div>
       <button class="reset" id="resetOilBtn">Reset</button>
     </div>
@@ -774,6 +869,7 @@ function render(data) {
       <div class="tile-value">${fmtV(battV)}<span class="u">v</span></div>
       <div class="tile-sub${battLow ? ' warn' : ' healthy'}">${battV == null ? '—' : battLow ? 'Low' : 'Healthy'}</div>
     </div>
+    ${statusTiles}
 
     <!-- Tire PSI with truck photo -->
     <div class="tile tile-wide">
@@ -790,10 +886,11 @@ function render(data) {
     <!-- Location -->
     <div class="tile tile-wide">
       <div class="tile-label">Location</div>
-      <div class="loc-place">${place}</div>
+      <div class="loc-place">${esc(place)}</div>
+      ${fixLabel ? `<div class="tile-sub${fixOld ? ' warn' : ''}">${fixLabel}${fixOld ? ' · tap Locate for a fresh fix' : ''}</div>` : ''}
       ${hasLoc ? `
         <div class="loc-map">
-          <iframe loading="lazy" src="${embedUrl}"></iframe>
+          <iframe loading="lazy" src="${embedUrl}" title="Map of truck location"></iframe>
           <span class="loc-coords">${coordStr}</span>
           <a class="loc-link" target="_blank" rel="noopener" href="${mapsUrl}">Open ↗</a>
         </div>
@@ -810,13 +907,26 @@ function render(data) {
 
 async function load() {
   try {
-    const res = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    render(data);
+    const bust = Date.now();
+    const [dataRes, locRes] = await Promise.allSettled([
+      fetch('data.json?t=' + bust, { cache: 'no-store' }),
+      fetch('location.json?t=' + bust, { cache: 'no-store' }),
+    ]);
+    if (dataRes.status !== 'fulfilled' || !dataRes.value.ok) {
+      throw new Error(dataRes.status === 'fulfilled'
+        ? 'HTTP ' + dataRes.value.status
+        : dataRes.reason.message);
+    }
+    const data = await dataRes.value.json();
+    // location.json is optional — absent until the first post-upgrade poll.
+    let locations = null;
+    if (locRes.status === 'fulfilled' && locRes.value.ok) {
+      try { locations = (await locRes.value.json()).locations || null; } catch {}
+    }
+    render(data, locations);
   } catch (err) {
     document.getElementById('grid').innerHTML =
-      `<div class="empty" style="grid-column: span 2;">Couldn't load data.json<br><span style="font-size:11px">${err.message}</span></div>`;
+      `<div class="empty" style="grid-column: span 2;">Couldn't load data.json<br><span style="font-size:11px">${esc(err.message)}</span></div>`;
     document.getElementById('sync').textContent = 'sync error';
     document.getElementById('sync').classList.add('stale');
   }
@@ -827,20 +937,32 @@ const setPat = (v) => localStorage.setItem('gh_pat', v);
 const clearPat = () => localStorage.removeItem('gh_pat');
 
 function refreshCmdEnabled() {
+  // Token-less buttons stay tappable (dimmed) — on iOS a title attribute is
+  // invisible, so the tap itself explains what's missing and opens settings.
   const has = !!getPat();
   document.querySelectorAll('.btn[data-cmd]').forEach(b => {
-    b.disabled = !has;
-    b.title = has ? '' : 'Set a GitHub token in settings first';
+    b.classList.toggle('needs-token', !has);
   });
   refreshResetEnabled();
 }
 function refreshResetEnabled() {
   const has = !!getPat();
   const r = document.getElementById('resetOilBtn');
-  if (r) {
-    r.disabled = !has;
-    r.title = has ? 'Reset oil-life baseline to current odometer' : 'Set a GitHub token in settings first';
-  }
+  if (r) r.classList.toggle('needs-token', !has);
+}
+
+function promptForToken(msg) {
+  toast(msg || 'Set a GitHub token in settings first');
+  patInput.value = getPat();
+  panel.classList.add('show');
+}
+
+function ghHeaders(pat) {
+  return {
+    'Accept': 'application/vnd.github+json',
+    'Authorization': `Bearer ${pat}`,
+    'X-GitHub-Api-Version': '2022-11-28',
+  };
 }
 
 async function dispatch(workflow, inputs = {}) {
@@ -850,61 +972,91 @@ async function dispatch(workflow, inputs = {}) {
     `https://api.github.com/repos/${REPO}/actions/workflows/${workflow}/dispatches`,
     {
       method: 'POST',
-      headers: {
-        'Accept': 'application/vnd.github+json',
-        'Authorization': `Bearer ${pat}`,
-        'X-GitHub-Api-Version': '2022-11-28',
-      },
+      headers: ghHeaders(pat),
       body: JSON.stringify({ ref: 'main', inputs }),
     }
   );
   return res;
 }
 
-async function sendCommand(label, btn) {
-  const cmd = CMD_MAP[label];
-  if (!cmd) return;
+// Poll the dispatched run until it finishes so the toast reports what the
+// TRUCK did (send_command.py exits non-zero if the vehicle rejects the
+// command). The tag is echoed into the run name by command.yml, so this
+// device only ever reads the outcome of ITS OWN dispatch — never a
+// concurrent one from another device or the Actions tab. ~3 min cap.
+async function trackRun(workflow, sinceIso, tag) {
+  const url = `https://api.github.com/repos/${REPO}/actions/workflows/${workflow}/runs?` +
+    new URLSearchParams({ event: 'workflow_dispatch', created: `>=${sinceIso}`, per_page: '10' });
+  for (let i = 0; i < 36; i++) {
+    await sleep(5000);
+    try {
+      const res = await fetch(url, { headers: ghHeaders(getPat()) });
+      if (!res.ok) continue;
+      const runs = (await res.json()).workflow_runs || [];
+      const run = runs.find(r => ((r.display_title || r.name || '').includes(tag)));
+      if (run && run.status === 'completed') return run.conclusion;
+    } catch {}
+  }
+  return null;
+}
+
+let cmdInFlight = false;
+
+async function sendCommand(cmd, btn) {
+  const c = COMMANDS[cmd];
+  if (!c) return;
   if (!getPat()) {
-    toast('Set a GitHub token in settings first');
+    promptForToken();
     return;
   }
-  if (btn.classList.contains('loading')) return;
-  btn.classList.add('loading');
-  btn.disabled = true;
+  if (cmdInFlight) {
+    toast('Another command is still running — wait for it to finish');
+    return;
+  }
+  if (c.confirm && !confirm(c.confirm)) return;
 
-  const spinUntil = Date.now() + SPINNER_MS;
-  let dispatchErr = null;
+  cmdInFlight = true;
+  btn.classList.add('loading');
+  btn.setAttribute('aria-busy', 'true');
+  // Clock-skew slack: the phone's clock and GitHub's can differ.
+  const since = new Date(Date.now() - 120000).toISOString();
+  const tag = 'd' + Math.random().toString(36).slice(2, 10);
+
   try {
-    const res = await dispatch(CMD_WORKFLOW, { command: cmd });
-    if (res.status !== 204) {
-      const txt = await res.text().catch(() => '');
-      dispatchErr = { status: res.status, txt };
+    const res = await dispatch(CMD_WORKFLOW, { command: cmd, tag });
+    if (res.status === 204) {
+      toast(`${c.label} sent — waiting for the truck…`);
+      const conclusion = await trackRun(CMD_WORKFLOW, since, tag);
+      if (conclusion === 'success') {
+        toast(`${c.label} confirmed by the truck ✓`);
+        if (cmd === 'refresh_location') setTimeout(load, 150000); // chained poll redeploys in ~2.5 min
+      } else if (conclusion === 'cancelled') {
+        toast(`${c.label} was dropped — send it again`);
+      } else if (conclusion) {
+        toast(`${c.label} failed — check the Actions log`);
+      } else {
+        toast(`${c.label} still running — check Actions for the result`);
+      }
+    } else if (res.status === 401 || res.status === 403) {
+      promptForToken('GitHub auth failed — check your token');
+    } else if (res.status === 404) {
+      toast('Workflow not found');
+    } else {
+      toast(`HTTP ${res.status}`);
     }
   } catch (err) {
-    dispatchErr = { msg: err.message };
-  }
-  const wait = Math.max(0, spinUntil - Date.now());
-  setTimeout(() => {
+    toast(`Error: ${err.message}`);
+  } finally {
+    cmdInFlight = false;
     btn.classList.remove('loading');
-    btn.disabled = false;
+    btn.removeAttribute('aria-busy');
     refreshCmdEnabled();
-    if (dispatchErr) {
-      if (dispatchErr.status === 401 || dispatchErr.status === 403) {
-        toast('GitHub auth failed — check your token');
-      } else if (dispatchErr.status === 404) {
-        toast('Workflow not found');
-      } else if (dispatchErr.msg) {
-        toast(`Error: ${dispatchErr.msg}`);
-      } else {
-        toast(`HTTP ${dispatchErr.status}`);
-      }
-    }
-  }, wait);
+  }
 }
 
 async function resetOil(btn) {
   if (!getPat()) {
-    toast('Set a GitHub token in settings first');
+    promptForToken();
     return;
   }
   if (!confirm('Reset oil baseline to current odometer? Use this after an oil change.')) return;
@@ -927,6 +1079,7 @@ async function resetOil(btn) {
   } catch (err) {
     toast(`Error: ${err.message}`);
   } finally {
+    btn.disabled = false;
     btn.textContent = original;
     refreshResetEnabled();
   }
@@ -935,6 +1088,7 @@ async function resetOil(btn) {
 document.querySelectorAll('.btn[data-cmd]').forEach(btn => {
   btn.addEventListener('click', () => sendCommand(btn.dataset.cmd, btn));
 });
+
 document.getElementById('refresh').addEventListener('click', () => {
   load();
   toast('refreshed');

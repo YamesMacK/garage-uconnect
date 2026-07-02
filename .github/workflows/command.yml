@@ -2,6 +2,13 @@ name: Send vehicle command
 
 # Triggered manually (or via the GitHub API from the PWA) to send a remote
 # command to the Ram via py-uconnect. Lock / unlock / remote start, etc.
+# send_command.py uses command_verify(), so this run's conclusion reflects
+# whether the TRUCK acknowledged the command — the dashboard polls it.
+
+# The tag makes each dispatch findable by the device that fired it: the
+# dashboard polls the runs list and matches its tag in the run name, so two
+# near-simultaneous dispatches can never toast each other's outcome.
+run-name: "Send vehicle command: ${{ inputs.command }} ${{ inputs.tag }}"
 
 on:
   workflow_dispatch:
@@ -15,8 +22,15 @@ on:
           - unlock
           - engine_on
           - engine_off
+          - lights
           - lights_horn
           - refresh_location
+          - deep_refresh
+      tag:
+        description: "Client correlation tag (set automatically by the dashboard; leave blank for manual runs)"
+        type: string
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -29,12 +43,16 @@ concurrency:
 jobs:
   send:
     runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+      actions: write  # to chain a poll run after refresh commands
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
           cache: pip
@@ -43,8 +61,29 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Send command
+        # Step cap so a hung Stellantis call fails fast and frees the
+        # vehicle-command concurrency group for the next queued command.
+        timeout-minutes: 4
         env:
           MOPAR_EMAIL: ${{ secrets.MOPAR_EMAIL }}
           MOPAR_PASSWORD: ${{ secrets.MOPAR_PASSWORD }}
           MOPAR_PIN: ${{ secrets.MOPAR_PIN }}
-        run: python scripts/send_command.py "${{ inputs.command }}"
+          # Env indirection — never interpolate workflow inputs into the
+          # shell line (injection defense-in-depth on top of type: choice).
+          CMD: ${{ inputs.command }}
+        run: python scripts/send_command.py "$CMD"
+
+      - name: Chain a data refresh
+        # After the truck acks a location/telemetry refresh, kick the poll
+        # workflow so the dashboard shows the fresh fix in ~2 min instead of
+        # waiting for cron. workflow_dispatch is exempt from GITHUB_TOKEN's
+        # no-recursive-runs rule.
+        if: ${{ inputs.command == 'refresh_location' || inputs.command == 'deep_refresh' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # Non-fatal: this run's conclusion must reflect what the TRUCK did
+        # (the dashboard toasts it) — a failed chained dispatch only means
+        # the map waits for the next cron poll.
+        run: |
+          sleep 45
+          gh workflow run poll.yml --ref main || echo "::warning::poll dispatch failed — next cron poll will pick up the fresh fix"

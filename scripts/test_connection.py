@@ -1,4 +1,4 @@
-"""
+r"""
 test_connection.py v2 — Resilient diagnostic.
 
 Same purpose as before: verify Mopar credentials work and dump everything

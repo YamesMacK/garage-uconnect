@@ -1,10 +1,13 @@
-"""
+r"""
 reset_oil_baseline.py — Mark current odometer as baseline for oil-change tracking.
 
-NOTE: Your 2022 Ram 2500 reports its OWN oil life percent directly, so this
-script is technically optional. The dashboard already shows the real value
-from the truck. This baseline is only used as a fallback if the truck ever
-stops reporting oilLevel.
+The dashboard IGNORES the truck-reported oilLevel and tracks a fixed
+5,000-mile interval against the baseline in dashboard/oil_baseline.json.
+Run this after every oil change — or, easier, tap the Reset pill on the
+dashboard's Oil tile (that fires reset_oil.yml → scripts/reset_oil.py and
+commits the new baseline for you). This CLI variant hits Stellantis
+directly for a live odometer instead of reading data.json; remember to
+commit and push the file afterwards (instructions print at the end).
 
 Usage (PowerShell):
   $env:MOPAR_EMAIL = "you@example.com"
@@ -16,6 +19,7 @@ Usage (PowerShell):
 import json
 import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
@@ -91,7 +95,13 @@ def main() -> None:
             continue
 
         odo_mi = odo_value if odo_unit in ("mi", "miles") else km_to_mi(odo_value)
-        existing[vin] = odo_mi
+        # Same structured shape as reset_oil.py / poll.py — never the legacy
+        # bare number, which loses the set_at/auto_anchored provenance.
+        existing[vin] = {
+            "odometer_at_last_change_mi": round(odo_mi),
+            "set_at": datetime.now(timezone.utc).isoformat(),
+            "auto_anchored": False,
+        }
         updated += 1
 
         try:

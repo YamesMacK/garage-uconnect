@@ -6,3 +6,7 @@ __pycache__/
 .DS_Store
 node_modules/
 test_output.json
+# GPS stays out of public git history — location.json is deployed to Pages
+# via the workflow artifact only (see poll.yml).
+dashboard/location.json
+dashboard/*.json.tmp
