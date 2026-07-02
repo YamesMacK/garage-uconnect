@@ -17,6 +17,11 @@ ROOT = Path(__file__).parent.parent
 DATA_FILE = ROOT / "dashboard" / "data.json"
 OIL_BASELINE_FILE = ROOT / "dashboard" / "oil_baseline.json"
 
+# Refuse to anchor to an odometer reading older than this — a stale anchor
+# writes a silently-wrong baseline. Cron polls every 30 min, so anything
+# past 6 h means polling is broken; fix that first.
+MAX_DATA_AGE_HOURS = 6
+
 
 def main() -> None:
     if not DATA_FILE.exists():
@@ -28,6 +33,19 @@ def main() -> None:
     except json.JSONDecodeError as e:
         print(f"ERROR: data.json is malformed — {e}", file=sys.stderr)
         sys.exit(1)
+
+    last_updated = data.get("last_updated")
+    if last_updated:
+        try:
+            age_h = (datetime.now(timezone.utc)
+                     - datetime.fromisoformat(str(last_updated))).total_seconds() / 3600
+            print(f"  · data.json is {age_h:.1f} h old")
+            if age_h > MAX_DATA_AGE_HOURS:
+                print(f"ERROR: odometer reading is {age_h:.1f} h old (max {MAX_DATA_AGE_HOURS} h). "
+                      "Run the poll workflow first, then reset again.", file=sys.stderr)
+                sys.exit(1)
+        except ValueError:
+            print(f"  · couldn't parse last_updated={last_updated!r}; proceeding without freshness check")
 
     vehicles = data.get("vehicles") or []
     if not vehicles:

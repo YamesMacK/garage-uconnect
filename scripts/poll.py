@@ -1,31 +1,40 @@
 """
-poll.py — Fetch Ram data from Stellantis cloud and write data.json.
+poll.py — Fetch Ram data from Stellantis cloud and write data.json + location.json.
 
 Runs in GitHub Actions on a schedule. Reads credentials from env vars
 (MOPAR_EMAIL, MOPAR_PASSWORD, MOPAR_PIN). Writes dashboard/data.json
-which the PWA reads via fetch().
+(committed to git) and dashboard/location.json (NOT committed — deployed
+to Pages via the workflow artifact only, so GPS history never lands in
+public git history; see poll.yml).
 
 Architecture notes (do not regress):
   * py-uconnect's `client.api.get_vehicle(vin)` returns a raw dict.
     The Vehicle dataclass is populated by passing that dict through
-    `_update_vehicle(v, dict)`. We do this manually per VIN so a 502
-    on a sibling vehicle (the broken Challenger) doesn't kill the
-    whole poll — `client.refresh()` has no per-vehicle try/except.
+    `_update_vehicle(v, dict)`. We do this manually per VIN so a bad
+    sibling vehicle (the broken Challenger) doesn't kill the whole
+    poll — `client.refresh()` also makes extra per-vehicle calls we
+    don't need every 30 minutes.
+  * Since py-uconnect 0.4.x, get_vehicle() returns {} on HTTP
+    400/404/502 instead of raising. An empty dict must be treated as
+    a failed fetch or the poll would silently write an all-null row.
+  * Door lock / window / engine state come from a SEPARATE endpoint
+    (get_vehicle_status). It's called best-effort: subscriptions
+    without that data just leave the fields null.
   * Vehicle attribute names from py-uconnect (NOT obvious):
       - tire pressure: `wheel_front_left_pressure`, etc. (not tire_pressure_*)
       - fuel level pct: `fuel_amount` (not fuel_level_percent)
-      - oil life pct: `oil_level` (we ignore this; we use a 5k baseline)
+      - oil life pct: `oil_level` (informational only; we use a 5k baseline)
 
 Oil tracking strategy (since 2026-04-29):
   Use a baseline-counter against a 5,000-mile interval. Ignore the truck's
-  reported oilLevel. Baseline auto-populates on first run for any new VIN,
+  reported oilLevel for the DUE calculation (it is surfaced as a secondary
+  readout only). Baseline auto-populates on first run for any new VIN,
   then only changes when the user re-anchors after an oil change.
 """
 
 import json
 import os
 import sys
-import traceback
 import urllib.request
 import urllib.parse
 from datetime import datetime, timezone
@@ -36,6 +45,7 @@ from py_uconnect.client import Vehicle, Location, _update_vehicle
 
 ROOT = Path(__file__).parent.parent
 DATA_FILE = ROOT / "dashboard" / "data.json"
+LOCATION_FILE = ROOT / "dashboard" / "location.json"
 OIL_BASELINE_FILE = ROOT / "dashboard" / "oil_baseline.json"
 OIL_CHANGE_INTERVAL_MILES = 5000
 
@@ -97,15 +107,33 @@ def normalize_pressure(value, unit):
     return kpa_to_psi(f)
 
 
+def sanitize_err(e: Exception) -> str:
+    """Error text safe for PUBLIC Actions logs: exception type plus a short,
+    single-line excerpt. Never a traceback — request internals could leak."""
+    msg = " ".join(str(e).split())
+    return f"{type(e).__name__}: {msg[:120]}"
+
+
+def write_json_atomic(path: Path, obj) -> None:
+    """Write via temp file + os.replace so a killed run can never leave a
+    truncated JSON file behind for the workflow to commit or deploy."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(obj, indent=2, default=str))
+    os.replace(tmp, path)
+
+
 # ─── Reverse geocoding (free via Nominatim) ────────────────────────────────
 def reverse_geocode(lat: float, lng: float) -> str | None:
     """Return a short human-readable place name for (lat, lng), or None.
     Uses OpenStreetMap Nominatim. No API key required, but the policy
-    requires a real User-Agent identifying the app."""
+    requires a real User-Agent identifying the app. Coordinates are
+    rounded to 3 decimals (~100 m) — zoom 14 doesn't need more, and the
+    third party doesn't need a sub-meter fix."""
     try:
         params = urllib.parse.urlencode({
-            "lat": f"{lat:.6f}",
-            "lon": f"{lng:.6f}",
+            "lat": f"{lat:.3f}",
+            "lon": f"{lng:.3f}",
             "format": "json",
             "zoom": "14",  # neighborhood / suburb level
             "addressdetails": "1",
@@ -159,8 +187,35 @@ def reverse_geocode(lat: float, lng: float) -> str | None:
         if parts:
             return ", ".join(parts[:2]) if len(parts) >= 2 else parts[0]
     except Exception as e:
-        print(f"  · reverse-geocode failed: {e}")
+        print(f"  · reverse-geocode failed: {sanitize_err(e)}")
     return None
+
+
+def load_prev_locations() -> dict:
+    """Previous location.json (the workflow curls the last-good copy from the
+    live site before the poll). Used to skip Nominatim when parked."""
+    if LOCATION_FILE.exists():
+        try:
+            return json.loads(LOCATION_FILE.read_text()).get("locations") or {}
+        except (json.JSONDecodeError, AttributeError):
+            return {}
+    return {}
+
+
+def resolve_place(vin: str, lat: float, lng: float, prev_locations: dict) -> str | None:
+    """Reuse the previous place name when the truck hasn't moved (~50 m),
+    so Nominatim isn't hit every 30 minutes while parked."""
+    prev = prev_locations.get(vin) or {}
+    try:
+        if (
+            prev.get("place")
+            and abs(float(prev["lat"]) - lat) < 5e-4
+            and abs(float(prev["lng"]) - lng) < 5e-4
+        ):
+            return prev["place"]
+    except (TypeError, ValueError, KeyError):
+        pass
+    return reverse_geocode(lat, lng)
 
 
 # ─── Oil baseline ──────────────────────────────────────────────────────────
@@ -168,29 +223,40 @@ def load_oil_baseline() -> dict:
     if OIL_BASELINE_FILE.exists():
         try:
             return json.loads(OIL_BASELINE_FILE.read_text())
-        except json.JSONDecodeError:
-            return {}
+        except json.JSONDecodeError as e:
+            # Do NOT fall back to {} — that would silently re-anchor the
+            # baseline to the current odometer and wipe real oil tracking.
+            print(f"ERROR: {OIL_BASELINE_FILE} is corrupted ({e}); refusing to "
+                  "auto-anchor over it. Fix or delete the file deliberately.",
+                  file=sys.stderr)
+            sys.exit(1)
     return {}
 
 
 def save_oil_baseline(baseline: dict) -> None:
-    OIL_BASELINE_FILE.parent.mkdir(parents=True, exist_ok=True)
-    OIL_BASELINE_FILE.write_text(json.dumps(baseline, indent=2))
+    write_json_atomic(OIL_BASELINE_FILE, baseline)
 
 
 def compute_oil(vin: str, odometer_mi, baseline: dict):
-    if odometer_mi is None:
-        return ({
-            "interval_mi": OIL_CHANGE_INTERVAL_MILES,
-            "baseline_mi": None,
-            "miles_since": None,
-            "miles_to_next": None,
-        }, baseline)
-
     entry = baseline.get(vin)
-    # Tolerate both the legacy bare-number form and the structured form.
+    # Tolerate the legacy bare-number form; write the structured form back
+    # so the file self-upgrades on the next commit.
     if isinstance(entry, (int, float)):
         entry = {"odometer_at_last_change_mi": entry}
+        baseline[vin] = entry
+
+    if odometer_mi is None:
+        # Keep the block shape constant so the dashboard can tell "no
+        # odometer this poll" apart from "fresh oil change".
+        return ({
+            "interval_mi": OIL_CHANGE_INTERVAL_MILES,
+            "baseline_mi": entry.get("odometer_at_last_change_mi") if entry else None,
+            "miles_since": None,
+            "miles_to_next": None,
+            "baseline_set_at": entry.get("set_at") if entry else None,
+            "auto_anchored": entry.get("auto_anchored", False) if entry else False,
+        }, baseline)
+
     if not entry or "odometer_at_last_change_mi" not in entry:
         baseline[vin] = {
             "odometer_at_last_change_mi": round(odometer_mi),
@@ -214,9 +280,43 @@ def compute_oil(vin: str, odometer_mi, baseline: dict):
 
 
 # ─── Resilient per-vehicle fetch ───────────────────────────────────────────
+def apply_remote_status(vehicle: Vehicle, status: dict) -> None:
+    """Map the get_vehicle_status (remote/status) payload onto the Vehicle.
+    Mirrors what client.refresh() does internally — doors/windows/engine/
+    trunk state lives on this endpoint only. Every field is optional."""
+    def _eq(d: dict, *path, value):
+        cur = d
+        for k in path:
+            if not isinstance(cur, dict):
+                return None
+            cur = cur.get(k)
+        if cur is None:
+            return None
+        return cur == value
+
+    doors = status.get("doors") or {}
+    vehicle.door_driver_locked = _eq(doors, "driver", "status", value="LOCKED")
+    vehicle.door_passenger_locked = _eq(doors, "passenger", "status", value="LOCKED")
+    vehicle.door_rear_left_locked = _eq(doors, "leftRear", "status", value="LOCKED")
+    vehicle.door_rear_right_locked = _eq(doors, "rightRear", "status", value="LOCKED")
+
+    windows = status.get("windows") or {}
+    vehicle.window_driver_closed = _eq(windows, "driver", "status", value="CLOSED")
+    vehicle.window_passenger_closed = _eq(windows, "passenger", "status", value="CLOSED")
+
+    engine_on = _eq(status, "engine", "status", value="ON")
+    if engine_on is not None:
+        vehicle.ignition_on = engine_on
+
+    trunk = _eq(status, "trunk", "status", value="LOCKED")
+    if trunk is not None:
+        vehicle.trunk_locked = trunk
+
+
 def fetch_vehicle(client, vin_entry: dict) -> Vehicle:
     """Build a populated Vehicle for a single VIN without using
-    client.refresh() (which crashes on the broken Challenger)."""
+    client.refresh() (extra calls, and historically it crashed on the
+    broken Challenger)."""
     vin = vin_entry["vin"]
 
     vehicle = Vehicle(
@@ -232,13 +332,25 @@ def fetch_vehicle(client, vin_entry: dict) -> Vehicle:
     vehicle.fuel_type = vin_entry.get("fuelType")
 
     info = client.api.get_vehicle(vin)
+    if not info:
+        # py-uconnect 0.4.x returns {} on HTTP 400/404/502 instead of
+        # raising. Treat that as a failed fetch, not an all-null vehicle.
+        raise RuntimeError("get_vehicle returned an empty payload")
     _update_vehicle(vehicle, info)
+
+    # Doors/windows/engine state — separate endpoint, best-effort.
+    try:
+        status = client.api.get_vehicle_status(vin)
+        if status:
+            apply_remote_status(vehicle, status)
+    except Exception as e:
+        print(f"  · {vin}: no remote status ({sanitize_err(e)})")
 
     # Location is a separate API call; tolerate failure.
     try:
         loc = client.api.get_vehicle_location(vin)
         updated = (
-            datetime.fromtimestamp(loc["timeStamp"] / 1000).astimezone()
+            datetime.fromtimestamp(loc["timeStamp"] / 1000, tz=timezone.utc)
             if "timeStamp" in loc
             else None
         )
@@ -256,8 +368,19 @@ def fetch_vehicle(client, vin_entry: dict) -> Vehicle:
     return vehicle
 
 
+def aggregate_locked(*states):
+    """False if ANY reported door is unlocked; True only when ALL doors are
+    explicitly reported locked; None otherwise. A partial payload must never
+    render as a false-safe LOCKED."""
+    if any(s is False for s in states):
+        return False
+    if all(s is True for s in states):
+        return True
+    return None
+
+
 # ─── Per-vehicle serializer ────────────────────────────────────────────────
-def serialize_vehicle(v: Vehicle, oil_baseline: dict):
+def serialize_vehicle(v: Vehicle, oil_baseline: dict, prev_locations: dict):
     odometer_mi = normalize_distance(v.odometer, v.odometer_unit)
     range_mi = normalize_distance(v.distance_to_empty, v.distance_to_empty_unit)
 
@@ -274,17 +397,18 @@ def serialize_vehicle(v: Vehicle, oil_baseline: dict):
         "rear_right":  bool(v.wheel_rear_right_pressure_warning)  if v.wheel_rear_right_pressure_warning  is not None else False,
     }
 
+    # Location goes to location.json (NOT committed), never data.json.
     location = None
     if v.location:
         lat = to_float(v.location.latitude)
         lng = to_float(v.location.longitude)
-        place = reverse_geocode(lat, lng) if (lat is not None and lng is not None) else None
-        location = {
-            "lat": lat,
-            "lng": lng,
-            "ts": str(v.location.updated) if v.location.updated else None,
-            "place": place,
-        }
+        if lat is not None and lng is not None:
+            location = {
+                "lat": lat,
+                "lng": lng,
+                "ts": v.location.updated.isoformat() if v.location.updated else None,
+                "place": resolve_place(v.vin, lat, lng, prev_locations),
+            }
 
     oil_block, oil_baseline = compute_oil(v.vin, odometer_mi, oil_baseline)
 
@@ -301,9 +425,17 @@ def serialize_vehicle(v: Vehicle, oil_baseline: dict):
         "battery_v": to_float(v.battery_voltage),
         "tires_psi": tires_psi,
         "tires_warning": tires_warning,
-        "location": location,
+        # Post-subscription-upgrade telemetry — null until the truck reports it.
+        "ignition_on": v.ignition_on,
+        "doors_locked": aggregate_locked(
+            v.door_driver_locked, v.door_passenger_locked,
+            v.door_rear_left_locked, v.door_rear_right_locked,
+        ),
+        "days_to_service": to_int(v.days_to_service),
+        "service_mi": normalize_distance(v.distance_to_service, v.distance_to_service_unit),
+        "oil_level_pct": to_int(v.oil_level),
         "oil": oil_block,
-    }, oil_baseline)
+    }, location, oil_baseline)
 
 
 # ─── Main ──────────────────────────────────────────────────────────────────
@@ -321,12 +453,14 @@ def main() -> None:
     try:
         listed = client.api.list_vehicles()
     except Exception as e:
-        print(f"ERROR listing vehicles: {e}", file=sys.stderr)
-        traceback.print_exc()
+        print(f"ERROR listing vehicles: {sanitize_err(e)}", file=sys.stderr)
         sys.exit(1)
 
     oil_baseline = load_oil_baseline()
+    baseline_before = json.dumps(oil_baseline, sort_keys=True, default=str)
+    prev_locations = load_prev_locations()
     vehicles_out = []
+    locations_out = {}
 
     for entry in listed:
         vin = entry.get("vin")
@@ -338,27 +472,45 @@ def main() -> None:
 
         try:
             vehicle = fetch_vehicle(client, entry)
-            vd, oil_baseline = serialize_vehicle(vehicle, oil_baseline)
+            vd, loc, oil_baseline = serialize_vehicle(vehicle, oil_baseline, prev_locations)
             vehicles_out.append(vd)
+            if loc:
+                locations_out[vin] = loc
             mtn = (vd.get("oil") or {}).get("miles_to_next")
             print(f"  ✓ {vin}: odo={vd.get('odometer_mi')} mi · oil_to_next={mtn} mi")
         except Exception as e:
-            print(f"  ! {vin}: fetch failed — {type(e).__name__}: {e}", file=sys.stderr)
-            traceback.print_exc()
+            print(f"  ! {vin}: fetch failed — {sanitize_err(e)}", file=sys.stderr)
 
     if not vehicles_out:
         print("No vehicles fetched successfully — leaving data.json untouched", file=sys.stderr)
         sys.exit(1)
 
-    output = {
-        "last_updated": datetime.now(timezone.utc).isoformat(),
+    now_iso = datetime.now(timezone.utc).isoformat()
+    write_json_atomic(DATA_FILE, {
+        "last_updated": now_iso,
         "vehicles": vehicles_out,
-    }
-
-    DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
-    DATA_FILE.write_text(json.dumps(output, indent=2, default=str))
-    save_oil_baseline(oil_baseline)
+    })
     print(f"Wrote {DATA_FILE}")
+
+    # Preserve last-good fixes for VINs that didn't report one this poll.
+    for vin, prev in prev_locations.items():
+        locations_out.setdefault(vin, prev)
+    if locations_out:
+        write_json_atomic(LOCATION_FILE, {
+            "last_updated": now_iso,
+            "locations": locations_out,
+        })
+        print(f"Wrote {LOCATION_FILE}")
+    else:
+        # Monotonic: never deploy an EMPTY location set over a possibly
+        # nonempty one (curl of last-good can miss AND the location call can
+        # fail in the same run). Leaving the file alone keeps whatever the
+        # workflow fetched; absence just renders "No fix" on the dashboard.
+        print("No locations this poll and no last-good copy — leaving location.json untouched")
+
+    if json.dumps(oil_baseline, sort_keys=True, default=str) != baseline_before:
+        save_oil_baseline(oil_baseline)
+        print(f"Wrote {OIL_BASELINE_FILE} (baseline changed)")
 
 
 if __name__ == "__main__":

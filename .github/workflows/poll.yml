@@ -2,17 +2,13 @@ name: Poll Ram & Deploy Dashboard
 
 on:
   schedule:
-    # Every 30 minutes. Cron is UTC.
-    - cron: "*/30 * * * *"
-  workflow_dispatch:  # Manual trigger button in Actions tab
+    # Every 30 minutes, offset from :00/:30 — GitHub's scheduler drops a
+    # large fraction of runs on the congested top/bottom-of-hour slots
+    # (observed: */30 fired only every 1-4 h). Cron is UTC.
+    - cron: "7,37 * * * *"
+  workflow_dispatch:  # Manual trigger button in Actions tab; also chained from command.yml
   push:
     branches: [main]
-
-# Required for GitHub Pages deploy
-permissions:
-  contents: write
-  pages: write
-  id-token: write
 
 # Don't run multiple polls in parallel. cancel-in-progress: false because
 # GitHub Pages does not support concurrent deployments — cancelling a run
@@ -24,20 +20,33 @@ concurrency:
 jobs:
   poll:
     runs-on: ubuntu-latest
-    # Generous: poll (3m) + a slow Pages queue (deploy-pages waits up to 10m).
-    timeout-minutes: 16
+    timeout-minutes: 8
+    # Only what this job needs. pages/id-token live in the deploy job so the
+    # pip-installed third-party code here can never mint an OIDC token.
+    permissions:
+      contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
           cache: pip
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Fetch last-good location.json
+        # location.json is deliberately NOT committed (no GPS history in
+        # public git) — pull the previous copy from the live site so a failed
+        # poll keeps the last-known fix and poll.py can reuse the cached
+        # place name while the truck is parked.
+        run: |
+          curl -fsSL --max-time 20 \
+            https://yamesmack.github.io/garage-uconnect/location.json \
+            -o dashboard/location.json || true
 
       - name: Poll Stellantis API
         # Don't gate the Pages deploy on a successful poll. If Stellantis
@@ -51,11 +60,41 @@ jobs:
           MOPAR_PIN: ${{ secrets.MOPAR_PIN }}
         run: python scripts/poll.py
 
-      - name: Commit updated data.json
+      - name: Ensure location.json survives the deploy
+        # The artifact replaces the whole site: deploying without
+        # location.json would 404 the last-known fix permanently (the next
+        # poll's curl would then miss too). Retry the last-good fetch before
+        # accepting a no-location deploy; only the true bootstrap case (file
+        # has never existed) deploys without it.
         run: |
+          if [ -f dashboard/location.json ]; then
+            python -c "import json; json.load(open('dashboard/location.json'))" 2>/dev/null || rm -f dashboard/location.json
+          fi
+          if [ ! -f dashboard/location.json ]; then
+            for i in 1 2 3; do
+              if curl -fsSL --max-time 20 \
+                   https://yamesmack.github.io/garage-uconnect/location.json \
+                   -o dashboard/location.json \
+                 && python -c "import json; json.load(open('dashboard/location.json'))" 2>/dev/null; then
+                break
+              fi
+              rm -f dashboard/location.json
+              sleep 5
+            done
+          fi
+          [ -f dashboard/location.json ] || echo "::warning::deploying without location.json (bootstrap, or last-good unreachable after 3 retries)"
+
+      - name: Commit updated data
+        run: |
+          # Validity gate: never stage a data.json without vehicles. poll.py
+          # writes atomically, so this only trips on a genuine regression.
+          python -c "import json; d=json.load(open('dashboard/data.json')); assert d.get('vehicles'), 'no vehicles in data.json'"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add dashboard/data.json
+          # oil_baseline.json is staged too: poll.py auto-anchors new VINs,
+          # and an uncommitted baseline change would otherwise re-anchor
+          # every poll AND leave the tree dirty, wedging the rebase below.
+          git add dashboard/data.json dashboard/oil_baseline.json
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
@@ -67,24 +106,40 @@ jobs:
               fi
               echo "Push rejected (attempt $attempt) — rebasing onto origin/main and retrying"
               # -X theirs: on conflict keep THIS run's freshly-polled data
-              # (in a rebase the replayed commit is "theirs"). Both sides rewrite
-              # the whole file, so a plain rebase conflicts and strands the loop.
-              git pull --rebase -X theirs origin main
+              # (in a rebase the replayed commit is "theirs"). Both sides
+              # rewrite the whole file, so a plain rebase conflicts and
+              # strands the loop. The || branch keeps a failed pull from
+              # aborting the step (set -e) and cleans up a half-done rebase
+              # so the next attempt starts clean.
+              git pull --rebase -X theirs origin main || { git rebase --abort 2>/dev/null || true; sleep 2; }
             done
             echo "Push failed after 5 attempts" >&2
             exit 1
           fi
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v6
-
       - name: Upload dashboard artifact
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: ./dashboard
 
+  deploy:
+    needs: poll
+    runs-on: ubuntu-latest
+    # Generous: deploy-pages' own poll waits up to 10 m on a slow builder queue.
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v5
+        id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
         # Let the action's own 10-minute poll govern; a 5-minute step cap
         # guillotines a slow-but-healthy Pages queue (it builds in 2-3m fast,
         # but the builder backlog can sit in deployment_queued past 5m).

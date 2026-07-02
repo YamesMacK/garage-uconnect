@@ -1,9 +1,14 @@
 /* sw.js — minimal service worker for PWA installability.
-   Strategy: cache the shell (HTML/CSS/manifest), always fetch data.json
-   from network so the dashboard shows fresh data when online. */
+   Strategy:
+   - data.json / location.json — network first, cached under a CANONICAL key
+     (the page fetches with a ?t= cache-buster, so caching the raw request
+     URL would never match again and would grow the cache without bound).
+   - navigations / index.html — network first so dashboard updates reach
+     installed PWAs without a manual CACHE bump; cache fallback offline.
+   - everything else same-origin (icons, images, manifest) — cache first. */
 
-const CACHE = 'garage-v20260502-revert-original';
-const SHELL = ['./', './index.html', './manifest.json', './img/truck-top.png', './img/hero-truck.png'];
+const CACHE = 'garage-v20260702-remote-commands';
+const SHELL = ['./', './index.html', './manifest.json', './img/truck-top.png', './img/hero-truck.png', './icon-192.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)));
@@ -20,23 +25,49 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
+  if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
+  // Cross-origin (fonts, maps, GitHub API) — let the browser handle it.
+  if (url.origin !== self.location.origin) return;
 
-  // data.json — always network first, fall back to cache only if offline
-  if (url.pathname.endsWith('data.json')) {
+  // Live data — network first under a canonical key. Fall back to the
+  // cached last-good copy on network failure AND on HTTP errors (a Pages
+  // deploy propagation miss can 404 exactly when the cache matters most).
+  const dataMatch = url.pathname.match(/\/(data|location)\.json$/);
+  if (dataMatch) {
+    const key = `./${dataMatch[1]}.json`;
     e.respondWith(
       fetch(e.request)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(e.request, copy));
-          return res;
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(key, copy));
+            return res;
+          }
+          return caches.match(key).then((hit) => hit || res);
         })
-        .catch(() => caches.match(e.request))
+        .catch(() => caches.match(key))
     );
     return;
   }
 
-  // Everything else — cache first, network fallback
+  // App shell — network first so edits deploy without a CACHE bump.
+  if (e.request.mode === 'navigate' || url.pathname.endsWith('/index.html')) {
+    e.respondWith(
+      fetch(e.request)
+        .then((res) => {
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put('./index.html', copy));
+          }
+          return res;
+        })
+        .catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+
+  // Static assets — cache first, network fallback.
   e.respondWith(
     caches.match(e.request).then((hit) => hit || fetch(e.request))
   );
