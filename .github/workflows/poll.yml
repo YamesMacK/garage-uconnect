@@ -132,11 +132,20 @@ jobs:
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      # Whichever attempt below actually succeeds sets this; empty outputs
+      # from failed/skipped attempts are falsy so `||` falls through cleanly.
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry1.outputs.page_url || steps.deployment_retry2.outputs.page_url }}
     steps:
       - name: Setup Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
 
+      # deploy-pages occasionally rejects the *creation* call itself with
+      # "Deployment failed, try again later" — usually because the previous
+      # deployment for this environment hadn't finished finalizing/propagating.
+      # That's a GitHub Pages backend lock, separate from the job-level
+      # concurrency group above (which only stops two workflow runs
+      # overlapping), and the action has no built-in retry for it, so retry
+      # here: up to 3 attempts with a short backoff between them.
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
@@ -144,3 +153,27 @@ jobs:
         # guillotines a slow-but-healthy Pages queue (it builds in 2-3m fast,
         # but the builder backlog can sit in deployment_queued past 5m).
         timeout-minutes: 11
+        continue-on-error: true
+
+      - name: Wait before deploy retry 1
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 15
+
+      - name: Deploy to GitHub Pages (retry 1)
+        id: deployment_retry1
+        if: steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+        timeout-minutes: 11
+        continue-on-error: true
+
+      - name: Wait before deploy retry 2
+        if: steps.deployment.outcome == 'failure' && steps.deployment_retry1.outcome == 'failure'
+        run: sleep 30
+
+      - name: Deploy to GitHub Pages (retry 2)
+        id: deployment_retry2
+        if: steps.deployment.outcome == 'failure' && steps.deployment_retry1.outcome == 'failure'
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+        timeout-minutes: 11
+        # No continue-on-error here — if this last attempt also fails, the
+        # job should fail loudly rather than silently reporting a stale URL.
