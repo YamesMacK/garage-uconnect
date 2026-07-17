@@ -1063,13 +1063,26 @@ async function resetOil(btn) {
   btn.disabled = true;
   const original = btn.textContent;
   btn.textContent = '…';
+  const since = new Date(Date.now() - 120000).toISOString();
+  const tag = 'd' + Math.random().toString(36).slice(2, 10);
   try {
-    const res = await dispatch(RESET_OIL_WORKFLOW, {});
+    const res = await dispatch(RESET_OIL_WORKFLOW, { tag });
     if (res.status === 204) {
-      toast('Oil baseline reset — refreshing in ~30s');
-      setTimeout(load, 30000);
+      toast('Reset sent — anchoring baseline…');
+      const conclusion = await trackRun(RESET_OIL_WORKFLOW, since, tag);
+      if (conclusion === 'success') {
+        // The reset run chains a poll + Pages deploy; the tile reads 5,000
+        // once that lands (~2-3 min). Second load catches a slow builder.
+        toast('Oil baseline reset ✓ — tile updates in ~3 min');
+        setTimeout(load, 150000);
+        setTimeout(load, 300000);
+      } else if (conclusion) {
+        toast('Reset failed — check the Actions log');
+      } else {
+        toast('Reset still running — check Actions for the result');
+      }
     } else if (res.status === 401 || res.status === 403) {
-      toast('GitHub auth failed');
+      promptForToken('GitHub auth failed — check your token');
     } else if (res.status === 404) {
       toast('reset_oil workflow not deployed');
     } else {

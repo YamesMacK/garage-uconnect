@@ -3,9 +3,12 @@ reset_oil.py — Re-anchor the oil-change baseline to the current odometer.
 
 Triggered by the "Reset Oil" button in the dashboard via workflow_dispatch.
 Reads the most recent odometer from dashboard/data.json and writes a new
-dashboard/oil_baseline.json with that value, then commits.
+dashboard/oil_baseline.json with that value.
 
-After the next 30-min poll, miles_to_next will read 5,000 again.
+Also rewrites the `oil` block inside data.json itself (the dashboard tile
+renders data.json, not oil_baseline.json) so the reset is visible as soon
+as the workflow's chained Pages deploy lands — not only after the next
+cron poll happens to run.
 """
 
 import json
@@ -16,6 +19,9 @@ from pathlib import Path
 ROOT = Path(__file__).parent.parent
 DATA_FILE = ROOT / "dashboard" / "data.json"
 OIL_BASELINE_FILE = ROOT / "dashboard" / "oil_baseline.json"
+
+# Must match OIL_CHANGE_INTERVAL_MILES in poll.py.
+OIL_CHANGE_INTERVAL_MILES = 5000
 
 # Refuse to anchor to an odometer reading older than this — a stale anchor
 # writes a silently-wrong baseline. Cron polls every 30 min, so anything
@@ -68,10 +74,21 @@ def main() -> None:
             print(f"  · skipping {vin}: no odometer reading")
             continue
 
-        baseline[vin] = {
+        entry = {
             "odometer_at_last_change_mi": round(odo),
             "set_at": datetime.now(timezone.utc).isoformat(),
             "auto_anchored": False,  # user-initiated, not auto
+        }
+        baseline[vin] = entry
+        # Same block shape as compute_oil() in poll.py — the tile renders
+        # this, so the reset shows up on the very next Pages deploy.
+        v["oil"] = {
+            "interval_mi": OIL_CHANGE_INTERVAL_MILES,
+            "baseline_mi": entry["odometer_at_last_change_mi"],
+            "miles_since": 0,
+            "miles_to_next": OIL_CHANGE_INTERVAL_MILES,
+            "baseline_set_at": entry["set_at"],
+            "auto_anchored": False,
         }
         updated_vins.append((vin, round(odo)))
         print(f"  ✓ {vin}: baseline reset to {round(odo)} mi")
@@ -83,6 +100,11 @@ def main() -> None:
     OIL_BASELINE_FILE.parent.mkdir(parents=True, exist_ok=True)
     OIL_BASELINE_FILE.write_text(json.dumps(baseline, indent=2))
     print(f"Wrote {OIL_BASELINE_FILE}")
+
+    # last_updated is left alone on purpose — the odometer still dates from
+    # the last poll; only the derived oil block changed.
+    DATA_FILE.write_text(json.dumps(data, indent=2, default=str))
+    print(f"Wrote {DATA_FILE} (oil block re-anchored)")
 
 
 if __name__ == "__main__":

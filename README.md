@@ -53,7 +53,10 @@ a fixed **5,000 mile** interval against a baseline odometer reading stored in
   next change" until you drive.
 - After your next oil change, hit the **Reset** pill on the Oil tile (fires
   `reset_oil.yml` → `scripts/reset_oil.py`), or run
-  `scripts/reset_oil_baseline.py` from a PC.
+  `scripts/reset_oil_baseline.py` from a PC. The reset re-anchors the
+  baseline, rewrites data.json's oil block, and chains a poll + Pages
+  deploy — the pill tracks the run and the tile reads 5,000 again in
+  ~3 minutes.
 - The "Oil · 5K" tile shows miles remaining; turns red and reads "DUE" once
   past 5,000 mi since the baseline.
 
@@ -138,7 +141,7 @@ garage-uconnect/
 ├─ scripts/
 │  ├─ poll.py                  # Polling script (CI). 5k oil tracker lives here.
 │  ├─ test_connection.py       # One-off diagnostic — dumps everything the API returns
-│  ├─ reset_oil.py             # Re-anchor baseline from data.json (Reset pill via reset_oil.yml)
+│  ├─ reset_oil.py             # Re-anchor baseline + data.json oil block (Reset pill via reset_oil.yml)
 │  ├─ reset_oil_baseline.py    # CLI variant — hits Stellantis for a live odometer
 │  └─ send_command.py          # CLI + CI: lock/unlock/start/stop/horn/locate/deep_refresh
 ├─ dashboard/
