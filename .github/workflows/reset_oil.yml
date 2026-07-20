@@ -54,23 +54,37 @@ jobs:
           git add dashboard/oil_baseline.json dashboard/data.json
           if git diff --staged --quiet; then
             echo "No changes to commit"
-          else
-            git commit -m "Reset oil baseline to current odometer [skip ci]"
-            for attempt in 1 2 3 4 5; do
-              if git push; then
-                exit 0
-              fi
-              echo "Push rejected (attempt $attempt) — rebasing onto origin/main and retrying"
-              # -X theirs: on conflict keep THIS run's regenerated baseline
-              # (in a rebase the replayed commit is "theirs"). A plain rebase
-              # conflicts when both sides rewrite the file and strands the
-              # loop. The || branch keeps a failed pull from aborting the
-              # step (set -e) and cleans up a half-done rebase.
-              git pull --rebase -X theirs origin main || { git rebase --abort 2>/dev/null || true; sleep 2; }
-            done
-            echo "Push failed after 5 attempts" >&2
-            exit 1
+            exit 0
           fi
+          git commit -m "Reset oil baseline to current odometer [skip ci]"
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              exit 0
+            fi
+            echo "Push rejected (attempt $attempt) — re-applying onto fresh origin/main"
+            # A poll may have committed fresh telemetry while we ran. Do NOT
+            # rebase with -X theirs: that replays our commit and would clobber
+            # the poll's newer fuel/door/service data and last_updated with our
+            # stale checkout, just to change the oil block. Instead hard-reset
+            # to the freshest main and re-run reset_oil.py, which re-derives the
+            # oil block on top of the poll's current data.json (and merges the
+            # baseline for our VIN without touching others) — telemetry stays
+            # the poll's, only the oil fields change.
+            git fetch origin main || { sleep 2; continue; }
+            git reset --hard origin/main
+            if ! python scripts/reset_oil.py; then
+              echo "Re-anchor on fresh main failed — aborting rather than committing stale data" >&2
+              exit 1
+            fi
+            git add dashboard/oil_baseline.json dashboard/data.json
+            if git diff --staged --quiet; then
+              echo "Baseline already current on origin/main — nothing left to push"
+              exit 0
+            fi
+            git commit -m "Reset oil baseline to current odometer [skip ci]"
+          done
+          echo "Push failed after 5 attempts" >&2
+          exit 1
 
       - name: Chain a Pages deploy
         # The push above is authenticated with GITHUB_TOKEN, which never
