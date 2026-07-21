@@ -145,11 +145,12 @@ garage-uconnect/
 │  ├─ reset_oil_baseline.py    # CLI variant — hits Stellantis for a live odometer
 │  └─ send_command.py          # CLI + CI: lock/unlock/start/stop/horn/locate/deep_refresh
 ├─ dashboard/
-│  ├─ index.html               # The PWA (single file, embedded CSS/JS)
+│  ├─ index.html               # PWA shell, telemetry rendering, and command UI
+│  ├─ redesign.css             # Editorial GARAGE visual system and mobile layout
 │  ├─ manifest.json
 │  ├─ sw.js                    # Service worker (network-first shell + data)
 │  ├─ icon-192.png · icon-512.png
-│  ├─ img/                     # Hero + top-down truck art
+│  ├─ img/                     # White-truck hero + top-down tire-pressure art
 │  ├─ proto/                   # 9 design prototypes (proto 9 became the live UI)
 │  ├─ data.json                # ← Updated by poll.py every 30 min (committed)
 │  ├─ location.json            # ← GPS fix — deployed to Pages only, NEVER committed
