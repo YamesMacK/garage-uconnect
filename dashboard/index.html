@@ -3,18 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0b0c09">
+<meta name="theme-color" content="#08121a">
 <!-- CSP: the PAT in localStorage can start the engine — cut off script
      injection + exfiltration paths. connect-src covers data fetches and the
      GitHub API; frame-src covers the Google Maps embed. -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com; frame-src https://maps.google.com https://www.google.com; base-uri 'none'; form-action 'none'; object-src 'none'">
-<title>Garage — Ram 2500</title>
+<title>Ram Truck 2500</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   :root {
@@ -529,65 +528,134 @@
     .toast { display: none !important; }
   }
 </style>
-<link rel="stylesheet" href="redesign.css">
 </head>
 <body>
-  <div class="app">
-    <header class="topbar">
-      <div class="brand" aria-label="Garage">
-        <svg class="brand-mark" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20 24 8l19 12v22H5V20Z"/><path d="M12 42V24h24v18"/><path d="M12 30h24M12 36h24"/></svg>
-        <span class="brand-name">GARAGE</span>
+  <div class="card">
+    <div class="hero">
+      <div class="hero-flag">
+        <svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <filter id="ripple" x="-8%" y="-8%" width="116%" height="116%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.013 0.034" numOctaves="3" seed="7" result="t"/>
+              <feDisplacementMap in="SourceGraphic" in2="t" scale="14" xChannelSelector="R" yChannelSelector="G"/>
+            </filter>
+            <filter id="grime" x="0" y="0" width="100%" height="100%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" result="n"/>
+              <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.85 0" result="m"/>
+              <feComposite in="m" in2="SourceGraphic" operator="in"/>
+            </filter>
+            <pattern id="stars" x="0" y="0" width="22" height="14" patternUnits="userSpaceOnUse">
+              <text x="6" y="11" fill="#d4c5a0" font-size="11" font-family="Inter, sans-serif">✦</text>
+              <text x="17" y="11" fill="#d4c5a0" font-size="11" font-family="Inter, sans-serif">✦</text>
+            </pattern>
+          </defs>
+
+          <!-- Solid base so even with displacement we don't see through -->
+          <rect width="400" height="220" fill="#1a1410"/>
+
+          <!-- Distressed flag layer -->
+          <g filter="url(#ripple)" opacity="0.62">
+            <rect x="-20" y="-10" width="440" height="240" fill="#7a6c54"/>
+            <g fill="#5a2b22">
+              <rect x="-20" y="3"   width="440" height="17"/>
+              <rect x="-20" y="37"  width="440" height="17"/>
+              <rect x="-20" y="71"  width="440" height="17"/>
+              <rect x="-20" y="105" width="440" height="17"/>
+              <rect x="-20" y="139" width="440" height="17"/>
+              <rect x="-20" y="173" width="440" height="17"/>
+              <rect x="-20" y="207" width="440" height="17"/>
+            </g>
+            <rect x="-20" y="-10" width="180" height="129" fill="#1f1d36"/>
+            <rect x="-20" y="-10" width="180" height="129" fill="url(#stars)" opacity="0.85"/>
+          </g>
+
+          <!-- Grime overlay -->
+          <rect x="0" y="0" width="400" height="220" filter="url(#grime)" opacity="0.55"/>
+
+          <!-- Edge tear shadows -->
+          <rect x="0" y="0" width="400" height="220" fill="black" opacity="0.18"/>
+        </svg>
       </div>
-      <div class="top-actions">
-        <button class="icon-button" id="refresh" aria-label="Refresh vehicle data"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 8.5h18C21 15 18 15 18 8Z"/><path d="M10 20h4"/></svg></button>
-        <button class="icon-button" id="settingsBtn" aria-label="Open settings"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/><circle cx="12" cy="12" r="10"/></svg></button>
+      <div class="hero-vignette"></div>
+      <img class="hero-truck" src="img/hero-truck.png" alt="2022 Ram 2500">
+      <div class="hero-text">
+        <div class="title" id="title">Ram Truck 2500</div>
+        <div class="sync" id="sync">loading…</div>
       </div>
-    </header>
+    </div>
 
-    <section class="hero" id="overview">
-      <img class="hero-truck" src="img/hero-white.webp" alt="White 2022 Ram 2500">
-      <div class="hero-copy">
-        <div class="vehicle-title" id="title">2022 Ram 2500</div>
-        <div class="vehicle-state" id="vehicleState"><span class="state-dot"></span><span id="stateText">Status loading</span></div>
-        <div class="sync" id="sync">Loading vehicle data…</div>
+    <div id="grid" class="grid">
+      <div class="empty" style="grid-column: span 2;">Awaiting first sync…</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" data-cmd="lock">
+        <span class="label-wrap">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          <span class="label">Lock</span>
+        </span>
+        <span class="spinner"></span>
+      </button>
+      <button class="btn" data-cmd="unlock">
+        <span class="label-wrap">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.9-1"/></svg>
+          <span class="label">Unlock</span>
+        </span>
+        <span class="spinner"></span>
+      </button>
+      <button class="btn" data-cmd="engine_on">
+        <span class="label-wrap">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v8"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/></svg>
+          <span class="label">Start</span>
+        </span>
+        <span class="spinner"></span>
+      </button>
+      <button class="btn" data-cmd="engine_off">
+        <span class="label-wrap">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+          <span class="label">Stop</span>
+        </span>
+        <span class="spinner"></span>
+      </button>
+      <button class="btn" data-cmd="lights_horn">
+        <span class="label-wrap">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4h4l6 5V5l-6 5H3z"/><path d="M17 9a5 5 0 0 1 0 6"/><path d="M19.5 6.5a9 9 0 0 1 0 11"/></svg>
+          <span class="label">Horn</span>
+        </span>
+        <span class="spinner"></span>
+      </button>
+      <button class="btn" data-cmd="refresh_location">
+        <span class="label-wrap">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          <span class="label">Locate</span>
+        </span>
+        <span class="spinner"></span>
+      </button>
+    </div>
+
+    <div class="panel" id="settings">
+      <div class="panel-label">GitHub Token</div>
+      <input id="patInput" type="password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…">
+      <div class="panel-help">
+        Fine-grained PAT with <em>Actions: Read &amp; Write</em> on this repo.
+        Stored in your browser only. Required for all remote command buttons
+        and Reset Oil.
       </div>
-    </section>
+      <div class="panel-row">
+        <button class="btn" id="patSave"><span class="label-wrap"><span class="label">Save</span></span></button>
+        <button class="btn" id="patClear"><span class="label-wrap"><span class="label">Clear</span></span></button>
+        <button class="btn" id="patClose"><span class="label-wrap"><span class="label">Close</span></span></button>
+      </div>
+    </div>
 
-    <main class="content">
-      <div id="grid" class="grid"><div class="empty">Awaiting first sync…</div></div>
-
-      <section class="command-card" id="controls">
-        <div class="section-head"><h2 class="section-title"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="3"/><circle cx="12" cy="8" r="1.5"/><path d="M9.5 15h5"/></svg>Quick Controls</h2><p class="section-note">Truck-confirmed commands</p></div>
-        <div class="actions">
-          <button class="btn" data-cmd="lock"><span class="label-wrap"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span class="label">Lock</span></span><span class="spinner"></span></button>
-          <button class="btn" data-cmd="unlock"><span class="label-wrap"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.9-1"/></svg><span class="label">Unlock</span></span><span class="spinner"></span></button>
-          <button class="btn" data-cmd="engine_on"><span class="label-wrap"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v8"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/></svg><span class="label">Start</span></span><span class="spinner"></span></button>
-          <button class="btn" data-cmd="engine_off"><span class="label-wrap"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/></svg><span class="label">Stop</span></span><span class="spinner"></span></button>
-          <button class="btn" data-cmd="refresh_location"><span class="label-wrap"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><span class="label">Locate</span></span><span class="spinner"></span></button>
-          <button class="btn" data-cmd="lights_horn"><span class="label-wrap"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4h4l6 5V5l-6 5H3z"/><path d="M17 9a5 5 0 0 1 0 6"/><path d="M19.5 6.5a9 9 0 0 1 0 11"/></svg><span class="label">Horn</span></span><span class="spinner"></span></button>
-        </div>
-      </section>
-
-      <section class="panel" id="settings">
-        <div class="panel-label">GitHub Token</div>
-        <input id="patInput" type="password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…">
-        <div class="panel-help">Fine-grained PAT with <em>Actions: Read &amp; Write</em> on this repo. Stored in this browser only. Required for remote controls and Reset Oil.</div>
-        <div class="panel-row">
-          <button class="btn" id="patSave"><span class="label-wrap"><span class="label">Save</span></span></button>
-          <button class="btn" id="patClear"><span class="label-wrap"><span class="label">Clear</span></span></button>
-          <button class="btn" id="patClose"><span class="label-wrap"><span class="label">Close</span></span></button>
-        </div>
-      </section>
-
-      <footer class="foot"><span>Vehicle ID</span><span class="vin" id="vin">—</span></footer>
-    </main>
-
-    <nav class="bottom-nav" aria-label="Dashboard navigation">
-      <a class="nav-item active" href="#overview"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 12 16 8M12 4v2M4 12h2M18 12h2M7 17l1.5-1.5M17 17l-1.5-1.5"/></svg><span>Overview</span></a>
-      <a class="nav-item" href="#locationCard"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Location</span></a>
-      <a class="nav-item" href="#controls"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="3"/><circle cx="12" cy="8" r="1.5"/><path d="M9.5 15h5"/></svg><span>Controls</span></a>
-      <button class="nav-item" id="navSettingsBtn"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.8 1.8 0 0 0 .36 1.99l.06.06-2.83 2.83-.06-.06A1.8 1.8 0 0 0 15 19.4a1.8 1.8 0 0 0-1.1 1.65V21h-4v-.08A1.8 1.8 0 0 0 8.8 19.3a1.8 1.8 0 0 0-1.99.36l-.06.06-2.83-2.83.06-.06A1.8 1.8 0 0 0 4.6 15a1.8 1.8 0 0 0-1.65-1.1H3v-4h.08A1.8 1.8 0 0 0 4.7 8.8a1.8 1.8 0 0 0-.36-1.99l-.06-.06 2.83-2.83.06.06A1.8 1.8 0 0 0 9 4.6a1.8 1.8 0 0 0 1.1-1.65V3h4v.08A1.8 1.8 0 0 0 15.2 4.7a1.8 1.8 0 0 0 1.99-.36l.06-.06 2.83 2.83-.06.06A1.8 1.8 0 0 0 19.4 9c.26.63.87 1.05 1.55 1.06H21v4h-.08A1.8 1.8 0 0 0 19.4 15Z"/></svg><span>Settings</span></button>
-    </nav>
+    <div class="foot">
+      <span class="vin" id="vin">—</span>
+      <span>
+        <button id="settingsBtn">settings</button>
+        <span class="sep">|</span>
+        <button id="refresh">refresh</button>
+      </span>
+    </div>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -674,8 +742,6 @@ function render(data, locations) {
 
   const v = data.vehicles[0];
   document.getElementById('vin').textContent = v.vin || '—';
-  document.getElementById('title').textContent =
-    [v.year, v.make, v.model].filter(Boolean).join(' ') || 'Ram 2500';
 
   const sync = document.getElementById('sync');
   const updated = data.last_updated || v.last_updated;
@@ -686,7 +752,6 @@ function render(data, locations) {
   // Unknown telemetry renders as unknown — never as a confident 0% / 5,000 mi.
   const fuelKnown = v.fuel_pct != null;
   const fuelPct = fuelKnown ? v.fuel_pct : 0;
-  const fuelLevel = Math.max(0, Math.min(100, fuelPct));
   const fuelWarn = !!v.fuel_low;
 
   const oil = v.oil || {};
@@ -703,7 +768,7 @@ function render(data, locations) {
     const w = tireWarn[pos];
     return `<div class="tire-cell ${cls}">
       <span class="tire-pos">${label}</span>
-      <span class="tire-num${w ? ' warn' : ''}${psi == null ? ' unknown' : ''}">${psi != null ? Math.round(psi) : '—'}</span>
+      <span class="tire-num${w ? ' warn' : ''}">${psi != null ? Math.round(psi) : '—'}</span>
     </div>`;
   };
 
@@ -722,6 +787,8 @@ function render(data, locations) {
   const fixLabel = fixAgeMin == null ? '' :
     fixAgeMin < 1 ? 'fix just now' : `fix ${relDur(fixAgeMin)} ago`;
 
+  const arcDash = (fuelPct / 100) * 131.95;
+
   // Battery state
   const battV = v.battery_v;
   const battLow = battV != null && battV < 12.4;
@@ -729,72 +796,63 @@ function render(data, locations) {
   // Post-upgrade telemetry — tiles only appear once the truck reports them.
   const ign = v.ignition_on;
   const doors = v.doors_locked;
-  const vehicleState = document.getElementById('vehicleState');
-  const stateText = document.getElementById('stateText');
-  let stateLabel = 'Status not reported';
-  let stateClass = '';
-  if (ign === true) {
-    stateLabel = doors === false ? 'Engine on · unlocked' : doors === true ? 'Engine on · locked' : 'Engine on';
-    stateClass = 'active';
-  } else if (ign === false) {
-    stateLabel = doors == null ? 'Parked · lock not reported' : doors ? 'Parked · locked' : 'Parked · unlocked';
-    stateClass = doors === false ? 'warn' : '';
-  } else if (doors != null) {
-    stateLabel = doors ? 'Locked · ignition not reported' : 'Unlocked · ignition not reported';
-    stateClass = doors === false ? 'warn' : '';
-  }
-  stateText.textContent = stateLabel;
-  vehicleState.className = `vehicle-state${stateClass ? ` ${stateClass}` : ''}`;
-  document.querySelectorAll('.btn[data-cmd]').forEach((button) => button.classList.remove('active'));
-  if (doors === true) document.querySelector('.btn[data-cmd="lock"]')?.classList.add('active');
-  if (doors === false) document.querySelector('.btn[data-cmd="unlock"]')?.classList.add('active');
+  const statusTiles = (ign == null && doors == null) ? '' : `
+    <div class="tile">
+      <div class="tile-label">Ignition</div>
+      <div class="tile-value${ign ? ' amber' : ''}">${ign == null ? '—' : ign ? 'ON' : 'OFF'}</div>
+      <div class="tile-sub">remote status</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">Doors</div>
+      <div class="tile-value${doors === false ? ' warn' : ''}">${doors == null ? '—' : doors ? 'LOCKED' : 'UNLOCKED'}</div>
+      <div class="tile-sub${doors === false ? ' warn' : doors ? ' healthy' : ''}">${doors == null ? 'not reported' : doors ? 'all doors' : 'check truck'}</div>
+    </div>`;
+
   const svcBits = [];
   if (v.service_mi != null) svcBits.push(`${fmtMi(v.service_mi)} mi`);
   if (v.days_to_service != null) svcBits.push(`${v.days_to_service} days`);
+  const odoSub = svcBits.length ? `mi · service in ${svcBits.join(' / ')}` : 'mi';
+
   document.getElementById('grid').innerHTML = `
-    <div class="metric-strip">
-      <div class="metric">
-        <svg class="metric-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v17"/><path d="M3 21h15M8 6h5v4H8zM16 7h2l2 3v8a2 2 0 0 0 2 2"/></svg>
-        <span class="metric-value">${fmtMi(v.range_mi)}${v.range_mi != null ? '<span class="u">MI</span>' : ''}</span>
-        <span class="metric-label">Range</span>
-      </div>
-      <div class="metric">
-        <svg class="metric-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v17"/><path d="M4 21h15M9 6h5v4H9zM17 7h2l2 3v8a2 2 0 0 0 2 2"/></svg>
-        <span class="metric-value">${fuelKnown ? fuelPct : '—'}${fuelKnown ? '<span class="u">%</span>' : ''}</span>
-        <span class="metric-label">Fuel</span>
-      </div>
-      <div class="metric">
-        <svg class="metric-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h2M14 6h2M8 10h2M14 10h2M8 14h2M14 14h2M8 18h8"/></svg>
-        <span class="metric-value">${fmtMi(v.odometer_mi)}${v.odometer_mi != null ? '<span class="u">MI</span>' : ''}</span>
-        <span class="metric-label">Odometer</span>
-        ${svcBits.length ? `<span class="metric-note">service in ${svcBits.join(' / ')}</span>` : ''}
+    <!-- Odometer -->
+    <div class="tile">
+      <div class="tile-label">Odometer</div>
+      <div class="tile-value">${fmtMi(v.odometer_mi)}</div>
+      <div class="tile-sub">${odoSub}</div>
+    </div>
+
+    <!-- Range with half-arc fuel gauge -->
+    <div class="tile">
+      <div class="tile-label">Range</div>
+      <div class="range-row">
+        <div class="range-text">
+          <div class="tile-value">${fmtMi(v.range_mi)}</div>
+          <div class="tile-sub${fuelWarn ? ' warn' : ''}">mi${fuelWarn ? ' · low' : ''}</div>
+        </div>
+        <div class="fuel-arc">
+          <svg viewBox="0 0 100 60">
+            <defs>
+              <linearGradient id="fuelArcGr" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#d68a3a"/>
+                <stop offset="100%" stop-color="#f0a850"/>
+              </linearGradient>
+            </defs>
+            <path d="M 8 50 A 42 42 0 0 1 92 50"
+                  fill="none" class="fuel-arc-track" stroke-width="6"/>
+            <path d="M 8 50 A 42 42 0 0 1 92 50"
+                  fill="none" class="fuel-arc-fill" stroke-width="6"
+                  stroke-dasharray="${fuelKnown ? arcDash : 0} 131.95"/>
+          </svg>
+          <div class="fuel-arc-pct">${fuelKnown ? `${fuelPct}<span class="u">%</span>` : '—'}</div>
+          <div class="fuel-arc-label">Fuel</div>
+        </div>
       </div>
     </div>
 
-    <div class="tile fuel-card">
-      <div class="tile-label"><svg class="label-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v17"/><path d="M3 21h15M8 6h5v4H8zM16 7h2l2 3v8a2 2 0 0 0 2 2"/></svg>Fuel / Range</div>
-      <div class="fuel-headline">
-        <div class="fuel-primary${fuelWarn ? ' warn' : ''}">${fuelKnown ? fuelPct : '—'}${fuelKnown ? '<span class="u">%</span>' : ''}</div>
-        <div class="fuel-range"><strong>${fmtMi(v.range_mi)} ${v.range_mi != null ? '<span>MI</span>' : ''}</strong><span>estimated range</span></div>
-      </div>
-      <div class="fuel-gauge-row"><span>E</span><div class="fuel-gauge${fuelKnown ? '' : ' unknown'}" aria-label="${fuelKnown ? `Fuel level ${fuelPct}%` : 'Fuel level unknown'}"><div class="fuel-gauge-fill" style="width:${fuelKnown ? fuelLevel : 0}%"></div>${fuelKnown ? `<i style="left:${fuelLevel}%"></i>` : ''}</div><span>F</span></div>
-      <div class="tile-sub${fuelWarn ? ' warn' : ''}">${fuelKnown ? fuelWarn ? 'Fuel-low warning reported by the truck' : 'Fuel level reported by the truck' : 'Fuel level not reported'}</div>
-    </div>
-
-    <div class="tile tire-tile">
-      <div class="tile-label"><svg class="label-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4a8 8 0 1 0 10 0M9 2l1 4M15 2l-1 4M8 17h8"/><path d="M12 10v4"/></svg>Tire Pressure</div>
-      <div class="tires-corners">
-        ${tireCell('tl', 'FL', 'front_left')}
-        <img class="truck-photo" src="img/truck-top.png" alt="Top-down view of white Ram 2500" loading="lazy"/>
-        ${tireCell('tr', 'FR', 'front_right')}
-        ${tireCell('bl', 'RL', 'rear_left')}
-        ${tireCell('br', 'RR', 'rear_right')}
-      </div>
-    </div>
-
+    <!-- Oil 5K with reset -->
     <div class="tile oil-tile">
       ${ICON_OIL}
-      <div class="tile-label">Oil · 5K</div>
+      <div class="tile-label">Oil Life · 5K</div>
       <div class="tile-value ${oilOverdue ? 'warn' : 'amber'}">
         ${!oilKnown ? '—' : oilOverdue ? 'DUE' : fmtMi(milesToNext)}<span class="u">${oilKnown && !oilOverdue ? 'mi' : ''}</span>
       </div>
@@ -804,23 +862,39 @@ function render(data, locations) {
       <button class="reset" id="resetOilBtn">Reset</button>
     </div>
 
-    <div class="tile battery-tile">
+    <!-- Battery -->
+    <div class="tile">
       ${ICON_BATT}
-      <div class="tile-label"><svg class="label-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="17" height="12" rx="2"/><path d="M20 11h2v4h-2M8 10v6M5 13h6M14 13h3"/></svg>Battery</div>
-      <div class="tile-value">${fmtV(battV)}${battV != null ? '<span class="u">v</span>' : ''}</div>
+      <div class="tile-label">Battery</div>
+      <div class="tile-value">${fmtV(battV)}<span class="u">v</span></div>
       <div class="tile-sub${battLow ? ' warn' : ' healthy'}">${battV == null ? '—' : battLow ? 'Low' : 'Healthy'}</div>
     </div>
-    <div class="tile location-tile" id="locationCard">
-      <div class="tile-label"><svg class="label-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Last Location</div>
+    ${statusTiles}
+
+    <!-- Tire PSI with truck photo -->
+    <div class="tile tile-wide">
+      <div class="tile-label">Tire PSI</div>
+      <div class="tires-corners">
+        ${tireCell('tl', 'FL', 'front_left')}
+        <img class="truck-photo" src="img/truck-top.png" alt="Top-down view of Ram 2500" loading="lazy"/>
+        ${tireCell('tr', 'FR', 'front_right')}
+        ${tireCell('bl', 'RL', 'rear_left')}
+        ${tireCell('br', 'RR', 'rear_right')}
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="tile tile-wide">
+      <div class="tile-label">Location</div>
+      <div class="loc-place">${esc(place)}</div>
+      ${fixLabel ? `<div class="tile-sub${fixOld ? ' warn' : ''}">${fixLabel}${fixOld ? ' · tap Locate for a fresh fix' : ''}</div>` : ''}
       ${hasLoc ? `
         <div class="loc-map">
           <iframe loading="lazy" src="${embedUrl}" title="Map of truck location"></iframe>
-          <span class="map-pin" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s8-7 8-13a8 8 0 1 0-16 0c0 6 8 13 8 13Z"/><circle cx="12" cy="9" r="3" fill="#4d5234"/></svg></span>
           <span class="loc-coords">${coordStr}</span>
-          <a class="loc-link" target="_blank" rel="noopener" href="${mapsUrl}"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 2 12h3v9h6v-6h2v6h6v-9h3L12 3Z"/></svg><span>${esc(place)}</span></a>
+          <a class="loc-link" target="_blank" rel="noopener" href="${mapsUrl}">Open ↗</a>
         </div>
-        ${fixLabel ? `<div class="loc-age${fixOld ? ' warn' : ''}">${fixLabel}</div>` : ''}
-      ` : '<div class="loc-map loc-map-empty"><span class="map-pin" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s8-7 8-13a8 8 0 1 0-16 0c0 6 8 13 8 13Z"/><circle cx="12" cy="9" r="3" fill="#4d5234"/></svg></span><span class="loc-link"><span>No GPS fix</span></span></div>'}
+      ` : '<div class="tile-sub">No GPS fix</div>'}
     </div>
   `;
 
@@ -879,7 +953,8 @@ function refreshResetEnabled() {
 
 function promptForToken(msg) {
   toast(msg || 'Set a GitHub token in settings first');
-  setSettingsOpen(true);
+  patInput.value = getPat();
+  panel.classList.add('show');
 }
 
 function ghHeaders(pat) {
@@ -1035,25 +1110,19 @@ document.getElementById('refresh').addEventListener('click', () => {
 const panel = document.getElementById('settings');
 const patInput = document.getElementById('patInput');
 
-function setSettingsOpen(open) {
-  patInput.value = getPat();
-  panel.classList.toggle('show', open);
-  if (open) requestAnimationFrame(() => panel.scrollIntoView({ behavior: 'smooth', block: 'center' }));
-}
-
 document.getElementById('settingsBtn').addEventListener('click', () => {
-  setSettingsOpen(!panel.classList.contains('show'));
+  patInput.value = getPat();
+  panel.classList.toggle('show');
 });
-document.getElementById('navSettingsBtn').addEventListener('click', () => setSettingsOpen(true));
 document.getElementById('patClose').addEventListener('click', () => {
-  setSettingsOpen(false);
+  panel.classList.remove('show');
 });
 document.getElementById('patSave').addEventListener('click', () => {
   const v = patInput.value.trim();
   if (!v) { toast('Token is empty'); return; }
   setPat(v);
   refreshCmdEnabled();
-  setSettingsOpen(false);
+  panel.classList.remove('show');
   toast('Token saved');
 });
 document.getElementById('patClear').addEventListener('click', () => {
