@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#08121a">
+<meta name="theme-color" content="#030a0f">
 <!-- CSP: the PAT in localStorage can start the engine — cut off script
      injection + exfiltration paths. connect-src covers data fetches and the
      GitHub API; frame-src covers the Google Maps embed. -->
@@ -14,7 +14,7 @@
 <link rel="icon" href="icon-192.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   :root {
@@ -1242,58 +1242,645 @@
   }
   .location-action[disabled] { opacity: 0.36; cursor: default; }
   .reset { min-height: 44px; }
+  /* Approved 852×1846 instrument-cluster target -------------------------- */
+  :root {
+    --cluster-canvas: #030a0f;
+    --cluster-surface: #0c1115;
+    --cluster-surface-2: #111518;
+    --cluster-metal: #373636;
+    --cluster-copper: #5e3e2b;
+    --cluster-ivory: #e1d3c3;
+    --cluster-muted: #9c9185;
+    --cluster-amber: #e5963f;
+    --cluster-amber-hot: #f0a64d;
+    --cluster-red: #e0442e;
+    --cluster-green: #69a46b;
+  }
+  html { background: var(--cluster-canvas); }
+  body {
+    display: block;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(228, 143, 59, 0.04), transparent 31%),
+      linear-gradient(180deg, #070d11 0%, var(--cluster-canvas) 58%, #02070a 100%);
+    color: var(--cluster-ivory);
+    font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    pointer-events: none;
+    opacity: 0.12;
+    mix-blend-mode: soft-light;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,.28) 0 .4px, transparent .6px),
+      radial-gradient(circle at 75% 65%, rgba(0,0,0,.8) 0 .5px, transparent .7px);
+    background-size: 7px 7px, 9px 9px;
+  }
+  button, input { font-family: inherit; }
+  .app-shell {
+    display: block !important;
+    width: min(100%, 426px);
+    min-height: 100vh;
+    margin: 0 auto;
+    overflow: hidden;
+    isolation: isolate;
+    border: 0;
+    border-radius: 0;
+    background:
+      linear-gradient(105deg, transparent 0 48%, rgba(255,255,255,.012) 49% 50%, transparent 51%),
+      linear-gradient(180deg, #071015 0%, #040b0f 100%);
+    box-shadow: 0 28px 90px rgba(0,0,0,.72);
+  }
+  .vehicle-column, .control-column { display: block; min-width: 0; }
+  .hero {
+    position: relative;
+    height: 249px;
+    margin: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 0;
+    background: #03080b;
+  }
+  .hero-art {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 52% center;
+  }
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, rgba(2,7,10,.62) 0%, rgba(2,7,10,.18) 39%, transparent 62%),
+      linear-gradient(0deg, #050b0f 0%, transparent 22%);
+  }
+  .hero-text {
+    position: absolute;
+    z-index: 2;
+    top: 38px;
+    left: 27px;
+    right: auto;
+    bottom: auto;
+    padding: 0;
+  }
+  .title {
+    color: var(--cluster-ivory);
+    font-size: 32px;
+    font-weight: 700;
+    line-height: .94;
+    letter-spacing: .012em;
+    text-transform: none;
+    white-space: nowrap;
+    text-shadow: 0 2px 0 #0b0c0d, 0 0 12px rgba(0,0,0,.7);
+  }
+  .sync-row { display: block; margin-top: 7px; }
+  .sync-icon { display: none !important; }
+  .sync {
+    color: var(--cluster-amber);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    text-shadow: 0 1px 5px rgba(0,0,0,.9);
+  }
+  .sync.stale { color: var(--cluster-red); }
+  .telemetry-stack {
+    position: relative;
+    z-index: 4;
+    display: block;
+    margin: -14px 12px 0;
+    padding: 0;
+  }
+  .stats-bezel,
+  .tire-panel,
+  .location-tile {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 12px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 12px);
+    background: linear-gradient(145deg, #55412f 0%, #292b2b 14%, #5f402c 50%, #242728 82%, #6c422a 100%);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,.65));
+  }
+  .stats-bezel::before,
+  .tire-panel::before,
+  .location-tile::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 2px;
+    pointer-events: none;
+    clip-path: inherit;
+    background:
+      linear-gradient(112deg, transparent 0 48%, rgba(255,255,255,.018) 49%, transparent 50%),
+      linear-gradient(180deg, #10161a 0%, #090e11 100%);
+    box-shadow: inset 0 0 0 1px rgba(200,137,82,.22), inset 0 0 28px rgba(0,0,0,.58);
+  }
+  .stats-bezel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    grid-template-rows: 94px 114px;
+    height: 208px;
+  }
+  .stats-bezel::after {
+    content: "";
+    position: absolute;
+    z-index: 4;
+    top: 2px;
+    left: 17px;
+    right: 17px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--cluster-amber) 0%, #ae7442 26%, #7c5a42 66%, var(--cluster-red) 100%);
+    box-shadow: -5px 0 8px rgba(229,150,63,.55), 5px 0 9px rgba(254,78,54,.8);
+  }
+  .stats-bezel .tile {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    padding: 16px 20px 10px;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .stats-bezel .tile:nth-child(odd) { border-right: 1px solid rgba(170,113,69,.46); }
+  .stats-bezel .tile:nth-child(-n+2) { border-bottom: 1px solid rgba(170,113,69,.46); }
+  .stats-bezel .tile:first-child::after {
+    content: "";
+    position: absolute;
+    z-index: 4;
+    right: -4px;
+    bottom: -4px;
+    width: 7px;
+    height: 7px;
+    transform: rotate(45deg);
+    border: 1px solid #845632;
+    background: #0c1114;
+  }
+  .tile-label {
+    color: #b7aa9d;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: .21em;
+    text-transform: uppercase;
+  }
+  .tile-value {
+    margin-top: 8px;
+    color: var(--cluster-ivory);
+    font-size: 46px;
+    font-weight: 700;
+    line-height: .78;
+    letter-spacing: -.015em;
+    text-shadow: 0 2px 0 #050708, 0 0 12px rgba(0,0,0,.35);
+  }
+  .tile-value .u, .tile-value > .u {
+    display: inline-block;
+    margin-left: 4px;
+    color: #b8aa9c;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .tile-sub {
+    margin-top: 9px;
+    color: var(--cluster-muted);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: .025em;
+    text-transform: none;
+  }
+  .tile-sub.warn, .tire-num.warn { color: var(--cluster-red); }
+  .tile-sub.healthy { color: var(--cluster-green); }
+  .tile-value.amber { color: var(--cluster-amber-hot); }
+  .range-row {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 79px;
+    align-items: start;
+    gap: 2px;
+  }
+  .range-text { min-width: 0; }
+  .fuel-arc {
+    position: relative;
+    width: 79px;
+    height: 69px;
+    margin-top: -9px;
+    overflow: visible;
+  }
+  .fuel-arc svg { position: absolute; inset: 0; width: 79px; height: 58px; overflow: visible; }
+  .fuel-segment { stroke: #303437; stroke-width: 7; stroke-linecap: butt; }
+  .fuel-segment.is-filled { stroke: var(--cluster-amber-hot); filter: drop-shadow(0 0 2px rgba(240,166,77,.4)); }
+  .fuel-arc-pct {
+    position: absolute;
+    top: 22px;
+    left: 0;
+    right: 0;
+    color: var(--cluster-amber-hot);
+    font-size: 31px;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+  }
+  .fuel-arc-pct .u { font-size: 14px; }
+  .fuel-arc-label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    color: var(--cluster-muted);
+    font-size: 10px;
+    text-align: center;
+  }
+  .fuel-arc::before, .fuel-arc::after {
+    position: absolute;
+    bottom: 0;
+    color: #a99d90;
+    font-size: 9px;
+  }
+  .fuel-arc::before { content: "E"; left: 1px; }
+  .fuel-arc::after { content: "F"; right: 1px; }
+  .oil-tile .tile-value { color: var(--cluster-amber-hot); font-size: 39px; margin-top: 11px; }
+  .oil-tile .tile-value.warn { color: var(--cluster-red); }
+  .stats-bezel .tile:nth-child(4) .tile-value { font-size: 40px; margin-top: 11px; }
+  .stats-bezel .tile:nth-child(4) .tile-value .u { text-transform: uppercase; }
+  .tile-icon { top: 13px; right: 16px; width: 27px; height: 27px; }
+  .tile-icon.amber { color: var(--cluster-amber-hot); }
+  .tile-icon.green { color: var(--cluster-green); }
+  .reset {
+    position: relative;
+    width: 66px;
+    min-height: 29px;
+    margin-top: 9px;
+    border: 1px solid var(--cluster-amber);
+    border-radius: 3px;
+    background: #0e1316;
+    color: var(--cluster-amber-hot);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+  }
+  .reset::after { content: ""; position: absolute; inset: -7px -5px; }
+  .reset.needs-token { opacity: .68; }
+  .tire-panel {
+    height: 150px;
+    margin-top: 7px;
+    padding: 13px 20px 8px;
+    clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 12px, 100% calc(100% - 10px), 58% calc(100% - 10px), 55% 100%, 45% 100%, 42% calc(100% - 10px), 10px calc(100% - 10px), 0 calc(100% - 20px), 0 12px);
+  }
+  .tire-panel::before {
+    background:
+      radial-gradient(circle at 50% 55%, transparent 0 32px, rgba(164,109,66,.14) 33px, transparent 34px 49px, rgba(164,109,66,.08) 50px, transparent 51px),
+      repeating-radial-gradient(ellipse at 50% 55%, transparent 0 18px, rgba(255,255,255,.018) 19px, transparent 20px),
+      linear-gradient(180deg, #10161a, #080d10);
+  }
+  .tire-panel > .tile-label { position: absolute; top: 13px; left: 20px; z-index: 3; }
+  .tires-corners { position: relative; width: 100%; height: 128px; margin: 0; }
+  .truck-photo {
+    position: absolute;
+    z-index: 2;
+    top: -3px;
+    left: 50%;
+    width: 70px;
+    height: auto;
+    max-height: 142px;
+    transform: translateX(-50%);
+    object-fit: contain;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,.8));
+  }
+  .tire-cell {
+    position: absolute;
+    z-index: 3;
+    width: 58px;
+    display: block;
+    color: var(--cluster-ivory);
+    text-align: center;
+  }
+  .tire-cell.tl { left: 45px; top: 27px; }
+  .tire-cell.tr { right: 45px; top: 27px; }
+  .tire-cell.bl { left: 45px; top: 88px; }
+  .tire-cell.br { right: 45px; top: 88px; }
+  .tire-pos { display: block; color: #ad9f91; font-size: 10px; font-weight: 600; letter-spacing: .13em; }
+  .tire-num { display: block; margin-top: 1px; font-size: 29px; font-weight: 600; line-height: .9; }
+  .tire-cell::after { content: ""; position: absolute; top: 25px; width: 50px; border-top: 1px solid rgba(189,132,82,.72); }
+  .tire-cell::before { content: ""; position: absolute; top: 21px; width: 8px; height: 8px; border: 1px solid #a96e3f; border-radius: 50%; background: #111518; box-shadow: 0 0 0 4px rgba(179,111,61,.08); }
+  .tire-cell.tl::after, .tire-cell.bl::after { left: calc(100% + 2px); }
+  .tire-cell.tl::before, .tire-cell.bl::before { left: calc(100% + 48px); }
+  .tire-cell.tr::after, .tire-cell.br::after { right: calc(100% + 2px); }
+  .tire-cell.tr::before, .tire-cell.br::before { right: calc(100% + 48px); }
+  .location-band {
+    display: block;
+    min-height: 195px;
+    margin: 0 12px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  .location-tile {
+    height: 195px;
+    margin: 0;
+    padding: 13px 14px 10px;
+    border: 0;
+    border-radius: 0;
+    background: linear-gradient(145deg, #5d402d, #2a2d2e 42%, #65402a);
+    box-shadow: none;
+  }
+  .location-head { display: block; min-height: 47px; }
+  .location-copy { min-width: 0; }
+  .location-action { display: none !important; }
+  .loc-place { margin-top: 5px; color: var(--cluster-ivory); font-size: 22px; font-weight: 600; line-height: .9; }
+  .location-tile .tile-sub { margin-top: 7px; color: var(--cluster-amber); font-size: 11px; }
+  .location-tile .tile-sub.warn { color: var(--cluster-red); }
+  .loc-map {
+    position: relative;
+    height: 127px;
+    margin-top: 7px;
+    overflow: hidden;
+    border: 2px solid #5e412e;
+    border-radius: 0;
+    clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 9px, 100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px), 0 9px);
+    background: #dedbd3;
+    box-shadow: inset 0 0 0 1px #17191a;
+  }
+  .loc-map iframe { width: 100%; height: 100%; border: 0; filter: none; }
+  .loc-coords, .loc-link {
+    bottom: 7px;
+    border: 1px solid rgba(210,169,125,.4);
+    border-radius: 3px;
+    background: rgba(8,12,14,.9);
+    color: #d1c3b5;
+    font-size: 10px;
+    line-height: 1;
+    box-shadow: 0 2px 8px rgba(0,0,0,.55);
+  }
+  .loc-coords { left: 8px; padding: 6px 8px; }
+  .loc-link { right: 8px; padding: 6px 9px; }
+  .command-status {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+  .commands {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 4px;
+    margin: 0 14px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .command-family, .command-pair { display: contents; }
+  .command-family-label { display: none; }
+  .commands .btn {
+    width: 100%;
+    min-width: 0;
+    position: relative;
+    height: 38px;
+    min-height: 38px;
+    margin: 0;
+    padding: 0 8px;
+    border: 1px solid #3c3d3d;
+    border-radius: 0;
+    clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px);
+    background: linear-gradient(180deg, #1c2022 0%, #111618 54%, #0d1214 100%);
+    box-shadow: inset 0 0 0 2px #090c0e, inset 0 0 0 3px rgba(122,90,66,.25), 0 2px 5px rgba(0,0,0,.62);
+    color: #d1c4b6;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+  }
+  .commands .btn::after { content: ""; position: absolute; inset: -3px 0; }
+  .commands .btn:hover { transform: none; background: linear-gradient(180deg, #24282a, #121719); }
+  .commands .btn[data-cmd="engine_on"] {
+    border-color: var(--cluster-amber-hot);
+    box-shadow: inset 0 0 0 2px #0a0d0f, inset 0 0 0 3px rgba(229,150,63,.65), 0 0 9px rgba(229,150,63,.48);
+  }
+  .commands .btn[data-cmd="engine_off"] {
+    border-color: var(--cluster-red);
+    box-shadow: inset 0 0 0 2px #0a0d0f, inset 0 0 0 3px rgba(224,68,46,.45), 0 0 7px rgba(224,68,46,.32);
+  }
+  .commands .label-wrap { justify-content: center; gap: 9px; }
+  .commands .label-wrap svg { width: 19px; height: 19px; stroke-width: 1.8; }
+  .commands .spinner { width: 16px; height: 16px; }
+  .commands .btn.needs-token { opacity: .72; }
+  .panel {
+    margin: 7px 14px 0;
+    border: 1px solid #5e412e;
+    border-radius: 0;
+    clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+    background: #0d1316;
+  }
+  .panel-label { color: var(--cluster-amber); font-size: 11px; letter-spacing: .18em; }
+  .panel-help { font-family: inherit; font-size: 13px; color: var(--cluster-muted); }
+  .panel input { border-radius: 2px; font-family: ui-monospace, monospace; }
+  .panel-row .btn { min-height: 44px; border-radius: 2px; }
+  .foot {
+    height: 42px;
+    min-height: 42px;
+    margin: 0;
+    padding: 8px 25px;
+    border: 0;
+    background: transparent;
+    color: #776d63;
+  }
+  .vin { font-size: 10px; font-weight: 500; letter-spacing: .14em; color: #776d63; }
+  .foot-actions { gap: 11px; }
+  .foot-actions button {
+    min-height: 22px;
+    padding: 0;
+    color: #83786e;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: .04em;
+    text-transform: lowercase;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .foot-actions button svg { display: none; }
+  .sep { color: #6d6258; }
+  .toast { font-family: "Barlow Condensed", sans-serif; border-radius: 2px; }
+  .empty { color: var(--cluster-muted); font-size: 15px; }
+  :where(button, input, a):focus-visible { outline: 2px solid var(--cluster-amber-hot); outline-offset: 3px; }
+  @media (max-width: 360px) {
+    .hero { height: 220px; }
+    .hero-text { top: 33px; left: 21px; }
+    .title { font-size: 28px; }
+    .telemetry-stack, .location-band { margin-left: 8px; margin-right: 8px; }
+    .stats-bezel .tile { padding-left: 15px; padding-right: 14px; }
+    .tile-value { font-size: 40px; }
+    .oil-tile .tile-value { font-size: 35px; }
+    .range-row { grid-template-columns: minmax(0,1fr) 70px; }
+    .fuel-arc, .fuel-arc svg { width: 70px; }
+    .tire-cell.tl, .tire-cell.bl { left: 29px; }
+    .tire-cell.tr, .tire-cell.br { right: 29px; }
+    .commands { margin-left: 9px; margin-right: 9px; gap: 3px; }
+    .commands .btn { padding: 0 4px; font-size: 11px; letter-spacing: .09em; }
+    .commands .label-wrap { gap: 6px; }
+    .commands .label-wrap svg { width: 17px; height: 17px; }
+    .foot { padding-left: 14px; padding-right: 14px; }
+  }
+  @media (min-width: 470px) {
+    body { padding: 12px; }
+    .app-shell { min-height: 0; border: 1px solid rgba(117,91,69,.3); }
+  }
+  @media (min-width: 900px) {
+    .app-shell { display: block !important; width: 426px; max-width: 426px; grid-template-columns: none !important; }
+    .vehicle-column, .control-column { min-width: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  }
+  /* Higher-specificity release locks against legacy dashboard selectors. */
+  #grid > .tire-panel {
+    display: block;
+    height: 150px;
+    min-height: 0;
+    margin-top: 12px;
+    padding: 13px 20px 8px;
+    overflow: hidden;
+    border: 0;
+    background: linear-gradient(145deg, #55412f 0%, #292b2b 45%, #5f402c 100%);
+  }
+  #grid > .tire-panel::before { display: block; left: 2px; }
+  #grid > .tire-panel .tires-corners { display: block; height: 128px; margin: 0; }
+  #location .location-tile {
+    display: block;
+    height: 195px;
+    min-height: 0;
+    padding: 13px 14px 10px;
+    overflow: hidden;
+    border: 0;
+    background: linear-gradient(145deg, #5d402d, #2a2d2e 42%, #65402a);
+    box-shadow: none;
+  }
+  #location .location-tile::before { display: block; left: 2px; }
+  #location .location-tile .tile-label { margin-bottom: 0; }
+  #location .location-tile .tile-sub { margin-top: 7px; }
+  .stats-bezel .oil-tile { display: block; }
+  .stats-bezel .oil-tile .tile-label,
+  .stats-bezel .oil-tile .tile-value,
+  .stats-bezel .oil-tile .tile-sub,
+  .stats-bezel .oil-tile .reset,
+  .stats-bezel .tile:has(.tile-icon.green) .tile-label,
+  .stats-bezel .tile:has(.tile-icon.green) .tile-value,
+  .stats-bezel .tile:has(.tile-icon.green) .tile-sub { margin-left: 0; }
+  .stats-bezel .oil-tile .tile-icon,
+  .stats-bezel .tile:has(.tile-icon.green) .tile-icon {
+    top: 13px;
+    left: auto;
+    right: 16px;
+    width: 27px;
+    height: 27px;
+  }
+  .stats-bezel .oil-tile .tile-value { margin-top: 8px; font-size: 39px; }
+  .stats-bezel .oil-tile .tile-sub { margin-top: 4px; font-size: 11px; line-height: 1; }
+  .stats-bezel .oil-tile .reset {
+    position: absolute;
+    left: 20px;
+    bottom: 6px;
+    width: 66px;
+    height: 23px;
+    min-height: 23px;
+    margin: 0;
+  }
+  .stats-bezel .oil-tile .reset::after { inset: -11px -5px; }
+  #grid > .tire-panel {
+    background:
+      radial-gradient(circle at 50% 55%, transparent 0 32px, rgba(164,109,66,.14) 33px, transparent 34px 49px, rgba(164,109,66,.08) 50px, transparent 51px),
+      repeating-radial-gradient(ellipse at 50% 55%, transparent 0 18px, rgba(255,255,255,.018) 19px, transparent 20px),
+      linear-gradient(180deg, #10161a, #080d10);
+    box-shadow: inset 0 0 0 2px #292a2a, inset 0 0 0 3px rgba(139,87,50,.72), inset 0 0 28px rgba(0,0,0,.58);
+  }
+  #grid > .tire-panel::before { z-index: 0; opacity: .55; }
+  #grid > .tire-panel .truck-photo { width: 77px; }
+
+  /* Full-size hit areas within the approved 80px command band. */
+  .commands .btn {
+    --bezel-top: 0px;
+    --bezel-bottom: 0px;
+    height: 44px;
+    min-height: 44px;
+    border: 0;
+    clip-path: none;
+    background: transparent;
+    box-shadow: none;
+  }
+  .commands .btn[data-cmd="lock"],
+  .commands .btn[data-cmd="unlock"],
+  .commands .btn[data-cmd="engine_on"] {
+    --bezel-top: 6px;
+    margin-top: -6px;
+    padding-top: 6px;
+  }
+  .commands .btn[data-cmd="engine_off"],
+  .commands .btn[data-cmd="lights_horn"],
+  .commands .btn[data-cmd="refresh_location"] {
+    --bezel-bottom: 6px;
+    margin-bottom: -6px;
+    padding-bottom: 6px;
+  }
+  .commands .btn::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    top: var(--bezel-top);
+    right: 0;
+    bottom: var(--bezel-bottom);
+    left: 0;
+    width: auto;
+    height: auto;
+    border: 1px solid #3c3d3d;
+    border-radius: 0;
+    clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px);
+    background: linear-gradient(180deg, #1c2022 0%, #111618 54%, #0d1214 100%);
+    box-shadow: inset 0 0 0 2px #090c0e, inset 0 0 0 3px rgba(122,90,66,.25), 0 2px 5px rgba(0,0,0,.62);
+    pointer-events: none;
+  }
+  .commands .btn::after { content: none; }
+  .commands .btn .label-wrap { position: relative; z-index: 1; }
+  .commands .btn:hover, .commands .btn:active { transform: none; background: transparent; }
+  .commands .btn:hover::before { background: linear-gradient(180deg, #24282a, #121719); }
+  .commands .btn[data-cmd="engine_on"],
+  .commands .btn[data-cmd="engine_off"] { border: 0; box-shadow: none; }
+  .commands .btn[data-cmd="engine_on"]::before {
+    border-color: var(--cluster-amber-hot);
+    box-shadow: inset 0 0 0 2px #0a0d0f, inset 0 0 0 3px rgba(229,150,63,.65), 0 0 9px rgba(229,150,63,.48);
+  }
+  .commands .btn[data-cmd="engine_off"]::before {
+    border-color: var(--cluster-red);
+    box-shadow: inset 0 0 0 2px #0a0d0f, inset 0 0 0 3px rgba(224,68,46,.45), 0 0 7px rgba(224,68,46,.32);
+  }
+  .foot-actions button { height: 44px; min-height: 44px; }
+  .foot .vin { color: #83786e; }
 </style>
 </head>
 <body>
   <main class="app-shell" aria-label="Ram 2500 vehicle dashboard">
     <section class="vehicle-column" aria-label="Vehicle telemetry">
     <div class="hero">
-      <div class="hero-flag">
-        <svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-          <defs>
-            <filter id="ripple" x="-8%" y="-8%" width="116%" height="116%">
-              <feTurbulence type="fractalNoise" baseFrequency="0.013 0.034" numOctaves="3" seed="7" result="t"/>
-              <feDisplacementMap in="SourceGraphic" in2="t" scale="14" xChannelSelector="R" yChannelSelector="G"/>
-            </filter>
-            <filter id="grime" x="0" y="0" width="100%" height="100%">
-              <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" result="n"/>
-              <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.85 0" result="m"/>
-              <feComposite in="m" in2="SourceGraphic" operator="in"/>
-            </filter>
-            <pattern id="stars" x="0" y="0" width="22" height="14" patternUnits="userSpaceOnUse">
-              <text x="6" y="11" fill="#d4c5a0" font-size="11" font-family="Inter, sans-serif">✦</text>
-              <text x="17" y="11" fill="#d4c5a0" font-size="11" font-family="Inter, sans-serif">✦</text>
-            </pattern>
-          </defs>
-
-          <!-- Solid base so even with displacement we don't see through -->
-          <rect width="400" height="220" fill="#1a1410"/>
-
-          <!-- Distressed flag layer -->
-          <g filter="url(#ripple)" opacity="0.62">
-            <rect x="-20" y="-10" width="440" height="240" fill="#7a6c54"/>
-            <g fill="#5a2b22">
-              <rect x="-20" y="3"   width="440" height="17"/>
-              <rect x="-20" y="37"  width="440" height="17"/>
-              <rect x="-20" y="71"  width="440" height="17"/>
-              <rect x="-20" y="105" width="440" height="17"/>
-              <rect x="-20" y="139" width="440" height="17"/>
-              <rect x="-20" y="173" width="440" height="17"/>
-              <rect x="-20" y="207" width="440" height="17"/>
-            </g>
-            <rect x="-20" y="-10" width="180" height="129" fill="#1f1d36"/>
-            <rect x="-20" y="-10" width="180" height="129" fill="url(#stars)" opacity="0.85"/>
-          </g>
-
-          <!-- Grime overlay -->
-          <rect x="0" y="0" width="400" height="220" filter="url(#grime)" opacity="0.55"/>
-
-          <!-- Edge tear shadows -->
-          <rect x="0" y="0" width="400" height="220" fill="black" opacity="0.18"/>
-        </svg>
-      </div>
-      <div class="hero-vignette"></div>
-      <img class="hero-truck" src="img/hero-truck.png" alt="2022 Ram 2500">
+      <img class="hero-art" src="img/hero-cluster-v2.webp" alt="Silver Ram 2500 beneath a distressed American flag at sunset">
       <div class="hero-text">
         <div class="title" id="title">Ram Truck 2500</div>
         <div class="sync-row">
@@ -1507,7 +2094,7 @@ function render(data, locations) {
 
   const v = data.vehicles[0];
   const vehicleName = [v.year, v.make, v.model].filter(Boolean).join(' ');
-  document.getElementById('title').textContent = vehicleName || 'Ram Truck 2500';
+  document.getElementById('title').textContent = 'Ram Truck 2500';
   document.getElementById('vin').textContent = v.vin ? 'VIN •••• ' + String(v.vin).slice(-4) : 'VIN —';
 
   const sync = document.getElementById('sync');
@@ -1554,7 +2141,12 @@ function render(data, locations) {
   const fixLabel = fixAgeMin == null ? '' :
     fixAgeMin < 1 ? 'fix just now' : `fix ${relDur(fixAgeMin)} ago`;
 
-  const arcDash = (fuelPct / 100) * 131.95;
+  const fuelSegments = Array.from({ length: 10 }, (_, i) => {
+    const angle = -90 + i * 20;
+    const filled = fuelKnown && i < Math.ceil(fuelPct / 10);
+    return `<line class="fuel-segment${filled ? ' is-filled' : ''}" x1="50" y1="7" x2="50" y2="18" transform="rotate(${angle} 50 50)"/>`;
+  }).join('');
+
 
   // Battery state
   const battV = v.battery_v;
@@ -1581,11 +2173,12 @@ function render(data, locations) {
   const odoSub = svcBits.length ? `mi · service in ${svcBits.join(' / ')}` : 'mi';
 
   document.getElementById('grid').innerHTML = `
+    <div class="stats-bezel">
     <!-- Odometer -->
     <div class="tile">
       <div class="tile-label">Odometer</div>
       <div class="tile-value">${fmtMi(v.odometer_mi)}</div>
-      <div class="tile-sub">${odoSub}</div>
+      <div class="tile-sub">mi</div>
     </div>
 
     <!-- Range with half-arc fuel gauge -->
@@ -1597,18 +2190,8 @@ function render(data, locations) {
           <div class="tile-sub${fuelWarn ? ' warn' : ''}">mi${fuelWarn ? ' · low' : ''}</div>
         </div>
         <div class="fuel-arc">
-          <svg viewBox="0 0 100 60">
-            <defs>
-              <linearGradient id="fuelArcGr" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#d68a3a"/>
-                <stop offset="100%" stop-color="#f0a850"/>
-              </linearGradient>
-            </defs>
-            <path d="M 8 50 A 42 42 0 0 1 92 50"
-                  fill="none" class="fuel-arc-track" stroke-width="6"/>
-            <path d="M 8 50 A 42 42 0 0 1 92 50"
-                  fill="none" class="fuel-arc-fill" stroke-width="6"
-                  stroke-dasharray="${fuelKnown ? arcDash : 0} 131.95"/>
+          <svg viewBox="0 0 100 60" aria-hidden="true">
+            ${fuelSegments}
           </svg>
           <div class="fuel-arc-pct">${fuelKnown ? `${fuelPct}<span class="u">%</span>` : '—'}</div>
           <div class="fuel-arc-label">Fuel</div>
@@ -1633,17 +2216,17 @@ function render(data, locations) {
     <div class="tile">
       ${ICON_BATT}
       <div class="tile-label">Battery</div>
-      <div class="tile-value">${fmtV(battV)}<span class="u">v</span></div>
+      <div class="tile-value">${fmtV(battV)}<span class="u">V</span></div>
       <div class="tile-sub${battLow ? ' warn' : ' healthy'}">${battV == null ? '—' : battLow ? 'Low' : 'Healthy'}</div>
     </div>
-    ${statusTiles}
+    </div>
 
     <!-- Tire PSI with truck photo -->
-    <div class="tile tile-wide">
+    <div class="tile tile-wide tire-panel">
       <div class="tile-label">Tire PSI</div>
       <div class="tires-corners">
         ${tireCell('tl', 'FL', 'front_left')}
-        <img class="truck-photo" src="img/truck-top.png" alt="Top-down view of Ram 2500" loading="lazy"/>
+        <img class="truck-photo" src="img/truck-top-cluster-v2-optimized.png" alt="Top-down view of Ram 2500" loading="lazy"/>
         ${tireCell('tr', 'FR', 'front_right')}
         ${tireCell('bl', 'RL', 'rear_left')}
         ${tireCell('br', 'RR', 'rear_right')}
@@ -1656,7 +2239,7 @@ function render(data, locations) {
         <div class="location-copy">
           <div class="tile-label">Location</div>
           <div class="loc-place">${esc(place)}</div>
-          ${fixLabel ? `<div class="tile-sub${fixOld ? ' warn' : ''}">${fixLabel}${fixOld ? ' · tap Locate for a fresh fix' : ''}</div>` : ''}
+          <div class="tile-sub${fixOld ? ' warn' : ''}">${fixLabel ? `${fixLabel} · ` : ''}tap Locate for a fresh fix</div>
         </div>
         <button type="button" class="location-action" id="locateQuick" data-cmd="refresh_location">
           <span class="label-wrap">
@@ -1747,6 +2330,7 @@ function promptForToken(msg) {
   setCommandStatus('warning', message);
   patInput.value = getPat();
   panel.classList.add('show');
+  patInput.focus();
   settingsBtn.setAttribute('aria-expanded', 'true');
 }
 
@@ -1930,6 +2514,7 @@ settingsBtn.addEventListener('click', () => {
 });
 document.getElementById('patClose').addEventListener('click', () => {
   panel.classList.remove('show');
+  settingsBtn.focus();
   settingsBtn.setAttribute('aria-expanded', 'false');
 });
 document.getElementById('patSave').addEventListener('click', () => {
@@ -1938,6 +2523,7 @@ document.getElementById('patSave').addEventListener('click', () => {
   setPat(v);
   refreshCmdEnabled();
   panel.classList.remove('show');
+  settingsBtn.focus();
   settingsBtn.setAttribute('aria-expanded', 'false');
   toast('Token saved');
 });
