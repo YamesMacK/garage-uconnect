@@ -11,6 +11,7 @@
 <title>Ram Truck 2500</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -527,10 +528,725 @@
     body { padding: 14px 14px 22px; }
     .toast { display: none !important; }
   }
+  /* Refined OEM instrument-cluster system -------------------------------- */
+  :root {
+    color-scheme: dark;
+    --bg: #050a0e;
+    --card: #091116;
+    --tile: rgba(255, 255, 255, 0.018);
+    --tile-2: rgba(255, 255, 255, 0.035);
+    --line: rgba(222, 226, 224, 0.12);
+    --line-2: rgba(222, 226, 224, 0.22);
+    --cream: #d7d6d0;
+    --cream-2: #ebe9e2;
+    --white: #f7f5ef;
+    --dim: #9b9c98;
+    --dim-2: #686d6c;
+    --amber: #e58e20;
+    --amber-2: #f4a536;
+    --green: #78dc8b;
+    --warn: #e06b56;
+    --rail: #4b5356;
+    --surface-2: #0d171c;
+    --shadow: 0 28px 90px rgba(0, 0, 0, 0.58);
+    --radius-shell: 26px;
+  }
+  html { background: var(--bg); }
+  body {
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(244, 165, 54, 0.07), transparent 34%),
+      linear-gradient(180deg, #071016 0%, var(--bg) 48%, #03070a 100%);
+    background-attachment: fixed;
+    color: var(--cream);
+    min-height: 100vh;
+    padding:
+      max(env(safe-area-inset-top), 10px)
+      max(env(safe-area-inset-right), 8px)
+      max(env(safe-area-inset-bottom), 10px)
+      max(env(safe-area-inset-left), 8px);
+    overflow-x: hidden;
+  }
+  button, input { font: inherit; }
+  button { -webkit-tap-highlight-color: transparent; }
+  .app-shell {
+    width: min(100%, 430px);
+    margin: 0 auto;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(244, 165, 54, 0.035), transparent 34%),
+      linear-gradient(165deg, #0b151a 0%, #071015 72%, #060d11 100%);
+    border: 1px solid rgba(222, 226, 224, 0.13);
+    border-radius: var(--radius-shell);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .vehicle-column, .control-column { min-width: 0; }
+  .hero {
+    height: 168px;
+    margin: 0;
+    border-radius: 0;
+    background: #080f13;
+    border-bottom: 0;
+  }
+  .hero-flag { opacity: 0.48; }
+  .hero-vignette {
+    background:
+      linear-gradient(90deg, rgba(5, 10, 14, 0.7) 0%, rgba(5, 10, 14, 0.08) 58%, rgba(5, 10, 14, 0.14) 100%),
+      linear-gradient(180deg, rgba(5, 10, 14, 0.08) 0%, rgba(5, 10, 14, 0.02) 54%, rgba(5, 10, 14, 0.9) 100%);
+  }
+  .hero-truck {
+    right: -24px;
+    top: 53%;
+    width: 250px;
+    filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.75));
+  }
+  .hero-text { left: 20px; top: auto; bottom: 22px; max-width: 54%; }
+  .title {
+    margin: 0 0 11px;
+    color: var(--white);
+    font-size: clamp(25px, 7.5vw, 31px);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+  .sync-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--amber-2);
+  }
+  .sync-icon { width: 18px; height: 18px; flex: 0 0 auto; stroke: currentColor; }
+  .sync {
+    color: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: none;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);
+  }
+  .sync.stale { color: var(--warn); }
+  .instrument-band {
+    position: relative;
+    border-top: 2px solid var(--rail);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 24%),
+      rgba(4, 10, 13, 0.22);
+  }
+  .instrument-band::before {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    top: -3px;
+    left: 50%;
+    width: 22px;
+    height: 5px;
+    transform: translateX(-50%);
+    background: repeating-linear-gradient(90deg, var(--amber-2) 0 3px, transparent 3px 7px);
+    filter: drop-shadow(0 0 5px rgba(244, 165, 54, 0.3));
+  }
+  .telemetry-stack { display: block; }
+  .primary-band {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1.08fr);
+    align-items: stretch;
+    min-height: 148px;
+  }
+  .primary-stat {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: center;
+    padding: 24px 20px 22px;
+  }
+  .primary-divider, .health-divider {
+    width: 1px;
+    margin: 26px 0;
+    background: linear-gradient(180deg, transparent, var(--line-2) 18%, var(--line-2) 82%, transparent);
+  }
+  .metric-label, .section-label, .command-family-label {
+    color: var(--dim);
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .primary-value {
+    margin-top: 10px;
+    color: var(--white);
+    font-size: clamp(38px, 12vw, 54px);
+    font-weight: 800;
+    line-height: 0.92;
+    letter-spacing: -0.05em;
+    white-space: nowrap;
+  }
+  .primary-value .unit, .health-value .unit {
+    margin-left: 4px;
+    color: var(--dim);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+  .range-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 74px;
+    align-items: end;
+    gap: 7px;
+  }
+  .fuel-arc { width: 74px; height: 62px; }
+  .fuel-arc-pct { bottom: 16px; color: var(--white); font-size: 21px; }
+  .fuel-arc-label { bottom: -1px; color: var(--dim); font-size: 11px; }
+  .health-band {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+    min-height: 162px;
+  }
+  .health-metric { position: relative; min-width: 0; padding: 25px 20px 22px; }
+  .health-heading { display: flex; align-items: center; gap: 10px; }
+  .health-heading svg { position: static; width: 25px; height: 25px; opacity: 1; }
+  .health-value {
+    margin: 12px 0 0 35px;
+    color: var(--white);
+    font-size: clamp(34px, 10vw, 46px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    white-space: nowrap;
+  }
+  .health-value.amber { color: var(--amber-2); }
+  .health-value.warn { color: var(--warn); }
+  .health-detail {
+    margin: 8px 0 0 35px;
+    color: var(--dim);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.45;
+  }
+  .health-detail.healthy { color: var(--green); }
+  .health-detail.warn { color: var(--warn); }
+  .reset {
+    min-height: 38px;
+    margin: 8px 0 0 35px;
+    padding: 6px 10px 6px 0;
+    border: 0;
+    border-radius: 0;
+    color: var(--amber-2);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-align: left;
+    text-decoration: none;
+  }
+  .reset::after {
+    content: '›';
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 22px;
+    line-height: 0;
+    vertical-align: -2px;
+  }
+  .reset:hover { color: var(--white); }
+  .reset:active { background: transparent; transform: translateX(2px); }
+  .reset.needs-token { opacity: 0.52; }
+  .status-band {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+  }
+  .status-metric { padding: 20px; background: rgba(255, 255, 255, 0.014); }
+  .status-value {
+    margin-top: 9px;
+    color: var(--white);
+    font-size: 23px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+  .status-value.amber { color: var(--amber-2); }
+  .status-value.warn { color: var(--warn); }
+  .status-detail { margin-top: 6px; color: var(--dim); font-size: 11px; }
+  .status-detail.healthy { color: var(--green); }
+  .status-detail.warn { color: var(--warn); }
+  .tire-band { padding: 26px 22px 28px; }
+  .tires-corners {
+    grid-template-columns: minmax(0, 1fr) 100px minmax(0, 1fr);
+    grid-template-rows: 1fr 1fr;
+    gap: 24px 20px;
+    margin: 22px auto 0;
+    padding: 0;
+    max-width: 340px;
+  }
+  .truck-photo {
+    width: 100px;
+    filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.58));
+  }
+  .tire-pos { margin-bottom: 7px; color: var(--dim); font-size: 10px; font-weight: 800; }
+  .tire-num { color: var(--white); font-size: 34px; }
+  .control-column {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.012), transparent 68%);
+  }
+  .location-band { min-height: 118px; padding: 24px 20px 22px; }
+  .location-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .location-copy { min-width: 0; }
+  .loc-place {
+    margin-top: 10px;
+    color: var(--white);
+    font-size: 23px;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+  .location-action {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--amber-2);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .location-action svg { width: 25px; height: 25px; stroke: currentColor; }
+  .location-action .chevron { width: 14px; height: 14px; }
+  .location-action .spinner { display: none; }
+  .location-action.loading .label-wrap { visibility: hidden; }
+  .location-action.loading .spinner {
+    display: block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: btn-spin 0.7s linear infinite;
+  }
+  .location-action.needs-token { opacity: 0.52; }
+  .loc-map {
+    height: 188px;
+    margin-top: 17px;
+    border-color: var(--line);
+    border-radius: 12px;
+  }
+  .command-status {
+    display: flex;
+    min-height: 58px;
+    align-items: center;
+    gap: 12px;
+    margin: 14px 16px 0;
+    padding: 12px 14px;
+    border: 1px solid rgba(244, 165, 54, 0.52);
+    border-radius: 10px;
+    background: rgba(244, 165, 54, 0.025);
+    color: var(--cream-2);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  .command-status svg {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 auto;
+    color: var(--amber-2);
+  }
+  .command-status.is-loading svg { animation: status-pulse 1.2s ease-in-out infinite; }
+  .command-status.is-success { border-color: rgba(120, 220, 139, 0.45); }
+  .command-status.is-success svg { color: var(--green); }
+  .command-status.is-error, .command-status.is-warning {
+    border-color: rgba(224, 107, 86, 0.5);
+  }
+  .command-status.is-error svg, .command-status.is-warning svg { color: var(--warn); }
+  @keyframes status-pulse { 50% { opacity: 0.42; transform: scale(0.92); } }
+  .commands { padding: 20px 16px 22px; }
+  .command-family + .command-family { margin-top: 15px; }
+  .command-family-label { margin: 0 0 8px 8px; }
+  .command-pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.012);
+  }
+  .btn {
+    min-height: 68px;
+    padding: 10px 9px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--cream-2);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    transition: background 0.16s ease, color 0.16s ease, transform 0.12s ease;
+  }
+  .command-pair .btn + .btn { border-left: 1px solid var(--line); }
+  .btn .label-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .btn svg { width: 25px; height: 25px; stroke-width: 2; }
+  .btn:hover { background: rgba(255, 255, 255, 0.035); color: var(--white); }
+  .btn:active { background: rgba(244, 165, 54, 0.07); transform: scale(0.985); }
+  .btn.needs-token { opacity: 0.48; }
+  .btn[disabled] { opacity: 0.36; }
+  .btn.confirm-required::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 4px;
+    height: 4px;
+    border: 1px solid var(--dim-2);
+    border-radius: 50%;
+  }
+  .panel {
+    margin: 0 16px 20px;
+    padding: 16px;
+    border-color: var(--line);
+    border-radius: 12px;
+    background: var(--surface-2);
+    gap: 12px;
+  }
+  .panel-label { font-size: 10px; }
+  .panel input {
+    min-height: 46px;
+    padding: 10px 12px;
+    border-color: var(--line);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.27);
+    color: var(--white);
+    font-size: 14px;
+  }
+  .panel input:focus { border-color: var(--amber-2); }
+  .panel-help { font-size: 12px; line-height: 1.55; }
+  .panel-row {
+    gap: 1px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+  }
+  .panel-row .btn { min-height: 48px; border-left: 1px solid var(--line); }
+  .panel-row .btn:first-child { border-left: 0; }
+  .foot {
+    min-height: 66px;
+    margin-top: auto;
+    padding: 12px 18px max(12px, env(safe-area-inset-bottom));
+    border-top: 2px solid var(--rail);
+    color: var(--dim);
+  }
+  .foot .vin {
+    overflow: hidden;
+    max-width: 45%;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .foot-actions { display: inline-flex; align-items: center; gap: 4px; }
+  .foot button {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 7px;
+    padding: 0 7px;
+    border-radius: 7px;
+    color: var(--cream);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+  .foot button:hover {
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--white);
+  }
+  .foot button svg { width: 18px; height: 18px; stroke: currentColor; }
+  .foot .sep {
+    height: 24px;
+    width: 1px;
+    margin: 0 2px;
+    background: var(--line-2);
+    font-size: 0;
+  }
+  .toast {
+    bottom: max(24px, env(safe-area-inset-bottom));
+    width: min(calc(100% - 32px), 360px);
+    max-width: none;
+    padding: 13px 16px;
+    border-color: var(--line-2);
+    border-radius: 10px;
+    background: #111d23;
+    color: var(--white);
+    font-size: 13px;
+  }
+  .empty {
+    padding: 42px 20px;
+    color: var(--dim);
+    font-size: 13px;
+    font-style: normal;
+  }
+  :where(button, input, a):focus-visible {
+    outline: 2px solid var(--amber-2);
+    outline-offset: 3px;
+  }
+  @media (min-width: 900px) {
+    body {
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+      padding: 24px;
+    }
+    .app-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1.58fr) minmax(360px, 1fr);
+      width: min(100%, 1280px);
+      min-height: min(900px, calc(100vh - 48px));
+      border-radius: 18px;
+    }
+    .vehicle-column { border-right: 1px solid var(--line); }
+    .hero { height: 238px; }
+    .hero-truck { right: -12px; width: 440px; }
+    .hero-text { left: 34px; bottom: 35px; max-width: 50%; }
+    .title { font-size: clamp(38px, 4vw, 54px); }
+    .sync { font-size: 13px; }
+    .sync-icon { width: 21px; height: 21px; }
+    .primary-band { min-height: 170px; }
+    .primary-stat { padding: 28px 36px; }
+    .primary-value { font-size: clamp(52px, 5.4vw, 72px); }
+    .range-layout {
+      grid-template-columns: minmax(0, 1fr) 110px;
+      gap: 14px;
+    }
+    .fuel-arc { width: 110px; height: 82px; }
+    .fuel-arc-pct { bottom: 23px; font-size: 27px; }
+    .fuel-arc-label { font-size: 12px; }
+    .health-band { min-height: 180px; }
+    .health-metric { padding: 28px 36px; }
+    .health-value { margin-left: 38px; font-size: 52px; }
+    .health-detail, .reset { margin-left: 38px; }
+    .tire-band { min-height: 318px; padding: 28px 36px 20px; }
+    .tires-corners {
+      grid-template-columns: 1fr 120px 1fr;
+      max-width: 500px;
+      margin-top: 16px;
+      gap: 14px 46px;
+    }
+    .truck-photo { width: 120px; }
+    .tire-num { font-size: 38px; }
+    .control-column { min-height: 100%; }
+    .location-band { min-height: 145px; padding: 36px 34px 28px; }
+    .loc-place { font-size: 28px; }
+    .command-status {
+      margin: 16px 34px 0;
+      min-height: 62px;
+      padding: 14px 16px;
+      font-size: 13px;
+    }
+    .commands { padding: 28px 34px 24px; }
+    .command-family + .command-family { margin-top: 20px; }
+    .command-pair { border-radius: 12px; }
+    .btn { min-height: 104px; font-size: 12px; }
+    .btn .label-wrap { flex-direction: column; gap: 9px; }
+    .btn svg { width: 32px; height: 32px; }
+    .panel { margin: 0 34px 24px; }
+    .foot { padding-inline: 34px; }
+  }
+  @media (max-width: 350px) {
+    .hero { height: 154px; }
+    .hero-truck { width: 224px; }
+    .hero-text { left: 16px; }
+    .primary-stat, .health-metric { padding-inline: 15px; }
+    .primary-value { font-size: 35px; }
+    .health-value { margin-left: 30px; font-size: 31px; }
+    .health-detail, .reset { margin-left: 30px; }
+    .range-layout { grid-template-columns: minmax(0, 1fr) 62px; }
+    .fuel-arc { width: 62px; }
+    .tires-corners { grid-template-columns: 1fr 84px 1fr; gap-inline: 12px; }
+    .truck-photo { width: 84px; }
+    .foot .vin { max-width: 34%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  /* Map the existing data renderer onto the new band system. */
+  .telemetry-stack {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .telemetry-stack > .tile {
+    min-height: 148px;
+    margin: 0;
+    padding: 24px 20px 22px;
+    overflow: visible;
+    border: 0;
+    border-top: 2px solid var(--rail);
+    border-radius: 0;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 24%),
+      rgba(4, 10, 13, 0.22);
+    box-shadow: none;
+  }
+  .telemetry-stack > .tile::before {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    top: -3px;
+    left: 50%;
+    width: 22px;
+    height: 5px;
+    transform: translateX(-50%);
+    background: repeating-linear-gradient(90deg, var(--amber-2) 0 3px, transparent 3px 7px);
+  }
+  .telemetry-stack > .tile:nth-child(1) { order: 2; border-left: 1px solid var(--line); }
+  .telemetry-stack > .tile:nth-child(2) { order: 1; }
+  .telemetry-stack > .tile:nth-child(n+3) { order: 3; }
+  .telemetry-stack > .tile:nth-child(4) { border-left: 1px solid var(--line); }
+  .telemetry-stack > .tile-wide { grid-column: 1 / -1; order: 20; }
+  .telemetry-stack > .location-tile { order: 30; }
+  .tile-label {
+    margin: 0 0 10px;
+    color: var(--dim);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+  }
+  .tile-value {
+    color: var(--white);
+    font-size: clamp(38px, 11vw, 50px);
+    line-height: 0.94;
+    letter-spacing: -0.05em;
+  }
+  .tile-value .u { color: var(--dim); font-size: 13px; }
+  .tile-sub { margin-top: 9px; color: var(--dim); font-size: 11px; line-height: 1.4; }
+  .range-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 74px;
+    align-items: end;
+    gap: 7px;
+  }
+  .oil-tile .tile-icon,
+  .tile:has(.tile-icon.green) .tile-icon {
+    top: 21px;
+    left: 20px;
+    right: auto;
+    width: 25px;
+    height: 25px;
+  }
+  .oil-tile .tile-label,
+  .oil-tile .tile-value,
+  .oil-tile .tile-sub,
+  .oil-tile .reset,
+  .tile:has(.tile-icon.green) .tile-label,
+  .tile:has(.tile-icon.green) .tile-value,
+  .tile:has(.tile-icon.green) .tile-sub {
+    margin-left: 34px;
+  }
+  .oil-tile .tile-value,
+  .tile:has(.tile-icon.green) .tile-value { font-size: clamp(34px, 9.5vw, 44px); }
+  .oil-tile .reset { align-self: auto; }
+  .tire-band, .telemetry-stack > .tile:has(.tires-corners) {
+    min-height: 330px;
+    padding: 26px 22px 28px;
+  }
+  #location .location-tile {
+    min-height: 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  #location .location-tile::before { display: none; }
+  #location .tile-label { margin-bottom: 0; }
+  #location .tile-sub { margin-top: 7px; }
+  .telemetry-stack > .tile::before { display: none; }
+  .telemetry-stack > .tile:nth-child(2)::before,
+  .telemetry-stack > .tile:nth-child(2n+3)::before {
+    display: block;
+    left: 100%;
+  }
+  .telemetry-stack > .tile-wide::before {
+    display: block;
+    left: 50%;
+  }
+  @media (max-width: 899px) {
+    .range-row {
+      grid-template-columns: minmax(0, 1fr) 58px;
+      gap: 4px;
+    }
+    .fuel-arc { width: 58px; height: 58px; }
+    .telemetry-stack > .tile:nth-child(2) .tile-value { font-size: 42px; }
+    .oil-tile .tile-value { font-size: 35px; }
+    .oil-tile .tile-value .u { font-size: 10px; margin-left: 2px; }
+  }
+  .telemetry-stack > .tile.tile-wide::before {
+    display: block;
+    left: 50%;
+  }
+  @media (min-width: 900px) {
+    .hero { height: 210px; }
+    .hero-truck { width: 390px; }
+    .hero-text { bottom: 29px; }
+    .title { font-size: clamp(36px, 3.8vw, 48px); }
+    .primary-band { min-height: 145px; }
+    .primary-stat { padding: 24px 30px; }
+    .primary-value { font-size: clamp(48px, 5vw, 64px); }
+    .health-band { min-height: 146px; }
+    .health-metric { padding: 22px 30px; }
+    .health-value { font-size: 46px; }
+    .tire-band,
+    .telemetry-stack > .tile:has(.tires-corners) {
+      min-height: 310px;
+      padding: 23px 32px 16px;
+    }
+    .tires-corners {
+      grid-template-columns: 1fr 100px 1fr;
+      max-width: 470px;
+      margin-top: 12px;
+      gap: 8px 42px;
+    }
+    .truck-photo { width: 100px; }
+    .btn { min-height: 88px; }
+  }
+  @media (max-width: 350px) {
+    .telemetry-stack > .tile:nth-child(1) .tile-value { font-size: 29px; }
+    .telemetry-stack > .tile:nth-child(2) .tile-value { font-size: 33px; }
+    .range-row {
+      grid-template-columns: minmax(0, 1fr) 48px;
+      gap: 3px;
+    }
+    .fuel-arc { width: 48px; height: 52px; }
+    .fuel-arc-pct { bottom: 15px; font-size: 17px; }
+    .fuel-arc-pct .u { font-size: 10px; }
+  }
+  .location-action[disabled] { opacity: 0.36; cursor: default; }
+  .reset { min-height: 44px; }
 </style>
 </head>
 <body>
-  <div class="card">
+  <main class="app-shell" aria-label="Ram 2500 vehicle dashboard">
+    <section class="vehicle-column" aria-label="Vehicle telemetry">
     <div class="hero">
       <div class="hero-flag">
         <svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -580,15 +1296,37 @@
       <img class="hero-truck" src="img/hero-truck.png" alt="2022 Ram 2500">
       <div class="hero-text">
         <div class="title" id="title">Ram Truck 2500</div>
-        <div class="sync" id="sync">loading…</div>
+        <div class="sync-row">
+          <svg class="sync-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 11a8 8 0 1 0-2.34 5.66"/><path d="M20 4v7h-7"/>
+          </svg>
+          <div class="sync" id="sync">loading…</div>
+        </div>
       </div>
     </div>
 
-    <div id="grid" class="grid">
+      <div id="grid" class="telemetry-stack">
       <div class="empty" style="grid-column: span 2;">Awaiting first sync…</div>
     </div>
 
-    <div class="actions">
+    </section>
+
+    <aside class="control-column" aria-label="Remote controls and location">
+      <section class="location-band instrument-band" id="location" aria-label="Truck location">
+        <div class="empty">Awaiting location…</div>
+      </section>
+
+      <section class="command-status is-idle" id="commandStatus" aria-live="polite" aria-atomic="true">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>
+        </svg>
+        <span id="commandStatusText">Commands can take up to 3 min.</span>
+      </section>
+
+      <section class="commands" aria-label="Truck commands">
+        <div class="command-family">
+          <h2 class="command-family-label">Access</h2>
+          <div class="command-pair">
       <button class="btn" data-cmd="lock">
         <span class="label-wrap">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
@@ -596,28 +1334,38 @@
         </span>
         <span class="spinner"></span>
       </button>
-      <button class="btn" data-cmd="unlock">
+      <button class="btn confirm-required" data-cmd="unlock">
         <span class="label-wrap">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.9-1"/></svg>
           <span class="label">Unlock</span>
         </span>
         <span class="spinner"></span>
       </button>
-      <button class="btn" data-cmd="engine_on">
+          </div>
+        </div>
+        <div class="command-family">
+          <h2 class="command-family-label">Engine</h2>
+          <div class="command-pair">
+      <button class="btn confirm-required" data-cmd="engine_on">
         <span class="label-wrap">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v8"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/></svg>
           <span class="label">Start</span>
         </span>
         <span class="spinner"></span>
       </button>
-      <button class="btn" data-cmd="engine_off">
+      <button class="btn confirm-required" data-cmd="engine_off">
         <span class="label-wrap">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
           <span class="label">Stop</span>
         </span>
         <span class="spinner"></span>
       </button>
-      <button class="btn" data-cmd="lights_horn">
+          </div>
+        </div>
+        <div class="command-family">
+          <h2 class="command-family-label">Find</h2>
+          <div class="command-pair">
+      <button class="btn confirm-required" data-cmd="lights_horn">
         <span class="label-wrap">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4h4l6 5V5l-6 5H3z"/><path d="M17 9a5 5 0 0 1 0 6"/><path d="M19.5 6.5a9 9 0 0 1 0 11"/></svg>
           <span class="label">Horn</span>
@@ -631,11 +1379,13 @@
         </span>
         <span class="spinner"></span>
       </button>
-    </div>
+          </div>
+        </div>
+      </section>
 
-    <div class="panel" id="settings">
+      <div class="panel" id="settings" role="region" aria-label="GitHub command token">
       <div class="panel-label">GitHub Token</div>
-      <input id="patInput" type="password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…">
+      <input id="patInput" type="password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…" aria-label="Fine-grained GitHub personal access token">
       <div class="panel-help">
         Fine-grained PAT with <em>Actions: Read &amp; Write</em> on this repo.
         Stored in your browser only. Required for all remote command buttons
@@ -648,15 +1398,22 @@
       </div>
     </div>
 
-    <div class="foot">
-      <span class="vin" id="vin">—</span>
-      <span>
-        <button id="settingsBtn">settings</button>
-        <span class="sep">|</span>
-        <button id="refresh">refresh</button>
-      </span>
-    </div>
-  </div>
+      <footer class="foot">
+        <span class="vin" id="vin">VIN —</span>
+        <span class="foot-actions">
+          <button type="button" id="settingsBtn" aria-expanded="false" aria-controls="settings">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.37.25.72.37 1.1.4h.5v4h-.5a1.7 1.7 0 0 0-1.1.6z"/></svg>
+            <span>Settings</span>
+          </button>
+          <span class="sep" aria-hidden="true">|</span>
+          <button type="button" id="refresh">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.34 5.66"/><path d="M20 4v7h-7"/></svg>
+            <span>Refresh</span>
+          </button>
+        </span>
+      </footer>
+    </aside>
+  </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -717,6 +1474,14 @@ function toast(msg) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
 }
 
+function setCommandStatus(state, message) {
+  const el = document.getElementById('commandStatus');
+  const text = document.getElementById('commandStatusText');
+  if (!el || !text) return;
+  el.className = 'command-status is-' + state;
+  text.textContent = message;
+}
+
 // ----- icons (used inside tiles) -----
 const ICON_OIL = `
 <svg class="tile-icon amber" viewBox="0 0 28 28" fill="currentColor">
@@ -741,7 +1506,9 @@ function render(data, locations) {
   }
 
   const v = data.vehicles[0];
-  document.getElementById('vin').textContent = v.vin || '—';
+  const vehicleName = [v.year, v.make, v.model].filter(Boolean).join(' ');
+  document.getElementById('title').textContent = vehicleName || 'Ram Truck 2500';
+  document.getElementById('vin').textContent = v.vin ? 'VIN •••• ' + String(v.vin).slice(-4) : 'VIN —';
 
   const sync = document.getElementById('sync');
   const updated = data.last_updated || v.last_updated;
@@ -776,7 +1543,7 @@ function render(data, locations) {
   // legacy embedded location if an old data.json is still being served.
   const loc = (locations && locations[v.vin]) || v.location || {};
   const hasLoc = loc.lat != null && loc.lng != null;
-  const place = loc.place || (hasLoc ? 'GPS lock' : 'No fix');
+  const place = loc.place || (hasLoc ? 'GPS lock' : 'No GPS fix');
   const coordStr = hasLoc
     ? `${loc.lat.toFixed(3)}, ${loc.lng.toFixed(3)}`
     : '—';
@@ -884,19 +1651,41 @@ function render(data, locations) {
     </div>
 
     <!-- Location -->
-    <div class="tile tile-wide">
-      <div class="tile-label">Location</div>
-      <div class="loc-place">${esc(place)}</div>
-      ${fixLabel ? `<div class="tile-sub${fixOld ? ' warn' : ''}">${fixLabel}${fixOld ? ' · tap Locate for a fresh fix' : ''}</div>` : ''}
+    <div class="tile tile-wide location-tile" id="locationTile">
+      <div class="location-head">
+        <div class="location-copy">
+          <div class="tile-label">Location</div>
+          <div class="loc-place">${esc(place)}</div>
+          ${fixLabel ? `<div class="tile-sub${fixOld ? ' warn' : ''}">${fixLabel}${fixOld ? ' · tap Locate for a fresh fix' : ''}</div>` : ''}
+        </div>
+        <button type="button" class="location-action" id="locateQuick" data-cmd="refresh_location">
+          <span class="label-wrap">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            <span>Locate truck</span>
+            <svg class="chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </span>
+          <span class="spinner"></span>
+        </button>
+      </div>
       ${hasLoc ? `
         <div class="loc-map">
           <iframe loading="lazy" src="${embedUrl}" title="Map of truck location"></iframe>
           <span class="loc-coords">${coordStr}</span>
           <a class="loc-link" target="_blank" rel="noopener" href="${mapsUrl}">Open ↗</a>
         </div>
-      ` : '<div class="tile-sub">No GPS fix</div>'}
+      ` : ''}
     </div>
   `;
+
+  const locationHost = document.getElementById('location');
+  const locationTile = document.getElementById('locationTile');
+  if (locationHost && locationTile) locationHost.replaceChildren(locationTile);
+
+  const locateQuick = document.getElementById('locateQuick');
+  if (locateQuick) {
+    locateQuick.addEventListener('click', () => sendCommand('refresh_location', locateQuick));
+  }
+  refreshCmdEnabled();
 
   const resetBtn = document.getElementById('resetOilBtn');
   if (resetBtn) {
@@ -940,8 +1729,9 @@ function refreshCmdEnabled() {
   // Token-less buttons stay tappable (dimmed) — on iOS a title attribute is
   // invisible, so the tap itself explains what's missing and opens settings.
   const has = !!getPat();
-  document.querySelectorAll('.btn[data-cmd]').forEach(b => {
+  document.querySelectorAll('[data-cmd]').forEach(b => {
     b.classList.toggle('needs-token', !has);
+    b.disabled = cmdInFlight;
   });
   refreshResetEnabled();
 }
@@ -952,9 +1742,12 @@ function refreshResetEnabled() {
 }
 
 function promptForToken(msg) {
-  toast(msg || 'Set a GitHub token in settings first');
+  const message = msg || 'Set a GitHub token in settings first';
+  toast(message);
+  setCommandStatus('warning', message);
   patInput.value = getPat();
   panel.classList.add('show');
+  settingsBtn.setAttribute('aria-expanded', 'true');
 }
 
 function ghHeaders(pat) {
@@ -1018,6 +1811,8 @@ async function sendCommand(cmd, btn) {
   cmdInFlight = true;
   btn.classList.add('loading');
   btn.setAttribute('aria-busy', 'true');
+  setCommandStatus('loading', 'Sending ' + c.label + '…');
+  refreshCmdEnabled();
   // Clock-skew slack: the phone's clock and GitHub's can differ.
   const since = new Date(Date.now() - 120000).toISOString();
   const tag = 'd' + Math.random().toString(36).slice(2, 10);
@@ -1025,27 +1820,35 @@ async function sendCommand(cmd, btn) {
   try {
     const res = await dispatch(CMD_WORKFLOW, { command: cmd, tag });
     if (res.status === 204) {
-      toast(`${c.label} sent — waiting for the truck…`);
+      toast(c.label + ' sent — waiting for the truck…');
+      setCommandStatus('loading', c.label + ' sent. Waiting for truck confirmation…');
       const conclusion = await trackRun(CMD_WORKFLOW, since, tag);
       if (conclusion === 'success') {
-        toast(`${c.label} confirmed by the truck ✓`);
+        toast(c.label + ' confirmed by the truck ✓');
+        setCommandStatus('success', c.label + ' confirmed by the truck.');
         if (cmd === 'refresh_location') setTimeout(load, 150000); // chained poll redeploys in ~2.5 min
       } else if (conclusion === 'cancelled') {
-        toast(`${c.label} was dropped — send it again`);
+        toast(c.label + ' was dropped — send it again');
+        setCommandStatus('warning', c.label + ' was dropped. Send it again.');
       } else if (conclusion) {
-        toast(`${c.label} failed — check the Actions log`);
+        toast(c.label + ' failed — check the Actions log');
+        setCommandStatus('error', c.label + ' failed. Check the Actions log.');
       } else {
-        toast(`${c.label} still running — check Actions for the result`);
+        toast(c.label + ' still running — check Actions for the result');
+        setCommandStatus('warning', c.label + ' is still running. Check Actions for the result.');
       }
     } else if (res.status === 401 || res.status === 403) {
       promptForToken('GitHub auth failed — check your token');
     } else if (res.status === 404) {
       toast('Workflow not found');
+      setCommandStatus('error', 'Command workflow not found.');
     } else {
       toast(`HTTP ${res.status}`);
+      setCommandStatus('error', 'Command request failed with HTTP ' + res.status + '.');
     }
   } catch (err) {
     toast(`Error: ${err.message}`);
+    setCommandStatus('error', 'Command error: ' + err.message);
   } finally {
     cmdInFlight = false;
     btn.classList.remove('loading');
@@ -1063,34 +1866,42 @@ async function resetOil(btn) {
   btn.disabled = true;
   const original = btn.textContent;
   btn.textContent = '…';
+  setCommandStatus('loading', 'Resetting oil baseline…');
   const since = new Date(Date.now() - 120000).toISOString();
   const tag = 'd' + Math.random().toString(36).slice(2, 10);
   try {
     const res = await dispatch(RESET_OIL_WORKFLOW, { tag });
     if (res.status === 204) {
       toast('Reset sent — anchoring baseline…');
+      setCommandStatus('loading', 'Oil reset sent. Anchoring the new baseline…');
       const conclusion = await trackRun(RESET_OIL_WORKFLOW, since, tag);
       if (conclusion === 'success') {
         // The reset run chains a poll + Pages deploy; the tile reads 5,000
         // once that lands (~2-3 min). Second load catches a slow builder.
         toast('Oil baseline reset ✓ — tile updates in ~3 min');
+        setCommandStatus('success', 'Oil baseline reset. Tile updates in about 3 min.');
         setTimeout(load, 150000);
         setTimeout(load, 300000);
       } else if (conclusion) {
         toast('Reset failed — check the Actions log');
+        setCommandStatus('error', 'Oil reset failed. Check the Actions log.');
       } else {
         toast('Reset still running — check Actions for the result');
+        setCommandStatus('warning', 'Oil reset is still running. Check Actions for the result.');
       }
     } else if (res.status === 401 || res.status === 403) {
       promptForToken('GitHub auth failed — check your token');
     } else if (res.status === 404) {
       toast('reset_oil workflow not deployed');
+      setCommandStatus('error', 'Oil reset workflow is not deployed.');
     } else {
       const txt = await res.text();
       toast(`HTTP ${res.status}: ${txt.slice(0, 80)}`);
+      setCommandStatus('error', 'Oil reset request failed with HTTP ' + res.status + '.');
     }
   } catch (err) {
     toast(`Error: ${err.message}`);
+    setCommandStatus('error', 'Oil reset error: ' + err.message);
   } finally {
     btn.disabled = false;
     btn.textContent = original;
@@ -1110,12 +1921,16 @@ document.getElementById('refresh').addEventListener('click', () => {
 const panel = document.getElementById('settings');
 const patInput = document.getElementById('patInput');
 
-document.getElementById('settingsBtn').addEventListener('click', () => {
+const settingsBtn = document.getElementById('settingsBtn');
+settingsBtn.addEventListener('click', () => {
   patInput.value = getPat();
-  panel.classList.toggle('show');
+  const open = panel.classList.toggle('show');
+  settingsBtn.setAttribute('aria-expanded', String(open));
+  if (open) patInput.focus();
 });
 document.getElementById('patClose').addEventListener('click', () => {
   panel.classList.remove('show');
+  settingsBtn.setAttribute('aria-expanded', 'false');
 });
 document.getElementById('patSave').addEventListener('click', () => {
   const v = patInput.value.trim();
@@ -1123,6 +1938,7 @@ document.getElementById('patSave').addEventListener('click', () => {
   setPat(v);
   refreshCmdEnabled();
   panel.classList.remove('show');
+  settingsBtn.setAttribute('aria-expanded', 'false');
   toast('Token saved');
 });
 document.getElementById('patClear').addEventListener('click', () => {
