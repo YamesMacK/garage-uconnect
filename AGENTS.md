@@ -27,6 +27,9 @@ python scripts/check_visual_lock.py
 
 For any authorized frontend change:
 
+0. Install the visual-QA dependency with
+   `python -m pip install -r requirements-visual-lock.txt`. The source-only
+   lock command above intentionally runs without third-party packages.
 1. Validate the deterministic fixtures and print the locked URL with
    `python scripts/prepare_visual_fixture.py --port 4174`.
 2. Serve the repository root on that port with

@@ -9,8 +9,6 @@ import json
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageStat
-
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 LOCK_FILE = REPO_ROOT / "visual-lock" / "visual-lock.json"
@@ -62,6 +60,16 @@ def visual_surface_sha256() -> str:
 
 
 def compare_images(reference: Path, candidate: Path, config: dict) -> tuple[bool, str]:
+    try:
+        from PIL import Image, ImageChops, ImageStat
+    except ModuleNotFoundError as exc:
+        if exc.name == "PIL":
+            raise SystemExit(
+                "Screenshot comparison requires Pillow. Install it with: "
+                "python -m pip install -r requirements-visual-lock.txt"
+            ) from exc
+        raise
+
     with Image.open(reference) as ref_image, Image.open(candidate) as candidate_image:
         ref = ref_image.convert("RGB")
         current = candidate_image.convert("RGB")
