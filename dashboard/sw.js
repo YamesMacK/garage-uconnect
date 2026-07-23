@@ -7,8 +7,17 @@
      installed PWAs without a manual CACHE bump; cache fallback offline.
    - everything else same-origin (icons, images, manifest) — cache first. */
 
-const CACHE = 'garage-v20260702-remote-commands';
-const SHELL = ['./', './index.html', './manifest.json', './img/truck-top.png', './img/hero-truck.png', './icon-192.png'];
+const CACHE = 'garage-v20260723-cinematic-v8';
+const SHELL = [
+  './',
+  './index.html',
+  './cinematic.css?v=20260723g',
+  './manifest.json',
+  './img/hero-cinematic-v1.png',
+  './img/truck-top-laramie-v1.png',
+  './icon-192.png',
+  './img/oil-can-ios.png',
+];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)));
