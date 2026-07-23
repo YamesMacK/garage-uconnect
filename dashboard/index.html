@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#030a0f">
+<meta name="theme-color" content="#08121a">
 <!-- CSP: the PAT in localStorage can start the engine — cut off script
      injection + exfiltration paths. connect-src covers data fetches and the
      GitHub API; frame-src covers the Google Maps embed. -->
@@ -11,10 +11,9 @@
 <title>Ram Truck 2500</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="icon" href="icon-192.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   :root {
@@ -528,1392 +527,68 @@
     body { padding: 14px 14px 22px; }
     .toast { display: none !important; }
   }
-  /* Refined OEM instrument-cluster system -------------------------------- */
-  :root {
-    color-scheme: dark;
-    --bg: #050a0e;
-    --card: #091116;
-    --tile: rgba(255, 255, 255, 0.018);
-    --tile-2: rgba(255, 255, 255, 0.035);
-    --line: rgba(222, 226, 224, 0.12);
-    --line-2: rgba(222, 226, 224, 0.22);
-    --cream: #d7d6d0;
-    --cream-2: #ebe9e2;
-    --white: #f7f5ef;
-    --dim: #9b9c98;
-    --dim-2: #686d6c;
-    --amber: #e58e20;
-    --amber-2: #f4a536;
-    --green: #78dc8b;
-    --warn: #e06b56;
-    --rail: #4b5356;
-    --surface-2: #0d171c;
-    --shadow: 0 28px 90px rgba(0, 0, 0, 0.58);
-    --radius-shell: 26px;
-  }
-  html { background: var(--bg); }
-  body {
-    background:
-      radial-gradient(ellipse at 50% -10%, rgba(244, 165, 54, 0.07), transparent 34%),
-      linear-gradient(180deg, #071016 0%, var(--bg) 48%, #03070a 100%);
-    background-attachment: fixed;
-    color: var(--cream);
-    min-height: 100vh;
-    padding:
-      max(env(safe-area-inset-top), 10px)
-      max(env(safe-area-inset-right), 8px)
-      max(env(safe-area-inset-bottom), 10px)
-      max(env(safe-area-inset-left), 8px);
-    overflow-x: hidden;
-  }
-  button, input { font: inherit; }
-  button { -webkit-tap-highlight-color: transparent; }
-  .app-shell {
-    width: min(100%, 430px);
-    margin: 0 auto;
-    background:
-      radial-gradient(ellipse at 50% 0%, rgba(244, 165, 54, 0.035), transparent 34%),
-      linear-gradient(165deg, #0b151a 0%, #071015 72%, #060d11 100%);
-    border: 1px solid rgba(222, 226, 224, 0.13);
-    border-radius: var(--radius-shell);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-    isolation: isolate;
-  }
-  .vehicle-column, .control-column { min-width: 0; }
-  .hero {
-    height: 168px;
-    margin: 0;
-    border-radius: 0;
-    background: #080f13;
-    border-bottom: 0;
-  }
-  .hero-flag { opacity: 0.48; }
-  .hero-vignette {
-    background:
-      linear-gradient(90deg, rgba(5, 10, 14, 0.7) 0%, rgba(5, 10, 14, 0.08) 58%, rgba(5, 10, 14, 0.14) 100%),
-      linear-gradient(180deg, rgba(5, 10, 14, 0.08) 0%, rgba(5, 10, 14, 0.02) 54%, rgba(5, 10, 14, 0.9) 100%);
-  }
-  .hero-truck {
-    right: -24px;
-    top: 53%;
-    width: 250px;
-    filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.75));
-  }
-  .hero-text { left: 20px; top: auto; bottom: 22px; max-width: 54%; }
-  .title {
-    margin: 0 0 11px;
-    color: var(--white);
-    font-size: clamp(25px, 7.5vw, 31px);
-    font-weight: 800;
-    line-height: 0.98;
-    letter-spacing: -0.035em;
-    text-wrap: balance;
-  }
-  .sync-row {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--amber-2);
-  }
-  .sync-icon { width: 18px; height: 18px; flex: 0 0 auto; stroke: currentColor; }
-  .sync {
-    color: inherit;
-    font-size: 11px;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: 0.08em;
-    text-transform: none;
-    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);
-  }
-  .sync.stale { color: var(--warn); }
-  .instrument-band {
-    position: relative;
-    border-top: 2px solid var(--rail);
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 24%),
-      rgba(4, 10, 13, 0.22);
-  }
-  .instrument-band::before {
-    content: '';
-    position: absolute;
-    z-index: 2;
-    top: -3px;
-    left: 50%;
-    width: 22px;
-    height: 5px;
-    transform: translateX(-50%);
-    background: repeating-linear-gradient(90deg, var(--amber-2) 0 3px, transparent 3px 7px);
-    filter: drop-shadow(0 0 5px rgba(244, 165, 54, 0.3));
-  }
-  .telemetry-stack { display: block; }
-  .primary-band {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1.08fr);
-    align-items: stretch;
-    min-height: 148px;
-  }
-  .primary-stat {
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-    justify-content: center;
-    padding: 24px 20px 22px;
-  }
-  .primary-divider, .health-divider {
-    width: 1px;
-    margin: 26px 0;
-    background: linear-gradient(180deg, transparent, var(--line-2) 18%, var(--line-2) 82%, transparent);
-  }
-  .metric-label, .section-label, .command-family-label {
-    color: var(--dim);
-    font-size: 10px;
-    font-weight: 800;
-    line-height: 1.2;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-  }
-  .primary-value {
-    margin-top: 10px;
-    color: var(--white);
-    font-size: clamp(38px, 12vw, 54px);
-    font-weight: 800;
-    line-height: 0.92;
-    letter-spacing: -0.05em;
-    white-space: nowrap;
-  }
-  .primary-value .unit, .health-value .unit {
-    margin-left: 4px;
-    color: var(--dim);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0;
-  }
-  .range-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 74px;
-    align-items: end;
-    gap: 7px;
-  }
-  .fuel-arc { width: 74px; height: 62px; }
-  .fuel-arc-pct { bottom: 16px; color: var(--white); font-size: 21px; }
-  .fuel-arc-label { bottom: -1px; color: var(--dim); font-size: 11px; }
-  .health-band {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
-    min-height: 162px;
-  }
-  .health-metric { position: relative; min-width: 0; padding: 25px 20px 22px; }
-  .health-heading { display: flex; align-items: center; gap: 10px; }
-  .health-heading svg { position: static; width: 25px; height: 25px; opacity: 1; }
-  .health-value {
-    margin: 12px 0 0 35px;
-    color: var(--white);
-    font-size: clamp(34px, 10vw, 46px);
-    font-weight: 800;
-    line-height: 0.95;
-    letter-spacing: -0.045em;
-    white-space: nowrap;
-  }
-  .health-value.amber { color: var(--amber-2); }
-  .health-value.warn { color: var(--warn); }
-  .health-detail {
-    margin: 8px 0 0 35px;
-    color: var(--dim);
-    font-size: 11px;
-    font-weight: 500;
-    line-height: 1.45;
-  }
-  .health-detail.healthy { color: var(--green); }
-  .health-detail.warn { color: var(--warn); }
-  .reset {
-    min-height: 38px;
-    margin: 8px 0 0 35px;
-    padding: 6px 10px 6px 0;
-    border: 0;
-    border-radius: 0;
-    color: var(--amber-2);
-    font-size: 11px;
-    letter-spacing: 0.16em;
-    text-align: left;
-    text-decoration: none;
-  }
-  .reset::after {
-    content: '›';
-    display: inline-block;
-    margin-left: 8px;
-    font-size: 22px;
-    line-height: 0;
-    vertical-align: -2px;
-  }
-  .reset:hover { color: var(--white); }
-  .reset:active { background: transparent; transform: translateX(2px); }
-  .reset.needs-token { opacity: 0.52; }
-  .status-band {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1px;
-  }
-  .status-metric { padding: 20px; background: rgba(255, 255, 255, 0.014); }
-  .status-value {
-    margin-top: 9px;
-    color: var(--white);
-    font-size: 23px;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-  }
-  .status-value.amber { color: var(--amber-2); }
-  .status-value.warn { color: var(--warn); }
-  .status-detail { margin-top: 6px; color: var(--dim); font-size: 11px; }
-  .status-detail.healthy { color: var(--green); }
-  .status-detail.warn { color: var(--warn); }
-  .tire-band { padding: 26px 22px 28px; }
-  .tires-corners {
-    grid-template-columns: minmax(0, 1fr) 100px minmax(0, 1fr);
-    grid-template-rows: 1fr 1fr;
-    gap: 24px 20px;
-    margin: 22px auto 0;
-    padding: 0;
-    max-width: 340px;
-  }
-  .truck-photo {
-    width: 100px;
-    filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.58));
-  }
-  .tire-pos { margin-bottom: 7px; color: var(--dim); font-size: 10px; font-weight: 800; }
-  .tire-num { color: var(--white); font-size: 34px; }
-  .control-column {
-    display: flex;
-    flex-direction: column;
-    background: linear-gradient(160deg, rgba(255, 255, 255, 0.012), transparent 68%);
-  }
-  .location-band { min-height: 118px; padding: 24px 20px 22px; }
-  .location-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-  }
-  .location-copy { min-width: 0; }
-  .loc-place {
-    margin-top: 10px;
-    color: var(--white);
-    font-size: 23px;
-    font-weight: 600;
-    letter-spacing: -0.025em;
-  }
-  .location-action {
-    display: inline-flex;
-    min-height: 44px;
-    align-items: center;
-    justify-content: center;
-    gap: 9px;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--amber-2);
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .location-action svg { width: 25px; height: 25px; stroke: currentColor; }
-  .location-action .chevron { width: 14px; height: 14px; }
-  .location-action .spinner { display: none; }
-  .location-action.loading .label-wrap { visibility: hidden; }
-  .location-action.loading .spinner {
-    display: block;
-    width: 18px;
-    height: 18px;
-    border: 2px solid currentColor;
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: btn-spin 0.7s linear infinite;
-  }
-  .location-action.needs-token { opacity: 0.52; }
-  .loc-map {
-    height: 188px;
-    margin-top: 17px;
-    border-color: var(--line);
-    border-radius: 12px;
-  }
-  .command-status {
-    display: flex;
-    min-height: 58px;
-    align-items: center;
-    gap: 12px;
-    margin: 14px 16px 0;
-    padding: 12px 14px;
-    border: 1px solid rgba(244, 165, 54, 0.52);
-    border-radius: 10px;
-    background: rgba(244, 165, 54, 0.025);
-    color: var(--cream-2);
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 1.4;
-  }
-  .command-status svg {
-    width: 22px;
-    height: 22px;
-    flex: 0 0 auto;
-    color: var(--amber-2);
-  }
-  .command-status.is-loading svg { animation: status-pulse 1.2s ease-in-out infinite; }
-  .command-status.is-success { border-color: rgba(120, 220, 139, 0.45); }
-  .command-status.is-success svg { color: var(--green); }
-  .command-status.is-error, .command-status.is-warning {
-    border-color: rgba(224, 107, 86, 0.5);
-  }
-  .command-status.is-error svg, .command-status.is-warning svg { color: var(--warn); }
-  @keyframes status-pulse { 50% { opacity: 0.42; transform: scale(0.92); } }
-  .commands { padding: 20px 16px 22px; }
-  .command-family + .command-family { margin-top: 15px; }
-  .command-family-label { margin: 0 0 8px 8px; }
-  .command-pair {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    overflow: hidden;
-    border: 1px solid var(--line);
-    border-radius: 11px;
-    background: rgba(255, 255, 255, 0.012);
-  }
-  .btn {
-    min-height: 68px;
-    padding: 10px 9px;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    color: var(--cream-2);
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.14em;
-    transition: background 0.16s ease, color 0.16s ease, transform 0.12s ease;
-  }
-  .command-pair .btn + .btn { border-left: 1px solid var(--line); }
-  .btn .label-wrap {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-  .btn svg { width: 25px; height: 25px; stroke-width: 2; }
-  .btn:hover { background: rgba(255, 255, 255, 0.035); color: var(--white); }
-  .btn:active { background: rgba(244, 165, 54, 0.07); transform: scale(0.985); }
-  .btn.needs-token { opacity: 0.48; }
-  .btn[disabled] { opacity: 0.36; }
-  .btn.confirm-required::after {
-    content: '';
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 4px;
-    height: 4px;
-    border: 1px solid var(--dim-2);
-    border-radius: 50%;
-  }
-  .panel {
-    margin: 0 16px 20px;
-    padding: 16px;
-    border-color: var(--line);
-    border-radius: 12px;
-    background: var(--surface-2);
-    gap: 12px;
-  }
-  .panel-label { font-size: 10px; }
-  .panel input {
-    min-height: 46px;
-    padding: 10px 12px;
-    border-color: var(--line);
-    border-radius: 8px;
-    background: rgba(0, 0, 0, 0.27);
-    color: var(--white);
-    font-size: 14px;
-  }
-  .panel input:focus { border-color: var(--amber-2); }
-  .panel-help { font-size: 12px; line-height: 1.55; }
-  .panel-row {
-    gap: 1px;
-    overflow: hidden;
-    border: 1px solid var(--line);
-    border-radius: 9px;
-  }
-  .panel-row .btn { min-height: 48px; border-left: 1px solid var(--line); }
-  .panel-row .btn:first-child { border-left: 0; }
-  .foot {
-    min-height: 66px;
-    margin-top: auto;
-    padding: 12px 18px max(12px, env(safe-area-inset-bottom));
-    border-top: 2px solid var(--rail);
-    color: var(--dim);
-  }
-  .foot .vin {
-    overflow: hidden;
-    max-width: 45%;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .foot-actions { display: inline-flex; align-items: center; gap: 4px; }
-  .foot button {
-    display: inline-flex;
-    min-height: 44px;
-    align-items: center;
-    gap: 7px;
-    padding: 0 7px;
-    border-radius: 7px;
-    color: var(--cream);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.09em;
-    text-decoration: none;
-    text-transform: uppercase;
-  }
-  .foot button:hover {
-    background: rgba(255, 255, 255, 0.035);
-    color: var(--white);
-  }
-  .foot button svg { width: 18px; height: 18px; stroke: currentColor; }
-  .foot .sep {
-    height: 24px;
-    width: 1px;
-    margin: 0 2px;
-    background: var(--line-2);
-    font-size: 0;
-  }
-  .toast {
-    bottom: max(24px, env(safe-area-inset-bottom));
-    width: min(calc(100% - 32px), 360px);
-    max-width: none;
-    padding: 13px 16px;
-    border-color: var(--line-2);
-    border-radius: 10px;
-    background: #111d23;
-    color: var(--white);
-    font-size: 13px;
-  }
-  .empty {
-    padding: 42px 20px;
-    color: var(--dim);
-    font-size: 13px;
-    font-style: normal;
-  }
-  :where(button, input, a):focus-visible {
-    outline: 2px solid var(--amber-2);
-    outline-offset: 3px;
-  }
-  @media (min-width: 900px) {
-    body {
-      display: grid;
-      min-height: 100vh;
-      place-items: center;
-      padding: 24px;
-    }
-    .app-shell {
-      display: grid;
-      grid-template-columns: minmax(0, 1.58fr) minmax(360px, 1fr);
-      width: min(100%, 1280px);
-      min-height: min(900px, calc(100vh - 48px));
-      border-radius: 18px;
-    }
-    .vehicle-column { border-right: 1px solid var(--line); }
-    .hero { height: 238px; }
-    .hero-truck { right: -12px; width: 440px; }
-    .hero-text { left: 34px; bottom: 35px; max-width: 50%; }
-    .title { font-size: clamp(38px, 4vw, 54px); }
-    .sync { font-size: 13px; }
-    .sync-icon { width: 21px; height: 21px; }
-    .primary-band { min-height: 170px; }
-    .primary-stat { padding: 28px 36px; }
-    .primary-value { font-size: clamp(52px, 5.4vw, 72px); }
-    .range-layout {
-      grid-template-columns: minmax(0, 1fr) 110px;
-      gap: 14px;
-    }
-    .fuel-arc { width: 110px; height: 82px; }
-    .fuel-arc-pct { bottom: 23px; font-size: 27px; }
-    .fuel-arc-label { font-size: 12px; }
-    .health-band { min-height: 180px; }
-    .health-metric { padding: 28px 36px; }
-    .health-value { margin-left: 38px; font-size: 52px; }
-    .health-detail, .reset { margin-left: 38px; }
-    .tire-band { min-height: 318px; padding: 28px 36px 20px; }
-    .tires-corners {
-      grid-template-columns: 1fr 120px 1fr;
-      max-width: 500px;
-      margin-top: 16px;
-      gap: 14px 46px;
-    }
-    .truck-photo { width: 120px; }
-    .tire-num { font-size: 38px; }
-    .control-column { min-height: 100%; }
-    .location-band { min-height: 145px; padding: 36px 34px 28px; }
-    .loc-place { font-size: 28px; }
-    .command-status {
-      margin: 16px 34px 0;
-      min-height: 62px;
-      padding: 14px 16px;
-      font-size: 13px;
-    }
-    .commands { padding: 28px 34px 24px; }
-    .command-family + .command-family { margin-top: 20px; }
-    .command-pair { border-radius: 12px; }
-    .btn { min-height: 104px; font-size: 12px; }
-    .btn .label-wrap { flex-direction: column; gap: 9px; }
-    .btn svg { width: 32px; height: 32px; }
-    .panel { margin: 0 34px 24px; }
-    .foot { padding-inline: 34px; }
-  }
-  @media (max-width: 350px) {
-    .hero { height: 154px; }
-    .hero-truck { width: 224px; }
-    .hero-text { left: 16px; }
-    .primary-stat, .health-metric { padding-inline: 15px; }
-    .primary-value { font-size: 35px; }
-    .health-value { margin-left: 30px; font-size: 31px; }
-    .health-detail, .reset { margin-left: 30px; }
-    .range-layout { grid-template-columns: minmax(0, 1fr) 62px; }
-    .fuel-arc { width: 62px; }
-    .tires-corners { grid-template-columns: 1fr 84px 1fr; gap-inline: 12px; }
-    .truck-photo { width: 84px; }
-    .foot .vin { max-width: 34%; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      scroll-behavior: auto !important;
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
-  /* Map the existing data renderer onto the new band system. */
-  .telemetry-stack {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .telemetry-stack > .tile {
-    min-height: 148px;
-    margin: 0;
-    padding: 24px 20px 22px;
-    overflow: visible;
-    border: 0;
-    border-top: 2px solid var(--rail);
-    border-radius: 0;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 24%),
-      rgba(4, 10, 13, 0.22);
-    box-shadow: none;
-  }
-  .telemetry-stack > .tile::before {
-    content: '';
-    position: absolute;
-    z-index: 2;
-    top: -3px;
-    left: 50%;
-    width: 22px;
-    height: 5px;
-    transform: translateX(-50%);
-    background: repeating-linear-gradient(90deg, var(--amber-2) 0 3px, transparent 3px 7px);
-  }
-  .telemetry-stack > .tile:nth-child(1) { order: 2; border-left: 1px solid var(--line); }
-  .telemetry-stack > .tile:nth-child(2) { order: 1; }
-  .telemetry-stack > .tile:nth-child(n+3) { order: 3; }
-  .telemetry-stack > .tile:nth-child(4) { border-left: 1px solid var(--line); }
-  .telemetry-stack > .tile-wide { grid-column: 1 / -1; order: 20; }
-  .telemetry-stack > .location-tile { order: 30; }
-  .tile-label {
-    margin: 0 0 10px;
-    color: var(--dim);
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.2em;
-  }
-  .tile-value {
-    color: var(--white);
-    font-size: clamp(38px, 11vw, 50px);
-    line-height: 0.94;
-    letter-spacing: -0.05em;
-  }
-  .tile-value .u { color: var(--dim); font-size: 13px; }
-  .tile-sub { margin-top: 9px; color: var(--dim); font-size: 11px; line-height: 1.4; }
-  .range-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 74px;
-    align-items: end;
-    gap: 7px;
-  }
-  .oil-tile .tile-icon,
-  .tile:has(.tile-icon.green) .tile-icon {
-    top: 21px;
-    left: 20px;
-    right: auto;
-    width: 25px;
-    height: 25px;
-  }
-  .oil-tile .tile-label,
-  .oil-tile .tile-value,
-  .oil-tile .tile-sub,
-  .oil-tile .reset,
-  .tile:has(.tile-icon.green) .tile-label,
-  .tile:has(.tile-icon.green) .tile-value,
-  .tile:has(.tile-icon.green) .tile-sub {
-    margin-left: 34px;
-  }
-  .oil-tile .tile-value,
-  .tile:has(.tile-icon.green) .tile-value { font-size: clamp(34px, 9.5vw, 44px); }
-  .oil-tile .reset { align-self: auto; }
-  .tire-band, .telemetry-stack > .tile:has(.tires-corners) {
-    min-height: 330px;
-    padding: 26px 22px 28px;
-  }
-  #location .location-tile {
-    min-height: 0;
-    padding: 0;
-    overflow: visible;
-    border: 0;
-    background: transparent;
-    box-shadow: none;
-  }
-  #location .location-tile::before { display: none; }
-  #location .tile-label { margin-bottom: 0; }
-  #location .tile-sub { margin-top: 7px; }
-  .telemetry-stack > .tile::before { display: none; }
-  .telemetry-stack > .tile:nth-child(2)::before,
-  .telemetry-stack > .tile:nth-child(2n+3)::before {
-    display: block;
-    left: 100%;
-  }
-  .telemetry-stack > .tile-wide::before {
-    display: block;
-    left: 50%;
-  }
-  @media (max-width: 899px) {
-    .range-row {
-      grid-template-columns: minmax(0, 1fr) 58px;
-      gap: 4px;
-    }
-    .fuel-arc { width: 58px; height: 58px; }
-    .telemetry-stack > .tile:nth-child(2) .tile-value { font-size: 42px; }
-    .oil-tile .tile-value { font-size: 35px; }
-    .oil-tile .tile-value .u { font-size: 10px; margin-left: 2px; }
-  }
-  .telemetry-stack > .tile.tile-wide::before {
-    display: block;
-    left: 50%;
-  }
-  @media (min-width: 900px) {
-    .hero { height: 210px; }
-    .hero-truck { width: 390px; }
-    .hero-text { bottom: 29px; }
-    .title { font-size: clamp(36px, 3.8vw, 48px); }
-    .primary-band { min-height: 145px; }
-    .primary-stat { padding: 24px 30px; }
-    .primary-value { font-size: clamp(48px, 5vw, 64px); }
-    .health-band { min-height: 146px; }
-    .health-metric { padding: 22px 30px; }
-    .health-value { font-size: 46px; }
-    .tire-band,
-    .telemetry-stack > .tile:has(.tires-corners) {
-      min-height: 310px;
-      padding: 23px 32px 16px;
-    }
-    .tires-corners {
-      grid-template-columns: 1fr 100px 1fr;
-      max-width: 470px;
-      margin-top: 12px;
-      gap: 8px 42px;
-    }
-    .truck-photo { width: 100px; }
-    .btn { min-height: 88px; }
-  }
-  @media (max-width: 350px) {
-    .telemetry-stack > .tile:nth-child(1) .tile-value { font-size: 29px; }
-    .telemetry-stack > .tile:nth-child(2) .tile-value { font-size: 33px; }
-    .range-row {
-      grid-template-columns: minmax(0, 1fr) 48px;
-      gap: 3px;
-    }
-    .fuel-arc { width: 48px; height: 52px; }
-    .fuel-arc-pct { bottom: 15px; font-size: 17px; }
-    .fuel-arc-pct .u { font-size: 10px; }
-  }
-  .location-action[disabled] { opacity: 0.36; cursor: default; }
-  .reset { min-height: 44px; }
-  /* Approved 852×1846 instrument-cluster target -------------------------- */
-  :root {
-    --cluster-canvas: #030a0f;
-    --cluster-surface: #0c1115;
-    --cluster-surface-2: #111518;
-    --cluster-metal: #373636;
-    --cluster-copper: #5e3e2b;
-    --cluster-ivory: #e1d3c3;
-    --cluster-muted: #9c9185;
-    --cluster-amber: #e5963f;
-    --cluster-amber-hot: #f0a64d;
-    --cluster-red: #e0442e;
-    --cluster-green: #69a46b;
-  }
-  html { background: var(--cluster-canvas); }
-  body {
-    display: block;
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-    background:
-      radial-gradient(ellipse at 50% 0%, rgba(228, 143, 59, 0.04), transparent 31%),
-      linear-gradient(180deg, #070d11 0%, var(--cluster-canvas) 58%, #02070a 100%);
-    color: var(--cluster-ivory);
-    font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
-    font-variant-numeric: tabular-nums lining-nums;
-  }
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 20;
-    pointer-events: none;
-    opacity: 0.12;
-    mix-blend-mode: soft-light;
-    background-image:
-      radial-gradient(circle at 20% 30%, rgba(255,255,255,.28) 0 .4px, transparent .6px),
-      radial-gradient(circle at 75% 65%, rgba(0,0,0,.8) 0 .5px, transparent .7px);
-    background-size: 7px 7px, 9px 9px;
-  }
-  button, input { font-family: inherit; }
-  .app-shell {
-    display: block !important;
-    width: min(100%, 426px);
-    min-height: 100vh;
-    margin: 0 auto;
-    overflow: hidden;
-    isolation: isolate;
-    border: 0;
-    border-radius: 0;
-    background:
-      linear-gradient(105deg, transparent 0 48%, rgba(255,255,255,.012) 49% 50%, transparent 51%),
-      linear-gradient(180deg, #071015 0%, #040b0f 100%);
-    box-shadow: 0 28px 90px rgba(0,0,0,.72);
-  }
-  .vehicle-column, .control-column { display: block; min-width: 0; }
-  .hero {
-    position: relative;
-    height: 249px;
-    margin: 0;
-    overflow: hidden;
-    border: 0;
-    border-radius: 0;
-    background: #03080b;
-  }
-  .hero-art {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 52% center;
-  }
-  .hero::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background:
-      linear-gradient(90deg, rgba(2,7,10,.62) 0%, rgba(2,7,10,.18) 39%, transparent 62%),
-      linear-gradient(0deg, #050b0f 0%, transparent 22%);
-  }
-  .hero-text {
-    position: absolute;
-    z-index: 2;
-    top: 38px;
-    left: 27px;
-    right: auto;
-    bottom: auto;
-    padding: 0;
-  }
-  .title {
-    color: var(--cluster-ivory);
-    font-size: 32px;
-    font-weight: 700;
-    line-height: .94;
-    letter-spacing: .012em;
-    text-transform: none;
-    white-space: nowrap;
-    text-shadow: 0 2px 0 #0b0c0d, 0 0 12px rgba(0,0,0,.7);
-  }
-  .sync-row { display: block; margin-top: 7px; }
-  .sync-icon { display: none !important; }
-  .sync {
-    color: var(--cluster-amber);
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1;
-    letter-spacing: .2em;
-    text-transform: uppercase;
-    text-shadow: 0 1px 5px rgba(0,0,0,.9);
-  }
-  .sync.stale { color: var(--cluster-red); }
-  .telemetry-stack {
-    position: relative;
-    z-index: 4;
-    display: block;
-    margin: -14px 12px 0;
-    padding: 0;
-  }
-  .stats-bezel,
-  .tire-panel,
-  .location-tile {
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 12px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 12px);
-    background: linear-gradient(145deg, #55412f 0%, #292b2b 14%, #5f402c 50%, #242728 82%, #6c422a 100%);
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,.65));
-  }
-  .stats-bezel::before,
-  .tire-panel::before,
-  .location-tile::before {
-    content: "";
-    position: absolute;
-    z-index: -1;
-    inset: 2px;
-    pointer-events: none;
-    clip-path: inherit;
-    background:
-      linear-gradient(112deg, transparent 0 48%, rgba(255,255,255,.018) 49%, transparent 50%),
-      linear-gradient(180deg, #10161a 0%, #090e11 100%);
-    box-shadow: inset 0 0 0 1px rgba(200,137,82,.22), inset 0 0 28px rgba(0,0,0,.58);
-  }
-  .stats-bezel {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0,1fr));
-    grid-template-rows: 94px 114px;
-    height: 208px;
-  }
-  .stats-bezel::after {
-    content: "";
-    position: absolute;
-    z-index: 4;
-    top: 2px;
-    left: 17px;
-    right: 17px;
-    height: 2px;
-    background: linear-gradient(90deg, var(--cluster-amber) 0%, #ae7442 26%, #7c5a42 66%, var(--cluster-red) 100%);
-    box-shadow: -5px 0 8px rgba(229,150,63,.55), 5px 0 9px rgba(254,78,54,.8);
-  }
-  .stats-bezel .tile {
-    position: relative;
-    min-width: 0;
-    min-height: 0;
-    padding: 16px 20px 10px;
-    overflow: visible;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-  }
-  .stats-bezel .tile:nth-child(odd) { border-right: 1px solid rgba(170,113,69,.46); }
-  .stats-bezel .tile:nth-child(-n+2) { border-bottom: 1px solid rgba(170,113,69,.46); }
-  .stats-bezel .tile:first-child::after {
-    content: "";
-    position: absolute;
-    z-index: 4;
-    right: -4px;
-    bottom: -4px;
-    width: 7px;
-    height: 7px;
-    transform: rotate(45deg);
-    border: 1px solid #845632;
-    background: #0c1114;
-  }
-  .tile-label {
-    color: #b7aa9d;
-    font-size: 10px;
-    font-weight: 600;
-    line-height: 1;
-    letter-spacing: .21em;
-    text-transform: uppercase;
-  }
-  .tile-value {
-    margin-top: 8px;
-    color: var(--cluster-ivory);
-    font-size: 46px;
-    font-weight: 700;
-    line-height: .78;
-    letter-spacing: -.015em;
-    text-shadow: 0 2px 0 #050708, 0 0 12px rgba(0,0,0,.35);
-  }
-  .tile-value .u, .tile-value > .u {
-    display: inline-block;
-    margin-left: 4px;
-    color: #b8aa9c;
-    font-size: 16px;
-    font-weight: 500;
-    letter-spacing: 0;
-    text-transform: none;
-  }
-  .tile-sub {
-    margin-top: 9px;
-    color: var(--cluster-muted);
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: .025em;
-    text-transform: none;
-  }
-  .tile-sub.warn, .tire-num.warn { color: var(--cluster-red); }
-  .tile-sub.healthy { color: var(--cluster-green); }
-  .tile-value.amber { color: var(--cluster-amber-hot); }
-  .range-row {
-    display: grid;
-    grid-template-columns: minmax(0,1fr) 79px;
-    align-items: start;
-    gap: 2px;
-  }
-  .range-text { min-width: 0; }
-  .fuel-arc {
-    position: relative;
-    width: 79px;
-    height: 69px;
-    margin-top: -9px;
-    overflow: visible;
-  }
-  .fuel-arc svg { position: absolute; inset: 0; width: 79px; height: 58px; overflow: visible; }
-  .fuel-segment { stroke: #303437; stroke-width: 7; stroke-linecap: butt; }
-  .fuel-segment.is-filled { stroke: var(--cluster-amber-hot); filter: drop-shadow(0 0 2px rgba(240,166,77,.4)); }
-  .fuel-arc-pct {
-    position: absolute;
-    top: 22px;
-    left: 0;
-    right: 0;
-    color: var(--cluster-amber-hot);
-    font-size: 31px;
-    font-weight: 700;
-    line-height: 1;
-    text-align: center;
-  }
-  .fuel-arc-pct .u { font-size: 14px; }
-  .fuel-arc-label {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    color: var(--cluster-muted);
-    font-size: 10px;
-    text-align: center;
-  }
-  .fuel-arc::before, .fuel-arc::after {
-    position: absolute;
-    bottom: 0;
-    color: #a99d90;
-    font-size: 9px;
-  }
-  .fuel-arc::before { content: "E"; left: 1px; }
-  .fuel-arc::after { content: "F"; right: 1px; }
-  .oil-tile .tile-value { color: var(--cluster-amber-hot); font-size: 39px; margin-top: 11px; }
-  .oil-tile .tile-value.warn { color: var(--cluster-red); }
-  .stats-bezel .tile:nth-child(4) .tile-value { font-size: 40px; margin-top: 11px; }
-  .stats-bezel .tile:nth-child(4) .tile-value .u { text-transform: uppercase; }
-  .tile-icon { top: 13px; right: 16px; width: 27px; height: 27px; }
-  .tile-icon.amber { color: var(--cluster-amber-hot); }
-  .tile-icon.green { color: var(--cluster-green); }
-  .reset {
-    position: relative;
-    width: 66px;
-    min-height: 29px;
-    margin-top: 9px;
-    border: 1px solid var(--cluster-amber);
-    border-radius: 3px;
-    background: #0e1316;
-    color: var(--cluster-amber-hot);
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: .2em;
-    text-transform: uppercase;
-  }
-  .reset::after { content: ""; position: absolute; inset: -7px -5px; }
-  .reset.needs-token { opacity: .68; }
-  .tire-panel {
-    height: 150px;
-    margin-top: 7px;
-    padding: 13px 20px 8px;
-    clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 12px, 100% calc(100% - 10px), 58% calc(100% - 10px), 55% 100%, 45% 100%, 42% calc(100% - 10px), 10px calc(100% - 10px), 0 calc(100% - 20px), 0 12px);
-  }
-  .tire-panel::before {
-    background:
-      radial-gradient(circle at 50% 55%, transparent 0 32px, rgba(164,109,66,.14) 33px, transparent 34px 49px, rgba(164,109,66,.08) 50px, transparent 51px),
-      repeating-radial-gradient(ellipse at 50% 55%, transparent 0 18px, rgba(255,255,255,.018) 19px, transparent 20px),
-      linear-gradient(180deg, #10161a, #080d10);
-  }
-  .tire-panel > .tile-label { position: absolute; top: 13px; left: 20px; z-index: 3; }
-  .tires-corners { position: relative; width: 100%; height: 128px; margin: 0; }
-  .truck-photo {
-    position: absolute;
-    z-index: 2;
-    top: -3px;
-    left: 50%;
-    width: 70px;
-    height: auto;
-    max-height: 142px;
-    transform: translateX(-50%);
-    object-fit: contain;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,.8));
-  }
-  .tire-cell {
-    position: absolute;
-    z-index: 3;
-    width: 58px;
-    display: block;
-    color: var(--cluster-ivory);
-    text-align: center;
-  }
-  .tire-cell.tl { left: 45px; top: 27px; }
-  .tire-cell.tr { right: 45px; top: 27px; }
-  .tire-cell.bl { left: 45px; top: 88px; }
-  .tire-cell.br { right: 45px; top: 88px; }
-  .tire-pos { display: block; color: #ad9f91; font-size: 10px; font-weight: 600; letter-spacing: .13em; }
-  .tire-num { display: block; margin-top: 1px; font-size: 29px; font-weight: 600; line-height: .9; }
-  .tire-cell::after { content: ""; position: absolute; top: 25px; width: 50px; border-top: 1px solid rgba(189,132,82,.72); }
-  .tire-cell::before { content: ""; position: absolute; top: 21px; width: 8px; height: 8px; border: 1px solid #a96e3f; border-radius: 50%; background: #111518; box-shadow: 0 0 0 4px rgba(179,111,61,.08); }
-  .tire-cell.tl::after, .tire-cell.bl::after { left: calc(100% + 2px); }
-  .tire-cell.tl::before, .tire-cell.bl::before { left: calc(100% + 48px); }
-  .tire-cell.tr::after, .tire-cell.br::after { right: calc(100% + 2px); }
-  .tire-cell.tr::before, .tire-cell.br::before { right: calc(100% + 48px); }
-  .location-band {
-    display: block;
-    min-height: 195px;
-    margin: 0 12px;
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-  }
-  .location-tile {
-    height: 195px;
-    margin: 0;
-    padding: 13px 14px 10px;
-    border: 0;
-    border-radius: 0;
-    background: linear-gradient(145deg, #5d402d, #2a2d2e 42%, #65402a);
-    box-shadow: none;
-  }
-  .location-head { display: block; min-height: 47px; }
-  .location-copy { min-width: 0; }
-  .location-action { display: none !important; }
-  .loc-place { margin-top: 5px; color: var(--cluster-ivory); font-size: 22px; font-weight: 600; line-height: .9; }
-  .location-tile .tile-sub { margin-top: 7px; color: var(--cluster-amber); font-size: 11px; }
-  .location-tile .tile-sub.warn { color: var(--cluster-red); }
-  .loc-map {
-    position: relative;
-    height: 127px;
-    margin-top: 7px;
-    overflow: hidden;
-    border: 2px solid #5e412e;
-    border-radius: 0;
-    clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 9px, 100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px), 0 9px);
-    background: #dedbd3;
-    box-shadow: inset 0 0 0 1px #17191a;
-  }
-  .loc-map iframe { width: 100%; height: 100%; border: 0; filter: none; }
-  .loc-coords, .loc-link {
-    bottom: 7px;
-    border: 1px solid rgba(210,169,125,.4);
-    border-radius: 3px;
-    background: rgba(8,12,14,.9);
-    color: #d1c3b5;
-    font-size: 10px;
-    line-height: 1;
-    box-shadow: 0 2px 8px rgba(0,0,0,.55);
-  }
-  .loc-coords { left: 8px; padding: 6px 8px; }
-  .loc-link { right: 8px; padding: 6px 9px; }
-  .command-status {
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
-    padding: 0 !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    clip: rect(0 0 0 0) !important;
-    clip-path: inset(50%) !important;
-    white-space: nowrap !important;
-    border: 0 !important;
-  }
-  .commands {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0,1fr));
-    gap: 4px;
-    margin: 0 14px;
-    padding: 0;
-    border: 0;
-    background: transparent;
-  }
-  .command-family, .command-pair { display: contents; }
-  .command-family-label { display: none; }
-  .commands .btn {
-    width: 100%;
-    min-width: 0;
-    position: relative;
-    height: 38px;
-    min-height: 38px;
-    margin: 0;
-    padding: 0 8px;
-    border: 1px solid #3c3d3d;
-    border-radius: 0;
-    clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px);
-    background: linear-gradient(180deg, #1c2022 0%, #111618 54%, #0d1214 100%);
-    box-shadow: inset 0 0 0 2px #090c0e, inset 0 0 0 3px rgba(122,90,66,.25), 0 2px 5px rgba(0,0,0,.62);
-    color: #d1c4b6;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: .13em;
-    text-transform: uppercase;
-  }
-  .commands .btn::after { content: ""; position: absolute; inset: -3px 0; }
-  .commands .btn:hover { transform: none; background: linear-gradient(180deg, #24282a, #121719); }
-  .commands .btn[data-cmd="engine_on"] {
-    border-color: var(--cluster-amber-hot);
-    box-shadow: inset 0 0 0 2px #0a0d0f, inset 0 0 0 3px rgba(229,150,63,.65), 0 0 9px rgba(229,150,63,.48);
-  }
-  .commands .btn[data-cmd="engine_off"] {
-    border-color: var(--cluster-red);
-    box-shadow: inset 0 0 0 2px #0a0d0f, inset 0 0 0 3px rgba(224,68,46,.45), 0 0 7px rgba(224,68,46,.32);
-  }
-  .commands .label-wrap { justify-content: center; gap: 9px; }
-  .commands .label-wrap svg { width: 19px; height: 19px; stroke-width: 1.8; }
-  .commands .spinner { width: 16px; height: 16px; }
-  .commands .btn.needs-token { opacity: .72; }
-  .panel {
-    margin: 7px 14px 0;
-    border: 1px solid #5e412e;
-    border-radius: 0;
-    clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
-    background: #0d1316;
-  }
-  .panel-label { color: var(--cluster-amber); font-size: 11px; letter-spacing: .18em; }
-  .panel-help { font-family: inherit; font-size: 13px; color: var(--cluster-muted); }
-  .panel input { border-radius: 2px; font-family: ui-monospace, monospace; }
-  .panel-row .btn { min-height: 44px; border-radius: 2px; }
-  .foot {
-    height: 42px;
-    min-height: 42px;
-    margin: 0;
-    padding: 8px 25px;
-    border: 0;
-    background: transparent;
-    color: #776d63;
-  }
-  .vin { font-size: 10px; font-weight: 500; letter-spacing: .14em; color: #776d63; }
-  .foot-actions { gap: 11px; }
-  .foot-actions button {
-    min-height: 22px;
-    padding: 0;
-    color: #83786e;
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: .04em;
-    text-transform: lowercase;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-  .foot-actions button svg { display: none; }
-  .sep { color: #6d6258; }
-  .toast { font-family: "Barlow Condensed", sans-serif; border-radius: 2px; }
-  .empty { color: var(--cluster-muted); font-size: 15px; }
-  :where(button, input, a):focus-visible { outline: 2px solid var(--cluster-amber-hot); outline-offset: 3px; }
-  @media (max-width: 360px) {
-    .hero { height: 220px; }
-    .hero-text { top: 33px; left: 21px; }
-    .title { font-size: 28px; }
-    .telemetry-stack, .location-band { margin-left: 8px; margin-right: 8px; }
-    .stats-bezel .tile { padding-left: 15px; padding-right: 14px; }
-    .tile-value { font-size: 40px; }
-    .oil-tile .tile-value { font-size: 35px; }
-    .range-row { grid-template-columns: minmax(0,1fr) 70px; }
-    .fuel-arc, .fuel-arc svg { width: 70px; }
-    .tire-cell.tl, .tire-cell.bl { left: 29px; }
-    .tire-cell.tr, .tire-cell.br { right: 29px; }
-    .commands { margin-left: 9px; margin-right: 9px; gap: 3px; }
-    .commands .btn { padding: 0 4px; font-size: 11px; letter-spacing: .09em; }
-    .commands .label-wrap { gap: 6px; }
-    .commands .label-wrap svg { width: 17px; height: 17px; }
-    .foot { padding-left: 14px; padding-right: 14px; }
-  }
-  @media (min-width: 470px) {
-    body { padding: 12px; }
-    .app-shell { min-height: 0; border: 1px solid rgba(117,91,69,.3); }
-  }
-  @media (min-width: 900px) {
-    .app-shell { display: block !important; width: 426px; max-width: 426px; grid-template-columns: none !important; }
-    .vehicle-column, .control-column { min-width: 0; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-  }
-  /* Higher-specificity release locks against legacy dashboard selectors. */
-  #grid > .tire-panel {
-    display: block;
-    height: 150px;
-    min-height: 0;
-    margin-top: 12px;
-    padding: 13px 20px 8px;
-    overflow: hidden;
-    border: 0;
-    background: linear-gradient(145deg, #55412f 0%, #292b2b 45%, #5f402c 100%);
-  }
-  #grid > .tire-panel::before { display: block; left: 2px; }
-  #grid > .tire-panel .tires-corners { display: block; height: 128px; margin: 0; }
-  #location .location-tile {
-    display: block;
-    height: 195px;
-    min-height: 0;
-    padding: 13px 14px 10px;
-    overflow: hidden;
-    border: 0;
-    background: linear-gradient(145deg, #5d402d, #2a2d2e 42%, #65402a);
-    box-shadow: none;
-  }
-  #location .location-tile::before { display: block; left: 2px; }
-  #location .location-tile .tile-label { margin-bottom: 0; }
-  #location .location-tile .tile-sub { margin-top: 7px; }
-  .stats-bezel .oil-tile { display: block; }
-  .stats-bezel .oil-tile .tile-label,
-  .stats-bezel .oil-tile .tile-value,
-  .stats-bezel .oil-tile .tile-sub,
-  .stats-bezel .oil-tile .reset,
-  .stats-bezel .tile:has(.tile-icon.green) .tile-label,
-  .stats-bezel .tile:has(.tile-icon.green) .tile-value,
-  .stats-bezel .tile:has(.tile-icon.green) .tile-sub { margin-left: 0; }
-  .stats-bezel .oil-tile .tile-icon,
-  .stats-bezel .tile:has(.tile-icon.green) .tile-icon {
-    top: 13px;
-    left: auto;
-    right: 16px;
-    width: 27px;
-    height: 27px;
-  }
-  .stats-bezel .oil-tile .tile-value { margin-top: 8px; font-size: 39px; }
-  .stats-bezel .oil-tile .tile-sub { margin-top: 4px; font-size: 11px; line-height: 1; }
-  .stats-bezel .oil-tile .reset {
-    position: absolute;
-    left: 20px;
-    bottom: 6px;
-    width: 66px;
-    height: 23px;
-    min-height: 23px;
-    margin: 0;
-  }
-  .stats-bezel .oil-tile .reset::after { inset: -11px -5px; }
-  #grid > .tire-panel {
-    background:
-      radial-gradient(circle at 50% 55%, transparent 0 32px, rgba(164,109,66,.14) 33px, transparent 34px 49px, rgba(164,109,66,.08) 50px, transparent 51px),
-      repeating-radial-gradient(ellipse at 50% 55%, transparent 0 18px, rgba(255,255,255,.018) 19px, transparent 20px),
-      linear-gradient(180deg, #10161a, #080d10);
-    box-shadow: inset 0 0 0 2px #292a2a, inset 0 0 0 3px rgba(139,87,50,.72), inset 0 0 28px rgba(0,0,0,.58);
-  }
-  #grid > .tire-panel::before { z-index: 0; opacity: .55; }
-  #grid > .tire-panel .truck-photo { width: 77px; }
-
-  /* Full-size hit areas within the approved 80px command band. */
-  .commands .btn {
-    --bezel-top: 0px;
-    --bezel-bottom: 0px;
-    height: 44px;
-    min-height: 44px;
-    border: 0;
-    clip-path: none;
-    background: transparent;
-    box-shadow: none;
-  }
-  .commands .btn[data-cmd="lock"],
-  .commands .btn[data-cmd="unlock"],
-  .commands .btn[data-cmd="engine_on"] {
-    --bezel-top: 6px;
-    margin-top: -6px;
-    padding-top: 6px;
-  }
-  .commands .btn[data-cmd="engine_off"],
-  .commands .btn[data-cmd="lights_horn"],
-  .commands .btn[data-cmd="refresh_location"] {
-    --bezel-bottom: 6px;
-    margin-bottom: -6px;
-    padding-bottom: 6px;
-  }
-  .commands .btn::before {
-    content: "";
-    position: absolute;
-    z-index: 0;
-    top: var(--bezel-top);
-    right: 0;
-    bottom: var(--bezel-bottom);
-    left: 0;
-    width: auto;
-    height: auto;
-    border: 1px solid #3c3d3d;
-    border-radius: 0;
-    clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px);
-    background: linear-gradient(180deg, #1c2022 0%, #111618 54%, #0d1214 100%);
-    box-shadow: inset 0 0 0 2px #090c0e, inset 0 0 0 3px rgba(122,90,66,.25), 0 2px 5px rgba(0,0,0,.62);
-    pointer-events: none;
-  }
-  .commands .btn::after { content: none; }
-  .commands .btn .label-wrap { position: relative; z-index: 1; }
-  .commands .btn:hover, .commands .btn:active { transform: none; background: transparent; }
-  .commands .btn:hover::before { background: linear-gradient(180deg, #24282a, #121719); }
-  .commands .btn[data-cmd="engine_on"],
-  .commands .btn[data-cmd="engine_off"] { border: 0; box-shadow: none; }
-  .commands .btn[data-cmd="engine_on"]::before {
-    border-color: var(--cluster-amber-hot);
-    box-shadow: inset 0 0 0 2px #0a0d0f, inset 0 0 0 3px rgba(229,150,63,.65), 0 0 9px rgba(229,150,63,.48);
-  }
-  .commands .btn[data-cmd="engine_off"]::before {
-    border-color: var(--cluster-red);
-    box-shadow: inset 0 0 0 2px #0a0d0f, inset 0 0 0 3px rgba(224,68,46,.45), 0 0 7px rgba(224,68,46,.32);
-  }
-  .foot-actions button { height: 44px; min-height: 44px; }
-  .foot .vin { color: #83786e; }
 </style>
 </head>
 <body>
-  <main class="app-shell" aria-label="Ram 2500 vehicle dashboard">
-    <section class="vehicle-column" aria-label="Vehicle telemetry">
+  <div class="card">
     <div class="hero">
-      <img class="hero-art" src="img/hero-cluster-v2.webp" alt="Silver Ram 2500 beneath a distressed American flag at sunset">
+      <div class="hero-flag">
+        <svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <filter id="ripple" x="-8%" y="-8%" width="116%" height="116%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.013 0.034" numOctaves="3" seed="7" result="t"/>
+              <feDisplacementMap in="SourceGraphic" in2="t" scale="14" xChannelSelector="R" yChannelSelector="G"/>
+            </filter>
+            <filter id="grime" x="0" y="0" width="100%" height="100%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" result="n"/>
+              <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.85 0" result="m"/>
+              <feComposite in="m" in2="SourceGraphic" operator="in"/>
+            </filter>
+            <pattern id="stars" x="0" y="0" width="22" height="14" patternUnits="userSpaceOnUse">
+              <text x="6" y="11" fill="#d4c5a0" font-size="11" font-family="Inter, sans-serif">✦</text>
+              <text x="17" y="11" fill="#d4c5a0" font-size="11" font-family="Inter, sans-serif">✦</text>
+            </pattern>
+          </defs>
+
+          <!-- Solid base so even with displacement we don't see through -->
+          <rect width="400" height="220" fill="#1a1410"/>
+
+          <!-- Distressed flag layer -->
+          <g filter="url(#ripple)" opacity="0.62">
+            <rect x="-20" y="-10" width="440" height="240" fill="#7a6c54"/>
+            <g fill="#5a2b22">
+              <rect x="-20" y="3"   width="440" height="17"/>
+              <rect x="-20" y="37"  width="440" height="17"/>
+              <rect x="-20" y="71"  width="440" height="17"/>
+              <rect x="-20" y="105" width="440" height="17"/>
+              <rect x="-20" y="139" width="440" height="17"/>
+              <rect x="-20" y="173" width="440" height="17"/>
+              <rect x="-20" y="207" width="440" height="17"/>
+            </g>
+            <rect x="-20" y="-10" width="180" height="129" fill="#1f1d36"/>
+            <rect x="-20" y="-10" width="180" height="129" fill="url(#stars)" opacity="0.85"/>
+          </g>
+
+          <!-- Grime overlay -->
+          <rect x="0" y="0" width="400" height="220" filter="url(#grime)" opacity="0.55"/>
+
+          <!-- Edge tear shadows -->
+          <rect x="0" y="0" width="400" height="220" fill="black" opacity="0.18"/>
+        </svg>
+      </div>
+      <div class="hero-vignette"></div>
+      <img class="hero-truck" src="img/hero-truck.png" alt="2022 Ram 2500">
       <div class="hero-text">
         <div class="title" id="title">Ram Truck 2500</div>
-        <div class="sync-row">
-          <svg class="sync-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 11a8 8 0 1 0-2.34 5.66"/><path d="M20 4v7h-7"/>
-          </svg>
-          <div class="sync" id="sync">loading…</div>
-        </div>
+        <div class="sync" id="sync">loading…</div>
       </div>
     </div>
 
-      <div id="grid" class="telemetry-stack">
+    <div id="grid" class="grid">
       <div class="empty" style="grid-column: span 2;">Awaiting first sync…</div>
     </div>
 
-    </section>
-
-    <aside class="control-column" aria-label="Remote controls and location">
-      <section class="location-band instrument-band" id="location" aria-label="Truck location">
-        <div class="empty">Awaiting location…</div>
-      </section>
-
-      <section class="command-status is-idle" id="commandStatus" aria-live="polite" aria-atomic="true">
-        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>
-        </svg>
-        <span id="commandStatusText">Commands can take up to 3 min.</span>
-      </section>
-
-      <section class="commands" aria-label="Truck commands">
-        <div class="command-family">
-          <h2 class="command-family-label">Access</h2>
-          <div class="command-pair">
+    <div class="actions">
       <button class="btn" data-cmd="lock">
         <span class="label-wrap">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
@@ -1921,38 +596,28 @@
         </span>
         <span class="spinner"></span>
       </button>
-      <button class="btn confirm-required" data-cmd="unlock">
+      <button class="btn" data-cmd="unlock">
         <span class="label-wrap">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.9-1"/></svg>
           <span class="label">Unlock</span>
         </span>
         <span class="spinner"></span>
       </button>
-          </div>
-        </div>
-        <div class="command-family">
-          <h2 class="command-family-label">Engine</h2>
-          <div class="command-pair">
-      <button class="btn confirm-required" data-cmd="engine_on">
+      <button class="btn" data-cmd="engine_on">
         <span class="label-wrap">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v8"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/></svg>
           <span class="label">Start</span>
         </span>
         <span class="spinner"></span>
       </button>
-      <button class="btn confirm-required" data-cmd="engine_off">
+      <button class="btn" data-cmd="engine_off">
         <span class="label-wrap">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
           <span class="label">Stop</span>
         </span>
         <span class="spinner"></span>
       </button>
-          </div>
-        </div>
-        <div class="command-family">
-          <h2 class="command-family-label">Find</h2>
-          <div class="command-pair">
-      <button class="btn confirm-required" data-cmd="lights_horn">
+      <button class="btn" data-cmd="lights_horn">
         <span class="label-wrap">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4h4l6 5V5l-6 5H3z"/><path d="M17 9a5 5 0 0 1 0 6"/><path d="M19.5 6.5a9 9 0 0 1 0 11"/></svg>
           <span class="label">Horn</span>
@@ -1966,13 +631,11 @@
         </span>
         <span class="spinner"></span>
       </button>
-          </div>
-        </div>
-      </section>
+    </div>
 
-      <div class="panel" id="settings" role="region" aria-label="GitHub command token">
+    <div class="panel" id="settings">
       <div class="panel-label">GitHub Token</div>
-      <input id="patInput" type="password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…" aria-label="Fine-grained GitHub personal access token">
+      <input id="patInput" type="password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…">
       <div class="panel-help">
         Fine-grained PAT with <em>Actions: Read &amp; Write</em> on this repo.
         Stored in your browser only. Required for all remote command buttons
@@ -1985,22 +648,15 @@
       </div>
     </div>
 
-      <footer class="foot">
-        <span class="vin" id="vin">VIN —</span>
-        <span class="foot-actions">
-          <button type="button" id="settingsBtn" aria-expanded="false" aria-controls="settings">
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.37.25.72.37 1.1.4h.5v4h-.5a1.7 1.7 0 0 0-1.1.6z"/></svg>
-            <span>Settings</span>
-          </button>
-          <span class="sep" aria-hidden="true">|</span>
-          <button type="button" id="refresh">
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.34 5.66"/><path d="M20 4v7h-7"/></svg>
-            <span>Refresh</span>
-          </button>
-        </span>
-      </footer>
-    </aside>
-  </main>
+    <div class="foot">
+      <span class="vin" id="vin">—</span>
+      <span>
+        <button id="settingsBtn">settings</button>
+        <span class="sep">|</span>
+        <button id="refresh">refresh</button>
+      </span>
+    </div>
+  </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -2061,14 +717,6 @@ function toast(msg) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
 }
 
-function setCommandStatus(state, message) {
-  const el = document.getElementById('commandStatus');
-  const text = document.getElementById('commandStatusText');
-  if (!el || !text) return;
-  el.className = 'command-status is-' + state;
-  text.textContent = message;
-}
-
 // ----- icons (used inside tiles) -----
 const ICON_OIL = `
 <svg class="tile-icon amber" viewBox="0 0 28 28" fill="currentColor">
@@ -2093,9 +741,7 @@ function render(data, locations) {
   }
 
   const v = data.vehicles[0];
-  const vehicleName = [v.year, v.make, v.model].filter(Boolean).join(' ');
-  document.getElementById('title').textContent = 'Ram Truck 2500';
-  document.getElementById('vin').textContent = v.vin ? 'VIN •••• ' + String(v.vin).slice(-4) : 'VIN —';
+  document.getElementById('vin').textContent = v.vin || '—';
 
   const sync = document.getElementById('sync');
   const updated = data.last_updated || v.last_updated;
@@ -2130,7 +776,7 @@ function render(data, locations) {
   // legacy embedded location if an old data.json is still being served.
   const loc = (locations && locations[v.vin]) || v.location || {};
   const hasLoc = loc.lat != null && loc.lng != null;
-  const place = loc.place || (hasLoc ? 'GPS lock' : 'No GPS fix');
+  const place = loc.place || (hasLoc ? 'GPS lock' : 'No fix');
   const coordStr = hasLoc
     ? `${loc.lat.toFixed(3)}, ${loc.lng.toFixed(3)}`
     : '—';
@@ -2141,12 +787,7 @@ function render(data, locations) {
   const fixLabel = fixAgeMin == null ? '' :
     fixAgeMin < 1 ? 'fix just now' : `fix ${relDur(fixAgeMin)} ago`;
 
-  const fuelSegments = Array.from({ length: 10 }, (_, i) => {
-    const angle = -90 + i * 20;
-    const filled = fuelKnown && i < Math.ceil(fuelPct / 10);
-    return `<line class="fuel-segment${filled ? ' is-filled' : ''}" x1="50" y1="7" x2="50" y2="18" transform="rotate(${angle} 50 50)"/>`;
-  }).join('');
-
+  const arcDash = (fuelPct / 100) * 131.95;
 
   // Battery state
   const battV = v.battery_v;
@@ -2173,12 +814,11 @@ function render(data, locations) {
   const odoSub = svcBits.length ? `mi · service in ${svcBits.join(' / ')}` : 'mi';
 
   document.getElementById('grid').innerHTML = `
-    <div class="stats-bezel">
     <!-- Odometer -->
     <div class="tile">
       <div class="tile-label">Odometer</div>
       <div class="tile-value">${fmtMi(v.odometer_mi)}</div>
-      <div class="tile-sub">mi</div>
+      <div class="tile-sub">${odoSub}</div>
     </div>
 
     <!-- Range with half-arc fuel gauge -->
@@ -2190,8 +830,18 @@ function render(data, locations) {
           <div class="tile-sub${fuelWarn ? ' warn' : ''}">mi${fuelWarn ? ' · low' : ''}</div>
         </div>
         <div class="fuel-arc">
-          <svg viewBox="0 0 100 60" aria-hidden="true">
-            ${fuelSegments}
+          <svg viewBox="0 0 100 60">
+            <defs>
+              <linearGradient id="fuelArcGr" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#d68a3a"/>
+                <stop offset="100%" stop-color="#f0a850"/>
+              </linearGradient>
+            </defs>
+            <path d="M 8 50 A 42 42 0 0 1 92 50"
+                  fill="none" class="fuel-arc-track" stroke-width="6"/>
+            <path d="M 8 50 A 42 42 0 0 1 92 50"
+                  fill="none" class="fuel-arc-fill" stroke-width="6"
+                  stroke-dasharray="${fuelKnown ? arcDash : 0} 131.95"/>
           </svg>
           <div class="fuel-arc-pct">${fuelKnown ? `${fuelPct}<span class="u">%</span>` : '—'}</div>
           <div class="fuel-arc-label">Fuel</div>
@@ -2216,17 +866,17 @@ function render(data, locations) {
     <div class="tile">
       ${ICON_BATT}
       <div class="tile-label">Battery</div>
-      <div class="tile-value">${fmtV(battV)}<span class="u">V</span></div>
+      <div class="tile-value">${fmtV(battV)}<span class="u">v</span></div>
       <div class="tile-sub${battLow ? ' warn' : ' healthy'}">${battV == null ? '—' : battLow ? 'Low' : 'Healthy'}</div>
     </div>
-    </div>
+    ${statusTiles}
 
     <!-- Tire PSI with truck photo -->
-    <div class="tile tile-wide tire-panel">
+    <div class="tile tile-wide">
       <div class="tile-label">Tire PSI</div>
       <div class="tires-corners">
         ${tireCell('tl', 'FL', 'front_left')}
-        <img class="truck-photo" src="img/truck-top-cluster-v2-optimized.png" alt="Top-down view of Ram 2500" loading="lazy"/>
+        <img class="truck-photo" src="img/truck-top.png" alt="Top-down view of Ram 2500" loading="lazy"/>
         ${tireCell('tr', 'FR', 'front_right')}
         ${tireCell('bl', 'RL', 'rear_left')}
         ${tireCell('br', 'RR', 'rear_right')}
@@ -2234,41 +884,19 @@ function render(data, locations) {
     </div>
 
     <!-- Location -->
-    <div class="tile tile-wide location-tile" id="locationTile">
-      <div class="location-head">
-        <div class="location-copy">
-          <div class="tile-label">Location</div>
-          <div class="loc-place">${esc(place)}</div>
-          <div class="tile-sub${fixOld ? ' warn' : ''}">${fixLabel ? `${fixLabel} · ` : ''}tap Locate for a fresh fix</div>
-        </div>
-        <button type="button" class="location-action" id="locateQuick" data-cmd="refresh_location">
-          <span class="label-wrap">
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="2.5"/></svg>
-            <span>Locate truck</span>
-            <svg class="chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-          </span>
-          <span class="spinner"></span>
-        </button>
-      </div>
+    <div class="tile tile-wide">
+      <div class="tile-label">Location</div>
+      <div class="loc-place">${esc(place)}</div>
+      ${fixLabel ? `<div class="tile-sub${fixOld ? ' warn' : ''}">${fixLabel}${fixOld ? ' · tap Locate for a fresh fix' : ''}</div>` : ''}
       ${hasLoc ? `
         <div class="loc-map">
           <iframe loading="lazy" src="${embedUrl}" title="Map of truck location"></iframe>
           <span class="loc-coords">${coordStr}</span>
           <a class="loc-link" target="_blank" rel="noopener" href="${mapsUrl}">Open ↗</a>
         </div>
-      ` : ''}
+      ` : '<div class="tile-sub">No GPS fix</div>'}
     </div>
   `;
-
-  const locationHost = document.getElementById('location');
-  const locationTile = document.getElementById('locationTile');
-  if (locationHost && locationTile) locationHost.replaceChildren(locationTile);
-
-  const locateQuick = document.getElementById('locateQuick');
-  if (locateQuick) {
-    locateQuick.addEventListener('click', () => sendCommand('refresh_location', locateQuick));
-  }
-  refreshCmdEnabled();
 
   const resetBtn = document.getElementById('resetOilBtn');
   if (resetBtn) {
@@ -2312,9 +940,8 @@ function refreshCmdEnabled() {
   // Token-less buttons stay tappable (dimmed) — on iOS a title attribute is
   // invisible, so the tap itself explains what's missing and opens settings.
   const has = !!getPat();
-  document.querySelectorAll('[data-cmd]').forEach(b => {
+  document.querySelectorAll('.btn[data-cmd]').forEach(b => {
     b.classList.toggle('needs-token', !has);
-    b.disabled = cmdInFlight;
   });
   refreshResetEnabled();
 }
@@ -2325,13 +952,9 @@ function refreshResetEnabled() {
 }
 
 function promptForToken(msg) {
-  const message = msg || 'Set a GitHub token in settings first';
-  toast(message);
-  setCommandStatus('warning', message);
+  toast(msg || 'Set a GitHub token in settings first');
   patInput.value = getPat();
   panel.classList.add('show');
-  patInput.focus();
-  settingsBtn.setAttribute('aria-expanded', 'true');
 }
 
 function ghHeaders(pat) {
@@ -2395,8 +1018,6 @@ async function sendCommand(cmd, btn) {
   cmdInFlight = true;
   btn.classList.add('loading');
   btn.setAttribute('aria-busy', 'true');
-  setCommandStatus('loading', 'Sending ' + c.label + '…');
-  refreshCmdEnabled();
   // Clock-skew slack: the phone's clock and GitHub's can differ.
   const since = new Date(Date.now() - 120000).toISOString();
   const tag = 'd' + Math.random().toString(36).slice(2, 10);
@@ -2404,35 +1025,27 @@ async function sendCommand(cmd, btn) {
   try {
     const res = await dispatch(CMD_WORKFLOW, { command: cmd, tag });
     if (res.status === 204) {
-      toast(c.label + ' sent — waiting for the truck…');
-      setCommandStatus('loading', c.label + ' sent. Waiting for truck confirmation…');
+      toast(`${c.label} sent — waiting for the truck…`);
       const conclusion = await trackRun(CMD_WORKFLOW, since, tag);
       if (conclusion === 'success') {
-        toast(c.label + ' confirmed by the truck ✓');
-        setCommandStatus('success', c.label + ' confirmed by the truck.');
+        toast(`${c.label} confirmed by the truck ✓`);
         if (cmd === 'refresh_location') setTimeout(load, 150000); // chained poll redeploys in ~2.5 min
       } else if (conclusion === 'cancelled') {
-        toast(c.label + ' was dropped — send it again');
-        setCommandStatus('warning', c.label + ' was dropped. Send it again.');
+        toast(`${c.label} was dropped — send it again`);
       } else if (conclusion) {
-        toast(c.label + ' failed — check the Actions log');
-        setCommandStatus('error', c.label + ' failed. Check the Actions log.');
+        toast(`${c.label} failed — check the Actions log`);
       } else {
-        toast(c.label + ' still running — check Actions for the result');
-        setCommandStatus('warning', c.label + ' is still running. Check Actions for the result.');
+        toast(`${c.label} still running — check Actions for the result`);
       }
     } else if (res.status === 401 || res.status === 403) {
       promptForToken('GitHub auth failed — check your token');
     } else if (res.status === 404) {
       toast('Workflow not found');
-      setCommandStatus('error', 'Command workflow not found.');
     } else {
       toast(`HTTP ${res.status}`);
-      setCommandStatus('error', 'Command request failed with HTTP ' + res.status + '.');
     }
   } catch (err) {
     toast(`Error: ${err.message}`);
-    setCommandStatus('error', 'Command error: ' + err.message);
   } finally {
     cmdInFlight = false;
     btn.classList.remove('loading');
@@ -2450,42 +1063,34 @@ async function resetOil(btn) {
   btn.disabled = true;
   const original = btn.textContent;
   btn.textContent = '…';
-  setCommandStatus('loading', 'Resetting oil baseline…');
   const since = new Date(Date.now() - 120000).toISOString();
   const tag = 'd' + Math.random().toString(36).slice(2, 10);
   try {
     const res = await dispatch(RESET_OIL_WORKFLOW, { tag });
     if (res.status === 204) {
       toast('Reset sent — anchoring baseline…');
-      setCommandStatus('loading', 'Oil reset sent. Anchoring the new baseline…');
       const conclusion = await trackRun(RESET_OIL_WORKFLOW, since, tag);
       if (conclusion === 'success') {
         // The reset run chains a poll + Pages deploy; the tile reads 5,000
         // once that lands (~2-3 min). Second load catches a slow builder.
         toast('Oil baseline reset ✓ — tile updates in ~3 min');
-        setCommandStatus('success', 'Oil baseline reset. Tile updates in about 3 min.');
         setTimeout(load, 150000);
         setTimeout(load, 300000);
       } else if (conclusion) {
         toast('Reset failed — check the Actions log');
-        setCommandStatus('error', 'Oil reset failed. Check the Actions log.');
       } else {
         toast('Reset still running — check Actions for the result');
-        setCommandStatus('warning', 'Oil reset is still running. Check Actions for the result.');
       }
     } else if (res.status === 401 || res.status === 403) {
       promptForToken('GitHub auth failed — check your token');
     } else if (res.status === 404) {
       toast('reset_oil workflow not deployed');
-      setCommandStatus('error', 'Oil reset workflow is not deployed.');
     } else {
       const txt = await res.text();
       toast(`HTTP ${res.status}: ${txt.slice(0, 80)}`);
-      setCommandStatus('error', 'Oil reset request failed with HTTP ' + res.status + '.');
     }
   } catch (err) {
     toast(`Error: ${err.message}`);
-    setCommandStatus('error', 'Oil reset error: ' + err.message);
   } finally {
     btn.disabled = false;
     btn.textContent = original;
@@ -2505,17 +1110,12 @@ document.getElementById('refresh').addEventListener('click', () => {
 const panel = document.getElementById('settings');
 const patInput = document.getElementById('patInput');
 
-const settingsBtn = document.getElementById('settingsBtn');
-settingsBtn.addEventListener('click', () => {
+document.getElementById('settingsBtn').addEventListener('click', () => {
   patInput.value = getPat();
-  const open = panel.classList.toggle('show');
-  settingsBtn.setAttribute('aria-expanded', String(open));
-  if (open) patInput.focus();
+  panel.classList.toggle('show');
 });
 document.getElementById('patClose').addEventListener('click', () => {
   panel.classList.remove('show');
-  settingsBtn.focus();
-  settingsBtn.setAttribute('aria-expanded', 'false');
 });
 document.getElementById('patSave').addEventListener('click', () => {
   const v = patInput.value.trim();
@@ -2523,8 +1123,6 @@ document.getElementById('patSave').addEventListener('click', () => {
   setPat(v);
   refreshCmdEnabled();
   panel.classList.remove('show');
-  settingsBtn.focus();
-  settingsBtn.setAttribute('aria-expanded', 'false');
   toast('Token saved');
 });
 document.getElementById('patClear').addEventListener('click', () => {
