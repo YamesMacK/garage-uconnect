@@ -33,8 +33,7 @@ def visual_surface_sha256() -> str:
     html = (REPO_ROOT / "dashboard" / "index.html").read_text(encoding="utf-8")
     active_start = html.index("</template>") + len("</template>")
     script_start = html.index("<script>", active_start)
-    visual_logic_start = html.index("const ICON_METRIC_FUEL", script_start)
-    visual_logic_end = html.index("async function load()", visual_logic_start)
+    script_end = html.index("</script>", script_start) + len("</script>")
 
     head_tokens = "\n".join(
         line.strip()
@@ -54,7 +53,7 @@ def visual_surface_sha256() -> str:
         + "\n"
         + html[active_start:script_start]
         + "\n"
-        + html[visual_logic_start:visual_logic_end]
+        + html[script_start:script_end]
     )
     return hashlib.sha256(surface.encode("utf-8")).hexdigest()
 
