@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "status": "approved",
   "approved_at": "2026-07-24",
   "comparison_files": [
@@ -13,7 +13,7 @@
     "max_mean_channel_delta": 1.5
   },
   "protected_files": {
-    "dashboard/cinematic.css": "806b643adfba3f09e22aab75be3758c0e36e849b46206a9ac1387f4a1e952586",
+    "dashboard/cinematic.css": "2ee0512333f8369f43693b3770e1efc1d2f253dac11d673e1a546df4b687c7ed",
     "dashboard/manifest.json": "706961e11ac0275405a044906762a2a4f27f7cabf4bf507e42bdd0090c8d9ad6",
     "dashboard/icon-192.png": "0cae190e51c88f317a740a16d97769cdd9beb3b6503f6bb37d5a5f01ce963555",
     "dashboard/icon-512.png": "9adb5b1fe0961a2a509fa1656bd22ea7248c9cc9c1b35810084ca600017dcf14",
@@ -24,7 +24,7 @@
     "visual-lock/fixtures/data.json": "7bccabe2d46ab3d070fe2dfc1933b4e9ff4ecc27a55c882a456447ea4d610775",
     "visual-lock/fixtures/location.json": "2c8b21f72b20dbeb1860e111a38a736fbfebc1b1447ee9df4e4f4eea92b9c923"
   },
-  "visual_surface_sha256": "36bffacca100a852872ff083abae534afa04cb0e5862cec64b9f6bb4adcaeb6c",
+  "visual_surface_sha256": "14660fbff7a8f82b3965ce586c7c9267195afb6201e0cf0fc4d440650b004d42",
   "baselines": {
     "approved-concept.png": {
       "width": 794,
@@ -35,19 +35,19 @@
       "viewport_width": 393,
       "width": 378,
       "height": 1090,
-      "sha256": "852f00fd70330e60aacffcf74de1b2bdf7893825ada2189f5574dd05259f4450"
+      "sha256": "f9d373a120a3793d3a8e5dd43f1454b7bc977c3794e4de2dcb90bee9fbb194b8"
     },
     "iphone-320.png": {
       "viewport_width": 320,
       "width": 320,
       "height": 1058,
-      "sha256": "24542e1bc2145b839f7c9634b5c7b10712fae245337301f7ed7b60af389a8b8f"
+      "sha256": "11d087d87c5da56b173a5cdfe9a14bdef6e26cc5081b1c29855f3a64ca1623c0"
     },
     "settings-393.png": {
       "viewport_width": 393,
       "width": 393,
       "height": 1132,
-      "sha256": "ae2c16664ab13b1ec55ecece1ff620ec3237d95b243f127a10d7b8cc8411b18f"
+      "sha256": "836f582d0470b75d8479496e4900b024c685fb04d593ad58c01357fe3cff5f0b"
     }
   }
 }

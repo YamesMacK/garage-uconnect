@@ -1,0 +1,36 @@
+name: Read vehicle command capabilities
+
+# Manual, read-only diagnostic. It calls list_vehicles once and prints only
+# enabled service codes; it never sends a command or writes repository data.
+run-name: "Read vehicle command capabilities"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Print sanitized capabilities
+        env:
+          MOPAR_EMAIL: ${{ secrets.MOPAR_EMAIL }}
+          MOPAR_PASSWORD: ${{ secrets.MOPAR_PASSWORD }}
+          MOPAR_PIN: ${{ secrets.MOPAR_PIN }}
+          MOPAR_VIN: "3C6UR5FJ6NG305274"
+        run: python scripts/probe_capabilities.py
