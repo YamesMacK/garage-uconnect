@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "status": "approved",
   "approved_at": "2026-07-24",
   "comparison_files": [
@@ -35,19 +35,19 @@
       "viewport_width": 393,
       "width": 378,
       "height": 1092,
-      "sha256": "800a3f12b5fde7a638af5e34753b936e41bfbc2f05bff4c03dcd70189b58b5ab"
+      "sha256": "2ede5c71ce703e1e1ddf4f0f4e512ec738b03108202602c19c06ed129d63e656"
     },
     "iphone-320.png": {
       "viewport_width": 320,
       "width": 320,
       "height": 1058,
-      "sha256": "58b5d0ab4de4256386d5f07bdb3d41eb72809c46cb067e903c9d823ede60d921"
+      "sha256": "31ca9fd45cc220e5ff0098cfa82c78e30297ac518d69016600c633ccb8deae09"
     },
     "settings-393.png": {
       "viewport_width": 393,
       "width": 393,
       "height": 1132,
-      "sha256": "d11636a003cf2c5dbdf53d427d9709964c2f044b0b5697cc72fee64db298035e"
+      "sha256": "d6d4ed61b14ac6058ea49856bcd8b6d59cc506d72f45830f0f5010ddd16e7dc6"
     }
   }
 }
