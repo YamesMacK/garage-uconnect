@@ -1185,12 +1185,16 @@ function render(data, locations) {
   if (doors === false) warningLabels.push('Doors unlocked');
   if (oilOverdue) warningLabels.push('Oil change due');
   else if (oilSoon) warningLabels.push('Oil change soon');
+  const warningDetails = [
+    ...warningLabels,
+    ...statusFacts.filter((fact) => !warningLabels.includes(fact))
+  ];
 
   const coreKnown = fuelKnown && battV != null && tiresKnown && oilKnown;
   if (warningLabels.length) {
     setVehicleStatus(
       warningLabels.length === 1 ? warningLabels[0] : `${warningLabels.length} Active Alerts`,
-      warningLabels.slice(0, 3).join(' · '),
+      warningDetails.join(' · '),
       true
     );
   } else if (coreKnown) {
