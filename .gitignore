@@ -10,3 +10,4 @@ test_output.json
 # via the workflow artifact only (see poll.yml).
 dashboard/location.json
 dashboard/*.json.tmp
+.visual-lock-work/

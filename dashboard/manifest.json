@@ -4,8 +4,8 @@
   "description": "Personal vehicle telemetry — Ram 2500",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#08121a",
-  "theme_color": "#08121a",
+  "background_color": "#0d0e0f",
+  "theme_color": "#0d0e0f",
   "orientation": "portrait",
   "icons": [
     {

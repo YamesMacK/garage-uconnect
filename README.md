@@ -18,6 +18,21 @@ on free GitHub Actions + free GitHub Pages. Not affiliated with any employer.
 [lock / unlock / start / stop / horn / locate → workflow_dispatch → send_command.py]
 ```
 
+## Approved visual lock
+
+The cinematic iPhone interface is protected by `VISUAL_LOCK.md`,
+repo-level agent instructions, approved screenshots, protected-source hashes,
+and a screenshot comparison gate.
+
+Before any frontend work, run:
+
+```powershell
+python scripts/check_visual_lock.py
+```
+
+The baselines must not be changed without explicit visual approval. See
+`AGENTS.md` for the required 393px, 320px, and Settings validation workflow.
+
 ## What this Ram reports
 
 | Metric | Status | Notes |

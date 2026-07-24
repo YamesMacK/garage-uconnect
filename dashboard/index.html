@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#08121a">
+<meta name="theme-color" content="#0d0e0f">
+<meta name="apple-mobile-web-app-title" content="Ram 2500">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <!-- CSP: the PAT in localStorage can start the engine — cut off script
      injection + exfiltration paths. connect-src covers data fetches and the
      GitHub API; frame-src covers the Google Maps embed. -->
@@ -11,10 +13,11 @@
 <title>Ram Truck 2500</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style media="not all">
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   :root {
     --bg: #08121a;
@@ -528,9 +531,11 @@
     .toast { display: none !important; }
   }
 </style>
+<link rel="stylesheet" href="cinematic.css?v=20260723h">
 </head>
 <body>
-  <div class="card">
+  <template id="legacy-shell">
+  <div class="legacy-card">
     <div class="hero">
       <div class="hero-flag">
         <svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -657,6 +662,163 @@
       </span>
     </div>
   </div>
+  </template>
+
+  <main class="card">
+    <header class="hero">
+      <div class="hero-copy">
+        <h1 class="title" id="title">2022 RAM 2500</h1>
+        <div class="vehicle-trim">Laramie Crew Cab 4x4</div>
+        <div class="sync" id="sync">Loading vehicle data</div>
+      </div>
+    </header>
+
+    <div id="grid" class="vehicle-content">
+      <div class="state-panel">
+        <div class="state-title">Loading Vehicle Data</div>
+        Connecting to the latest dashboard snapshot…
+      </div>
+    </div>
+
+    <div class="lower-stack">
+      <section class="panel commands-panel" aria-labelledby="commandsHeading">
+        <div class="panel-heading-row">
+          <h2 class="panel-heading" id="commandsHeading">Command Center</h2>
+          <div class="command-live" id="commandLive" aria-live="polite"></div>
+        </div>
+        <div class="command-console">
+          <div class="command-group">
+            <div class="command-group-title">Access</div>
+            <div class="command-stack">
+              <button class="btn" type="button" data-cmd="lock">
+                <span class="label-wrap">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/></svg>
+                  <span class="label">Lock</span>
+                </span>
+                <span class="spinner"></span>
+              </button>
+              <button class="btn" type="button" data-cmd="unlock">
+                <span class="label-wrap">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 7.4-2.1"/><path d="M12 14v3"/></svg>
+                  <span class="label">Unlock</span>
+                </span>
+                <span class="spinner"></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="command-group engine-group">
+            <div class="command-group-title">Engine</div>
+            <button class="btn start-btn" type="button" data-cmd="engine_on">
+              <span class="label-wrap">
+                <span class="label">Start<br>Engine</span>
+              </span>
+              <span class="spinner"></span>
+            </button>
+            <button class="btn stop-btn" type="button" data-cmd="engine_off">
+              <span class="label-wrap"><span class="label">Stop Engine</span></span>
+              <span class="spinner"></span>
+            </button>
+          </div>
+
+          <div class="command-group">
+            <div class="command-group-title">Find</div>
+            <div class="command-stack">
+              <button class="btn" type="button" data-cmd="lights_horn">
+                <span class="label-wrap">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h4l7 4V6l-7 4H4z"/><path d="M18 9a4 4 0 0 1 0 6"/></svg>
+                  <span class="label">Horn</span>
+                </span>
+                <span class="spinner"></span>
+              </button>
+              <button class="btn" type="button" data-cmd="refresh_location">
+                <span class="label-wrap">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                  <span class="label">Locate</span>
+                </span>
+                <span class="spinner"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel status-panel" role="button" tabindex="0" aria-labelledby="statusTitle" aria-describedby="statusSub">
+        <div class="status-symbol" id="statusSymbol" aria-hidden="true"></div>
+        <div>
+          <div class="status-kicker">Status</div>
+          <h2 class="status-title" id="statusTitle">Loading Vehicle Data</h2>
+          <div class="status-sub" id="statusSub">Checking available telemetry</div>
+        </div>
+        <div class="status-detail-label" aria-hidden="true">
+          <span>View Details</span>
+          <i class="chevron"></i>
+        </div>
+      </section>
+
+      <section class="panel location-panel" id="locationPanel" aria-label="Vehicle location">
+        <div class="location-map"><span class="location-pin"></span></div>
+        <div class="location-info">
+          <div class="location-copy">
+            <div class="location-kicker">Location</div>
+            <div class="location-place">Waiting for location</div>
+            <div class="location-age">No GPS fix loaded</div>
+          </div>
+          <i class="chevron"></i>
+        </div>
+      </section>
+
+      <section class="panel utility-panel" aria-label="Dashboard utilities">
+        <button class="utility-row" type="button" id="settingsBtn">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4a1.7 1.7 0 0 0 1-1.6v-.2h4v.2A1.7 1.7 0 0 0 15 4a1.7 1.7 0 0 0 1.9.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1z"/></svg>
+          <span class="utility-label">Settings</span>
+          <i class="chevron"></i>
+        </button>
+        <button class="utility-row" type="button" id="refresh">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6v5h-5"/><path d="M4 18v-5h5"/><path d="M6.1 8a7 7 0 0 1 11.4-2.1L20 8M4 16l2.5 2.1A7 7 0 0 0 17.9 16"/></svg>
+          <span class="utility-label">Reload Data</span>
+          <i class="chevron"></i>
+        </button>
+      </section>
+
+      <footer class="connection-foot">
+        <span>Data uses vehicle connection</span>
+        <span class="signal-bars" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+      </footer>
+    </div>
+
+    <span class="vin" id="vin">—</span>
+  </main>
+
+  <div class="sheet" id="settings" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <button class="sheet-backdrop" type="button" id="sheetBackdrop" aria-label="Close settings"></button>
+    <form class="sheet-card" action="#" onsubmit="return false">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <h2 class="sheet-title" id="settingsTitle">Settings</h2>
+
+      <div class="sheet-section">
+        <label class="sheet-label" for="patInput">GitHub Token</label>
+        <input id="patInput" type="password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <div class="panel-help">Stored on this iPhone. Used by the six remote commands and Oil Reset.</div>
+      </div>
+
+      <div class="sheet-section">
+        <div class="maintenance-row">
+          <div class="maintenance-copy">
+            <div class="maintenance-title">Oil Change Baseline</div>
+            <div class="maintenance-sub">Use after completing an oil change.</div>
+          </div>
+          <button class="reset" type="button" id="resetOilBtn">Reset Oil</button>
+        </div>
+      </div>
+
+      <div class="sheet-actions">
+        <button class="btn primary" type="button" id="patSave">Save</button>
+        <button class="btn" type="button" id="patClear">Clear</button>
+        <button class="btn" type="button" id="patClose">Close</button>
+      </div>
+    </form>
+  </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -664,6 +826,9 @@
 const REPO = 'YamesMacK/garage-uconnect';
 const CMD_WORKFLOW = 'command.yml';
 const RESET_OIL_WORKFLOW = 'reset_oil.yml';
+const VISUAL_LOCK_MODE =
+  (location.hostname === '127.0.0.1' || location.hostname === 'localhost') &&
+  new URLSearchParams(location.search).get('visual-lock') === '1';
 
 // Remote commands — must mirror command.yml's input options. Commands that
 // move metal or make noise get a confirmation prompt (pocket-tap guard).
@@ -703,9 +868,9 @@ function relDur(mins) {
 
 function syncLabel(iso) {
   const m = ageMinutes(iso);
-  if (m == null) return 'Never synced';
-  if (m < 1) return 'Synced just now';
-  return `Synced ${relDur(m)} ago`;
+  if (m == null) return 'Update time unavailable';
+  if (m < 1) return 'Updated just now';
+  return `Updated ${relDur(m)} ago`;
 }
 
 let toastTimer = null;
@@ -780,7 +945,9 @@ function render(data, locations) {
   const coordStr = hasLoc
     ? `${loc.lat.toFixed(3)}, ${loc.lng.toFixed(3)}`
     : '—';
-  const mapsUrl = hasLoc ? `https://www.google.com/maps?q=${loc.lat},${loc.lng}` : '#';
+  const mapsUrl = hasLoc
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${loc.lat},${loc.lng}`)}`
+    : '#';
   const embedUrl = hasLoc ? `https://maps.google.com/maps?q=${loc.lat},${loc.lng}&z=14&output=embed` : '';
   const fixAgeMin = hasLoc ? ageMinutes(loc.ts) : null;
   const fixOld = fixAgeMin != null && fixAgeMin > 180;
@@ -905,8 +1072,241 @@ function render(data, locations) {
   }
 }
 
+const ICON_METRIC_FUEL = `
+  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 3h9v18H5z"/><path d="M7 6h5v5H7z"/><path d="M14 7h2l3 3v8a2 2 0 0 0 2 2"/><path d="M18 10v3h3"/>
+  </svg>`;
+const ICON_METRIC_ODO = `
+  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 18a8 8 0 1 1 16 0"/><path d="M12 12l4-3"/><path d="M6 18h12"/>
+  </svg>`;
+const ICON_METRIC_BATTERY = `
+  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="7" width="17" height="11" rx="2"/><path d="M20 10h2v5h-2"/><path d="M8 10v5M5.5 12.5h5M14 12.5h3"/>
+  </svg>`;
+// Icons8 iOS 17 Outlined "Engine Oil" icon, used with attribution.
+const ICON_OIL_CINEMATIC =
+  '<span class="oil-icon" aria-hidden="true"></span>';
+
+const clampPct = (value) => Math.max(0, Math.min(100, Number(value) || 0));
+
+function setVehicleStatus(title, sub, warn = false) {
+  const titleEl = document.getElementById('statusTitle');
+  const subEl = document.getElementById('statusSub');
+  const symbol = document.getElementById('statusSymbol');
+  if (titleEl) titleEl.textContent = title;
+  if (subEl) subEl.textContent = sub;
+  if (symbol) symbol.classList.toggle('warn', warn);
+}
+
+function resetLocationPanel(message = 'No vehicle data loaded') {
+  const panel = document.getElementById('locationPanel');
+  if (!panel) return;
+  panel.innerHTML = `
+    <div class="location-map"><span class="location-pin"></span></div>
+    <div class="location-info">
+      <div class="location-copy">
+        <div class="location-kicker">Location</div>
+        <div class="location-place">Location unavailable</div>
+        <div class="location-age">${message}</div>
+      </div>
+      <i class="chevron"></i>
+    </div>`;
+}
+
+function render(data, locations) {
+  const grid = document.getElementById('grid');
+  if (!data || !data.vehicles || !data.vehicles.length) {
+    grid.innerHTML = `
+      <div class="state-panel">
+        <div class="state-title">No Vehicle Data</div>
+        The latest dashboard snapshot does not contain a vehicle.
+      </div>`;
+    setVehicleStatus('Vehicle Data Unavailable', 'No vehicle was found in the latest snapshot', true);
+    resetLocationPanel();
+    return;
+  }
+
+  const v = data.vehicles[0];
+  const vehicleTitle = [v.year, v.make, v.model].filter(Boolean).join(' ').toUpperCase() || '2022 RAM 2500';
+  document.getElementById('title').textContent = vehicleTitle;
+  document.getElementById('vin').textContent = v.vin || '—';
+
+  const sync = document.getElementById('sync');
+  const updated = data.last_updated || v.last_updated;
+  sync.textContent = syncLabel(updated);
+  const ageMin = ageMinutes(updated);
+  sync.classList.toggle('stale', ageMin == null || ageMin > 90);
+
+  const fuelKnown = v.fuel_pct != null;
+  const fuelPct = fuelKnown ? clampPct(v.fuel_pct) : 0;
+  const fuelWarn = !!v.fuel_low;
+
+  const oil = v.oil || {};
+  const oilKnown = oil.miles_to_next != null;
+  const milesToNext = oilKnown ? oil.miles_to_next : null;
+  const oilOverdue = oilKnown && milesToNext <= 0;
+  const oilSoon = oilKnown && milesToNext > 0 && milesToNext < 500;
+
+  const tirePsi = v.tires_psi || {};
+  const tireWarn = v.tires_warning || {};
+  const tirePositions = ['front_left', 'front_right', 'rear_left', 'rear_right'];
+  const tiresKnown = tirePositions.every((position) => tirePsi[position] != null);
+
+  const loc = (locations && locations[v.vin]) || v.location || {};
+  const hasLoc = loc.lat != null && loc.lng != null;
+  const place = loc.place || (hasLoc ? 'GPS location' : 'No GPS fix');
+  const mapsUrl = hasLoc
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${loc.lat},${loc.lng}`)}`
+    : '#';
+  const embedUrl = hasLoc ? `https://maps.google.com/maps?ll=${loc.lat},${loc.lng}&z=14&output=embed` : '';
+  const fixAgeMin = hasLoc ? ageMinutes(loc.ts) : null;
+  const fixOld = fixAgeMin != null && fixAgeMin > 180;
+  const fixLabel = fixAgeMin == null
+    ? (hasLoc ? 'Location time unavailable' : 'No GPS fix loaded')
+    : fixAgeMin < 1
+      ? 'Location fix · just now'
+      : `Location fix · ${relDur(fixAgeMin)} ago`;
+
+  const battV = v.battery_v;
+  const battLow = battV != null && battV < 12.4;
+  const ign = v.ignition_on;
+  const doors = v.doors_locked;
+  const serviceBits = [];
+  if (v.service_mi != null) serviceBits.push(`${fmtMi(v.service_mi)} mi`);
+  if (v.days_to_service != null) serviceBits.push(`${v.days_to_service} days`);
+  const statusFacts = [];
+  if (ign != null) statusFacts.push(ign ? 'Ignition on' : 'Ignition off');
+  if (doors != null) statusFacts.push(doors ? 'Doors locked' : 'Doors unlocked');
+  if (serviceBits.length) statusFacts.push(`Service in ${serviceBits.join(' / ')}`);
+  const normalStatusSub = statusFacts.length
+    ? statusFacts.join(' · ')
+    : 'Dashboard checks are clear';
+
+  const warningLabels = [];
+  if (fuelWarn) warningLabels.push('Low fuel');
+  if (battLow) warningLabels.push('Low battery');
+  const warningTires = tirePositions.filter((position) => tireWarn[position]);
+  if (warningTires.length) warningLabels.push(`${warningTires.length} tire warning${warningTires.length === 1 ? '' : 's'}`);
+  if (doors === false) warningLabels.push('Doors unlocked');
+  if (oilOverdue) warningLabels.push('Oil change due');
+  else if (oilSoon) warningLabels.push('Oil change soon');
+  const warningDetails = [
+    ...warningLabels,
+    ...statusFacts.filter((fact) => !warningLabels.includes(fact))
+  ];
+
+  const coreKnown = fuelKnown && battV != null && tiresKnown && oilKnown;
+  if (warningLabels.length) {
+    setVehicleStatus(
+      warningLabels.length === 1 ? warningLabels[0] : `${warningLabels.length} Active Alerts`,
+      warningDetails.join(' · '),
+      true
+    );
+  } else if (coreKnown) {
+    setVehicleStatus(
+      ign === true ? 'Engine Running' : 'All Systems Normal',
+      normalStatusSub
+    );
+  } else {
+    setVehicleStatus('Status Partially Available', 'Some vehicle telemetry has not reported', true);
+  }
+
+  const tireReading = (side, label, position) => `
+    <div class="tire-reading ${side}">
+      <div class="tire-pos">${label}</div>
+      <div class="tire-num${tireWarn[position] ? ' warn' : ''}">${tirePsi[position] != null ? Math.round(tirePsi[position]) : '—'}</div>
+      <div class="tire-unit">PSI</div>
+    </div>`;
+
+  const oilDisplay = !oilKnown ? '—' : oilOverdue ? 'DUE' : fmtMi(milesToNext);
+  const oilUnit = oilKnown && !oilOverdue ? '<span class="oil-unit">mi remaining</span>' : '';
+
+  grid.innerHTML = `
+    <section class="metric-strip" aria-label="Primary vehicle telemetry">
+      <div class="metric">
+        <div class="metric-label">${ICON_METRIC_FUEL}<span>Range</span></div>
+        <div class="metric-value">${fmtMi(v.range_mi)}<span class="metric-unit">mi</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">${ICON_METRIC_FUEL}<span>Fuel</span></div>
+        <div class="metric-value${fuelWarn ? ' warn' : ''}">${fuelKnown ? Math.round(v.fuel_pct) : '—'}<span class="metric-unit">${fuelKnown ? '%' : ''}</span></div>
+        <div class="range-scale"><span>E</span><span class="range-track" style="--level:${fuelPct}%"></span><span>F</span></div>
+      </div>
+      <div class="metric odo">
+        <div class="metric-label">${ICON_METRIC_ODO}<span>Odometer</span></div>
+        <div class="metric-value">${fmtMi(v.odometer_mi)}<span class="metric-unit">mi</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">${ICON_METRIC_BATTERY}<span>Battery</span></div>
+        <div class="metric-value${battLow ? ' warn' : ''}">${fmtV(battV)}<span class="metric-unit">${battV == null ? '' : 'V'}</span></div>
+      </div>
+    </section>
+
+    <div class="vehicle-panels">
+      <section class="panel oil-panel" aria-label="Oil change status">
+        <div class="oil-main">
+          ${ICON_OIL_CINEMATIC}
+          <div class="panel-heading">Next Oil Change</div>
+          <div class="oil-value${oilOverdue ? ' warn' : ''}">${oilDisplay}${oilUnit}</div>
+        </div>
+      </section>
+
+      <section class="panel tire-panel" aria-label="Tire pressure">
+        <div class="panel-heading-row">
+          <div class="panel-heading-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 3h10l3 5v10l-3 3H7l-3-3V8l3-5z"/><path d="M8 7v10M16 7v10M10 4h4M10 20h4"/></svg>
+            <h2 class="panel-heading">Tire Pressure</h2>
+          </div>
+        </div>
+        <div class="tire-layout">
+          ${tireReading('left', 'FL', 'front_left')}
+          <img class="truck-top" src="img/truck-top-laramie-v1.png" alt="Top-down view of the 2022 Ram 2500 Laramie" loading="lazy">
+          ${tireReading('right', 'FR', 'front_right')}
+          ${tireReading('left', 'RL', 'rear_left')}
+          ${tireReading('right', 'RR', 'rear_right')}
+        </div>
+      </section>
+    </div>`;
+
+  const safePlace = esc(place).replace(', ', '<br>');
+  document.getElementById('locationPanel').innerHTML = `
+    <div class="location-map">
+      ${hasLoc ? `<iframe loading="lazy" src="${embedUrl}" title="Map of truck location"></iframe>` : ''}
+      <span class="location-pin"></span>
+    </div>
+    <div class="location-info">
+      <div class="location-copy">
+        <div class="location-kicker">Location</div>
+        <div class="location-place">${safePlace}</div>
+        <div class="location-age${fixOld ? ' warn' : ''}">${fixLabel}${fixOld ? ' · use Locate for a fresh fix' : ''}</div>
+      </div>
+      <i class="chevron"></i>
+    </div>
+    ${hasLoc ? `<a class="location-open" target="_blank" rel="noopener" href="${mapsUrl}" aria-label="Open truck location in Google Maps">Open map</a>` : ''}`;
+
+  refreshResetEnabled();
+}
+
 async function load() {
   try {
+    if (VISUAL_LOCK_MODE) {
+      const [dataRes, locRes] = await Promise.all([
+        fetch('../visual-lock/fixtures/data.json', { cache: 'no-store' }),
+        fetch('../visual-lock/fixtures/location.json', { cache: 'no-store' }),
+      ]);
+      if (!dataRes.ok || !locRes.ok) {
+        throw new Error('Visual-lock fixture unavailable');
+      }
+      const data = await dataRes.json();
+      const locationFixture = await locRes.json();
+      const now = new Date().toISOString();
+      data.last_updated = now;
+      data.vehicles.forEach((vehicle) => { vehicle.last_updated = now; });
+      render(data, locationFixture.locations || null);
+      return true;
+    }
+
     const bust = Date.now();
     const [dataRes, locRes] = await Promise.allSettled([
       fetch('data.json?t=' + bust, { cache: 'no-store' }),
@@ -924,11 +1324,19 @@ async function load() {
       try { locations = (await locRes.value.json()).locations || null; } catch {}
     }
     render(data, locations);
+    return true;
   } catch (err) {
     document.getElementById('grid').innerHTML =
-      `<div class="empty" style="grid-column: span 2;">Couldn't load data.json<br><span style="font-size:11px">${esc(err.message)}</span></div>`;
-    document.getElementById('sync').textContent = 'sync error';
+      `<div class="state-panel">
+        <div class="state-title">Vehicle Data Unavailable</div>
+        The latest dashboard snapshot could not be loaded.<br>
+        <span style="font-size:11px">${esc(err.message)}</span>
+      </div>`;
+    document.getElementById('sync').textContent = 'Update unavailable';
     document.getElementById('sync').classList.add('stale');
+    setVehicleStatus('Vehicle Data Unavailable', 'Reload Data to try again', true);
+    resetLocationPanel('Reload failed · last location cleared');
+    return false;
   }
 }
 
@@ -1102,9 +1510,30 @@ document.querySelectorAll('.btn[data-cmd]').forEach(btn => {
   btn.addEventListener('click', () => sendCommand(btn.dataset.cmd, btn));
 });
 
-document.getElementById('refresh').addEventListener('click', () => {
-  load();
-  toast('refreshed');
+const resetOilButton = document.getElementById('resetOilBtn');
+if (resetOilButton) {
+  resetOilButton.addEventListener('click', () => resetOil(resetOilButton));
+}
+
+const statusPanel = document.querySelector('.status-panel');
+const toggleStatusDetails = () => {
+  const expanded = statusPanel.classList.toggle('expanded');
+  statusPanel.setAttribute('aria-expanded', String(expanded));
+  const detailLabel = statusPanel.querySelector('.status-detail-label span');
+  if (detailLabel) detailLabel.textContent = expanded ? 'Hide Details' : 'View Details';
+};
+statusPanel.setAttribute('aria-expanded', 'false');
+statusPanel.addEventListener('click', toggleStatusDetails);
+statusPanel.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    toggleStatusDetails();
+  }
+});
+
+document.getElementById('refresh').addEventListener('click', async () => {
+  const refreshed = await load();
+  toast(refreshed ? 'Dashboard data reloaded' : 'Reload failed — try again');
 });
 
 const panel = document.getElementById('settings');
@@ -1116,6 +1545,7 @@ document.getElementById('settingsBtn').addEventListener('click', () => {
 });
 document.getElementById('patClose').addEventListener('click', () => {
   panel.classList.remove('show');
+  document.getElementById('settingsBtn').focus();
 });
 document.getElementById('patSave').addEventListener('click', () => {
   const v = patInput.value.trim();
@@ -1130,6 +1560,17 @@ document.getElementById('patClear').addEventListener('click', () => {
   patInput.value = '';
   refreshCmdEnabled();
   toast('Token cleared');
+});
+
+document.getElementById('sheetBackdrop').addEventListener('click', () => {
+  panel.classList.remove('show');
+  document.getElementById('settingsBtn').focus();
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && panel.classList.contains('show')) {
+    panel.classList.remove('show');
+    document.getElementById('settingsBtn').focus();
+  }
 });
 
 refreshCmdEnabled();
