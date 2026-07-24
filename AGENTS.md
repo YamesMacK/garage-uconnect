@@ -35,7 +35,11 @@ For any authorized frontend change:
 2. Serve the repository root on that port with
    `python -m http.server 4174 --bind 127.0.0.1 --directory .`.
 3. Open the printed `?visual-lock=1` URL in the in-app Browser at the locked
-   393px and 320px widths. The fixture route only activates on localhost.
+   393px and 320px viewport widths. The fixture route only activates on
+   localhost. The in-app Browser excludes persistent chrome and gutter space
+   from saved dashboard artifacts, producing the approved 377×1061 and
+   304×1058 images; the open Settings sheet is 393×1092 because scrolling is
+   locked.
 4. Capture the dashboard, narrow dashboard, and open Settings sheet using the
    filenames documented in `VISUAL_LOCK.md`.
 5. Run

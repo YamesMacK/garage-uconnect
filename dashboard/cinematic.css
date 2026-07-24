@@ -355,21 +355,19 @@ body:has(.sheet.show) {
 }
 
 .oil-panel {
-  display: grid;
-  grid-template-columns: 1.08fr 0.92fr;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-height: 82px;
   padding: 11px 13px;
 }
 
-.oil-main,
-.oil-estimate {
+.oil-main {
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.oil-main {
   position: relative;
+  width: min(100%, 225px);
   padding-left: 53px;
 }
 
@@ -411,26 +409,6 @@ body:has(.sheet.show) {
   font-weight: 400;
   line-height: 1;
   letter-spacing: 0;
-}
-
-.oil-estimate {
-  padding-left: 17px;
-  border-left: 1px solid var(--border);
-}
-
-.estimate-value {
-  margin-top: 8px;
-  color: var(--text);
-  font-size: clamp(25px, 7vw, 31px);
-  font-weight: 300;
-  line-height: 0.9;
-  text-align: center;
-}
-
-.oil-track {
-  height: 5px;
-  margin-top: 10px;
-  border-radius: 3px;
 }
 
 .tire-panel {
@@ -1221,7 +1199,6 @@ body:has(.sheet.show) {
   }
 
   .oil-panel {
-    grid-template-columns: 1.12fr 0.88fr;
     padding-right: 10px;
     padding-left: 10px;
   }
@@ -1234,10 +1211,6 @@ body:has(.sheet.show) {
     width: 37px;
     height: 37px;
     left: 1px;
-  }
-
-  .oil-estimate {
-    padding-left: 10px;
   }
 
   .command-group {

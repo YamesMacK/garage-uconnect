@@ -531,7 +531,7 @@
     .toast { display: none !important; }
   }
 </style>
-<link rel="stylesheet" href="cinematic.css?v=20260723g">
+<link rel="stylesheet" href="cinematic.css?v=20260723h">
 </head>
 <body>
   <template id="legacy-shell">
@@ -945,7 +945,9 @@ function render(data, locations) {
   const coordStr = hasLoc
     ? `${loc.lat.toFixed(3)}, ${loc.lng.toFixed(3)}`
     : '—';
-  const mapsUrl = hasLoc ? `https://www.google.com/maps?q=${loc.lat},${loc.lng}` : '#';
+  const mapsUrl = hasLoc
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${loc.lat},${loc.lng}`)}`
+    : '#';
   const embedUrl = hasLoc ? `https://maps.google.com/maps?q=${loc.lat},${loc.lng}&z=14&output=embed` : '';
   const fixAgeMin = hasLoc ? ageMinutes(loc.ts) : null;
   const fixOld = fixAgeMin != null && fixAgeMin > 180;
@@ -1139,8 +1141,6 @@ function render(data, locations) {
   const milesToNext = oilKnown ? oil.miles_to_next : null;
   const oilOverdue = oilKnown && milesToNext <= 0;
   const oilSoon = oilKnown && milesToNext > 0 && milesToNext < 500;
-  const oilEstimateKnown = v.oil_level_pct != null;
-  const oilEstimate = oilEstimateKnown ? clampPct(v.oil_level_pct) : 0;
 
   const tirePsi = v.tires_psi || {};
   const tireWarn = v.tires_warning || {};
@@ -1150,7 +1150,9 @@ function render(data, locations) {
   const loc = (locations && locations[v.vin]) || v.location || {};
   const hasLoc = loc.lat != null && loc.lng != null;
   const place = loc.place || (hasLoc ? 'GPS location' : 'No GPS fix');
-  const mapsUrl = hasLoc ? `https://www.google.com/maps?q=${loc.lat},${loc.lng}` : '#';
+  const mapsUrl = hasLoc
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${loc.lat},${loc.lng}`)}`
+    : '#';
   const embedUrl = hasLoc ? `https://maps.google.com/maps?ll=${loc.lat},${loc.lng}&z=14&output=embed` : '';
   const fixAgeMin = hasLoc ? ageMinutes(loc.ts) : null;
   const fixOld = fixAgeMin != null && fixAgeMin > 180;
@@ -1215,12 +1217,11 @@ function render(data, locations) {
       <div class="metric">
         <div class="metric-label">${ICON_METRIC_FUEL}<span>Range</span></div>
         <div class="metric-value">${fmtMi(v.range_mi)}<span class="metric-unit">mi</span></div>
-        <div class="range-scale"><span>E</span><span class="range-track" style="--level:${fuelPct}%"></span><span>F</span></div>
       </div>
       <div class="metric">
         <div class="metric-label">${ICON_METRIC_FUEL}<span>Fuel</span></div>
         <div class="metric-value${fuelWarn ? ' warn' : ''}">${fuelKnown ? Math.round(v.fuel_pct) : '—'}<span class="metric-unit">${fuelKnown ? '%' : ''}</span></div>
-        <div class="fuel-segments" style="--level:${fuelPct}%"></div>
+        <div class="range-scale"><span>E</span><span class="range-track" style="--level:${fuelPct}%"></span><span>F</span></div>
       </div>
       <div class="metric odo">
         <div class="metric-label">${ICON_METRIC_ODO}<span>Odometer</span></div>
@@ -1238,11 +1239,6 @@ function render(data, locations) {
           ${ICON_OIL_CINEMATIC}
           <div class="panel-heading">Next Oil Change</div>
           <div class="oil-value${oilOverdue ? ' warn' : ''}">${oilDisplay}${oilUnit}</div>
-        </div>
-        <div class="oil-estimate">
-          <div class="panel-heading">Vehicle Estimate</div>
-          <div class="estimate-value">${oilEstimateKnown ? `${Math.round(v.oil_level_pct)}%` : '—'}</div>
-          <div class="oil-track" style="--level:${oilEstimate}%"></div>
         </div>
       </section>
 
@@ -1277,7 +1273,7 @@ function render(data, locations) {
       </div>
       <i class="chevron"></i>
     </div>
-    ${hasLoc ? `<a class="location-open" target="_blank" rel="noopener" href="${mapsUrl}" aria-label="Open vehicle location in Maps">Open map</a>` : ''}`;
+    ${hasLoc ? `<a class="location-open" target="_blank" rel="noopener" href="${mapsUrl}" aria-label="Open truck location in Google Maps">Open map</a>` : ''}`;
 
   refreshResetEnabled();
 }

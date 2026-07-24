@@ -13,7 +13,7 @@
     "max_mean_channel_delta": 1.5
   },
   "protected_files": {
-    "dashboard/cinematic.css": "a51fc315447f7f0b54b7d0c5974781489fbd356ec9f336eb5ef74d01b7ed30e8",
+    "dashboard/cinematic.css": "f022befa707aa0088511d03404075b21cb8a44e0af96d94ccd01ac3513b690a6",
     "dashboard/manifest.json": "706961e11ac0275405a044906762a2a4f27f7cabf4bf507e42bdd0090c8d9ad6",
     "dashboard/icon-192.png": "0cae190e51c88f317a740a16d97769cdd9beb3b6503f6bb37d5a5f01ce963555",
     "dashboard/icon-512.png": "9adb5b1fe0961a2a509fa1656bd22ea7248c9cc9c1b35810084ca600017dcf14",
@@ -23,7 +23,7 @@
     "visual-lock/fixtures/data.json": "7bccabe2d46ab3d070fe2dfc1933b4e9ff4ecc27a55c882a456447ea4d610775",
     "visual-lock/fixtures/location.json": "2c8b21f72b20dbeb1860e111a38a736fbfebc1b1447ee9df4e4f4eea92b9c923"
   },
-  "visual_surface_sha256": "b740b919d9a2115332559341895d9b490309180ab42c0f009be4488780392b49",
+  "visual_surface_sha256": "9c3a075871a7b05ec853b7fd3fafe64059f3aa51ecfee87a77f10c0e77607373",
   "baselines": {
     "approved-concept.png": {
       "width": 794,
@@ -31,19 +31,22 @@
       "sha256": "55702f727a00c6e5f8cc44b31483829beeb7d4a1e96d1071d607d15e11565cc4"
     },
     "iphone-393.png": {
-      "width": 378,
-      "height": 1092,
-      "sha256": "dfb13f2a7d73876c6ae0d51772d20aa6aa7a0343cd2dc513bf4994767dfcca98"
+      "viewport_width": 393,
+      "width": 377,
+      "height": 1061,
+      "sha256": "26c8b1dac9e802bffdf904d6c82dc79a97f858effd39dff77af7389e80628376"
     },
     "iphone-320.png": {
+      "viewport_width": 320,
       "width": 304,
       "height": 1058,
-      "sha256": "e9d77d7ab0863f94a81b31ff414818818b9a95f853bc3b53d3e61644be33819c"
+      "sha256": "57a24af97b18e655649472d0885c772c869961e98cbdde15c77630a0206c7fb0"
     },
     "settings-393.png": {
+      "viewport_width": 393,
       "width": 393,
       "height": 1092,
-      "sha256": "400f4f1aa96f6c709efe076d83be55683d1e76df6e701b8155e34e10fc8bbadd"
+      "sha256": "503ed154296dfc391710a8981e3b688574a57e2300a062d1fbc9abf8169e4d28"
     }
   }
 }

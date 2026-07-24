@@ -9,10 +9,13 @@ cinematic iPhone interface from accidental redesign.
 
 The approved evidence is stored in `visual-lock/baselines/`:
 
-- `approved-concept.png` — original cinematic direction
-- `iphone-393.png` — approved normal iPhone rendering
-- `iphone-320.png` — approved narrow-iPhone rendering
-- `settings-393.png` — approved Settings sheet
+- `approved-concept.png` — original cinematic direction (794×1981)
+- `iphone-393.png` — 393px Browser viewport; 377×1061 saved artifact after
+  the Browser excludes its persistent chrome and gutter space
+- `iphone-320.png` — 320px Browser viewport; 304×1058 artifact after the
+  Browser excludes its persistent scrollbar gutter
+- `settings-393.png` — 393px Browser viewport and 393×1092 artifact because
+  the open sheet locks page scrolling
 
 The implementation screenshots override the concept wherever the concept
 conflicts with the corrections below.
@@ -28,7 +31,7 @@ conflicts with the corrections below.
 - Section order:
   1. hero and freshness
   2. Range, Fuel, Odometer, Battery
-  3. Next Oil Change and Vehicle Estimate
+  3. Next Oil Change
   4. Tire Pressure
   5. Command Center
   6. Status
@@ -37,11 +40,16 @@ conflicts with the corrections below.
 - Command Center grouping remains Access / Engine / Find with all six commands.
 - Start Engine remains the centered circular primary control.
 - Oil mileage uses a second line for `mi remaining`.
+- The oil card shows only miles remaining until the next oil change; do not
+  add a redundant oil-life percentage or replacement metric.
+- Range shows miles to empty only. The Fuel percentage card is the only
+  telemetry card with a fuel-level bar, using the labeled E-to-F treatment.
 - The oil graphic is the approved iOS-style asset at
   `dashboard/img/oil-can-ios.png`; do not redraw or substitute it.
 - The tire graphic remains large, centered, and aligned with all four readings.
 - Status retains its copper ring, detail affordance, and expandable text.
-- The entire Location panel remains the Maps target when a fix is available.
+- With a GPS fix, the Location panel shows the truck's map position and the
+  entire panel opens those coordinates in Google Maps.
 - Minimum interactive target size is 44 by 44 CSS pixels.
 - No horizontal overflow at 393px or 320px.
 
