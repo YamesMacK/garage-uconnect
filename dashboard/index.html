@@ -1200,7 +1200,9 @@ function render(data, locations) {
   const oilSoon = oilKnown && milesToNext > 0 && milesToNext < 500;
   const oilInterval = Number(oil.interval_mi);
   const oilIntervalKnown = Number.isFinite(oilInterval) && oilInterval > 0;
-  const reportedMilesDriven = Number(oil.miles_since);
+  const reportedMilesDriven = oil.miles_since != null
+    ? Number(oil.miles_since)
+    : NaN;
   const oilMilesDriven = Number.isFinite(reportedMilesDriven)
     ? Math.max(0, reportedMilesDriven)
     : oilKnown && oilIntervalKnown

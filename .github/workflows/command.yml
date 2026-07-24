@@ -76,10 +76,10 @@ jobs:
           CMD: ${{ inputs.command }}
         run: python scripts/send_command.py "$CMD"
 
-      - name: "Truck App result: ${{ steps.command.outputs.result }}"
+      - name: "Truck App result: ${{ steps.command.outputs.result || 'timeout' }}"
         if: ${{ always() && steps.command.outputs.result != 'confirmed' }}
         run: |
-          echo "Vehicle command was not confirmed: ${{ steps.command.outputs.result }}"
+          echo "Vehicle command was not confirmed: ${{ steps.command.outputs.result || 'timeout' }}"
           exit 1
 
       - name: Chain a data refresh
