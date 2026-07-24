@@ -7,11 +7,11 @@
      installed PWAs without a manual CACHE bump; cache fallback offline.
    - everything else same-origin (icons, images, manifest) — cache first. */
 
-const CACHE = 'garage-v20260724-cinematic-v12';
+const CACHE = 'garage-v20260724-cinematic-v15';
 const SHELL = [
   './',
   './index.html',
-  './cinematic.css?v=20260724c',
+  './cinematic.css?v=20260724f',
   './manifest.json',
   './img/hero-cinematic-white-v2.png',
   './img/truck-top-laramie-v1.png',

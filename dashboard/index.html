@@ -531,7 +531,7 @@
     .toast { display: none !important; }
   }
 </style>
-<link rel="stylesheet" href="cinematic.css?v=20260724c">
+<link rel="stylesheet" href="cinematic.css?v=20260724f">
 </head>
 <body>
   <template id="legacy-shell">
@@ -826,24 +826,73 @@
 const REPO = 'YamesMacK/garage-uconnect';
 const CMD_WORKFLOW = 'command.yml';
 const RESET_OIL_WORKFLOW = 'reset_oil.yml';
+const PAGE_PARAMS = new URLSearchParams(location.search);
 const VISUAL_LOCK_MODE =
   (location.hostname === '127.0.0.1' || location.hostname === 'localhost') &&
-  new URLSearchParams(location.search).get('visual-lock') === '1';
+  PAGE_PARAMS.get('visual-lock') === '1';
+// Localhost-only command fixture. It makes command feedback testable without
+// a GitHub token or any path to the real truck.
+const VISUAL_LOCK_COMMAND_TEST = VISUAL_LOCK_MODE && PAGE_PARAMS.get('command-result')
+  ? {
+      commandRun: {
+        conclusion: PAGE_PARAMS.get('command-conclusion') || 'failure',
+        result: PAGE_PARAMS.get('command-result'),
+      },
+    }
+  : null;
 
 // Remote commands — must mirror command.yml's input options. Commands that
 // move metal or make noise get a confirmation prompt (pocket-tap guard).
 const COMMANDS = {
-  lock:             { label: 'Lock' },
-  unlock:           { label: 'Unlock', confirm: 'Unlock the truck?' },
-  engine_on:        { label: 'Start',  confirm: 'Remote-start the engine?' },
+  lock: {
+    label: 'Lock',
+    rejected: 'Lock was not completed — the truck may already be locked or unavailable',
+  },
+  unlock: {
+    label: 'Unlock',
+    confirm: 'Unlock the truck?',
+    rejected: 'Unlock was not completed — the truck may already be unlocked or unavailable',
+  },
+  engine_on: {
+    label: 'Start',
+    confirm: 'Remote-start the engine?',
+    rejected: 'Start was not accepted — check the hood, fuel, gear, and cellular coverage',
+  },
   engine_off:       {
     label: 'Cancel Remote Start',
     confirm: 'Cancel the active remote start?',
-    rejected: 'Cancel rejected — the truck may already be off or not in Remote Start mode',
+    rejected: 'No Remote Start was cancelled — the truck may already be off',
   },
-  lights_horn:      { label: 'Horn',   confirm: 'Sound the horn and flash the lights?' },
-  refresh_location: { label: 'Locate' },
+  lights_horn: {
+    label: 'Horn',
+    confirm: 'Sound the horn and flash the lights?',
+    rejected: 'Horn was not completed — the truck may be asleep or out of cellular coverage',
+  },
+  refresh_location: {
+    label: 'Locate',
+    rejected: 'Location refresh was not completed — the truck may be asleep or out of coverage',
+  },
 };
+
+const COMMAND_RESULT_MESSAGES = {
+  timeout: 'No answer from the truck — it may be asleep or out of cellular coverage',
+  authorization: 'Mopar authorization failed — check the account credentials and PIN in GitHub Secrets',
+  unsupported: 'This command may not be enabled for the truck’s connected-services plan',
+  rate_limited: 'Stellantis is temporarily limiting commands — try again later',
+  service_unavailable: 'The Stellantis service is temporarily unavailable — try again later',
+  workflow_setup: 'The command workflow could not start — check GitHub Actions setup',
+  connection: 'The command service could not be reached — try again when coverage improves',
+  configuration: 'Command setup is incomplete — check the repository’s GitHub Secrets',
+  unexpected: 'The command could not be completed — check its GitHub Actions run',
+};
+
+function commandResultMessage(command, result) {
+  const config = COMMANDS[command];
+  if (result === 'rejected') return config?.rejected || 'The truck did not accept the command';
+  return COMMAND_RESULT_MESSAGES[result] ||
+    config?.rejected ||
+    'The command could not be completed — check its GitHub Actions run';
+}
 
 // Escape externally-sourced strings before innerHTML interpolation —
 // place names come from OpenStreetMap and are not under our control.
@@ -929,7 +978,6 @@ function render(data, locations) {
   const oilOverdue = oilKnown && milesToNext <= 0;
   const oilSoon = oilKnown && milesToNext > 0 && milesToNext < 500;
   const oilTruckPct = v.oil_level_pct != null ? ` · truck ${v.oil_level_pct}%` : '';
-
   const tirePsi = v.tires_psi || {};
   const tireWarn = v.tires_warning || {};
   const tireCell = (cls, label, pos) => {
@@ -1151,7 +1199,19 @@ function render(data, locations) {
   const milesToNext = oilKnown ? oil.miles_to_next : null;
   const oilOverdue = oilKnown && milesToNext <= 0;
   const oilSoon = oilKnown && milesToNext > 0 && milesToNext < 500;
-
+  const oilInterval = Number(oil.interval_mi);
+  const oilIntervalKnown = Number.isFinite(oilInterval) && oilInterval > 0;
+  const reportedMilesDriven = oil.miles_since != null
+    ? Number(oil.miles_since)
+    : NaN;
+  const oilMilesDriven = Number.isFinite(reportedMilesDriven)
+    ? Math.max(0, reportedMilesDriven)
+    : oilKnown && oilIntervalKnown
+      ? Math.max(0, oilInterval - milesToNext)
+      : null;
+  const oilRemainingPct = oilKnown && oilIntervalKnown
+    ? clampPct((Math.max(0, milesToNext) / oilInterval) * 100)
+    : 0;
   const tirePsi = v.tires_psi || {};
   const tireWarn = v.tires_warning || {};
   const tirePositions = ['front_left', 'front_right', 'rear_left', 'rear_right'];
@@ -1224,8 +1284,16 @@ function render(data, locations) {
     </div>`;
 
   const oilDisplay = !oilKnown ? '—' : oilOverdue ? 'DUE' : fmtMi(milesToNext);
-  const oilUnit = oilKnown && !oilOverdue ? '<span class="oil-unit">mi remaining</span>' : '';
-
+  const oilIntervalText = !oilKnown
+    ? 'Mileage unavailable'
+    : oilOverdue
+      ? `${oilIntervalKnown ? `${fmtMi(oilInterval)}-mile` : 'Service'} interval reached`
+      : oilIntervalKnown
+        ? `of ${fmtMi(oilInterval)} miles remaining`
+        : 'miles remaining';
+  const oilProgressMeta = oilMilesDriven != null
+    ? `${fmtMi(oilMilesDriven)} miles driven since reset`
+    : 'Reset after each oil change';
   grid.innerHTML = `
     <section class="metric-strip" aria-label="Primary vehicle telemetry">
       <div class="metric">
@@ -1250,12 +1318,18 @@ function render(data, locations) {
     <div class="vehicle-panels">
       <section class="panel oil-panel" aria-label="Oil change status">
         <div class="oil-main">
-          ${ICON_OIL_CINEMATIC}
           <div class="panel-heading">Next Oil Change</div>
-          <div class="oil-value${oilOverdue ? ' warn' : ''}">${oilDisplay}${oilUnit}</div>
+          <div class="oil-reading-row">
+            ${ICON_OIL_CINEMATIC}
+            <div class="oil-reading">
+              <div class="oil-value${oilOverdue ? ' warn' : ''}">${oilDisplay}</div>
+              <div class="oil-interval">${oilIntervalText}</div>
+            </div>
+          </div>
+          <div class="oil-progress" style="--level:${oilRemainingPct}%" aria-hidden="true"></div>
+          <div class="oil-progress-meta">${oilProgressMeta}</div>
         </div>
       </section>
-
       <section class="panel tire-panel" aria-label="Tire pressure">
         <div class="panel-heading-row">
           <div class="panel-heading-icon">
@@ -1378,6 +1452,7 @@ function ghHeaders(pat) {
 }
 
 async function dispatch(workflow, inputs = {}) {
+  if (VISUAL_LOCK_COMMAND_TEST?.commandRun) return { status: 204 };
   const pat = getPat();
   if (!pat) throw new Error('NO_PAT');
   const res = await fetch(
@@ -1391,12 +1466,19 @@ async function dispatch(workflow, inputs = {}) {
   return res;
 }
 
-// Poll the dispatched run until it finishes so the toast reports what the
-// TRUCK did (send_command.py exits non-zero if the vehicle rejects the
-// command). The tag is echoed into the run name by command.yml, so this
-// device only ever reads the outcome of ITS OWN dispatch — never a
-// concurrent one from another device or the Actions tab. ~3 min cap.
+// Poll the dispatched run until it finishes. The tag is echoed into the run
+// name by command.yml, so this device only reads the outcome of ITS OWN
+// dispatch — never a concurrent one from another device or the Actions tab.
+// The completed run object includes the run ID used to read its safe result
+// class from the jobs endpoint. ~3 min cap.
 async function trackRun(workflow, sinceIso, tag) {
+  if (VISUAL_LOCK_COMMAND_TEST?.commandRun) {
+    return {
+      id: 1,
+      status: 'completed',
+      conclusion: VISUAL_LOCK_COMMAND_TEST.commandRun.conclusion,
+    };
+  }
   const url = `https://api.github.com/repos/${REPO}/actions/workflows/${workflow}/runs?` +
     new URLSearchParams({ event: 'workflow_dispatch', created: `>=${sinceIso}`, per_page: '10' });
   for (let i = 0; i < 36; i++) {
@@ -1406,9 +1488,31 @@ async function trackRun(workflow, sinceIso, tag) {
       if (!res.ok) continue;
       const runs = (await res.json()).workflow_runs || [];
       const run = runs.find(r => ((r.display_title || r.name || '').includes(tag)));
-      if (run && run.status === 'completed') return run.conclusion;
+      if (run && run.status === 'completed') return run;
     } catch {}
   }
+  return null;
+}
+
+async function readRunResult(runId) {
+  if (VISUAL_LOCK_COMMAND_TEST?.commandRun) {
+    return VISUAL_LOCK_COMMAND_TEST.commandRun.result || null;
+  }
+  if (!runId) return null;
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${REPO}/actions/runs/${runId}/jobs?filter=latest&per_page=10`,
+      { headers: ghHeaders(getPat()) }
+    );
+    if (!res.ok) return null;
+    const jobs = (await res.json()).jobs || [];
+    for (const job of jobs) {
+      for (const step of (job.steps || [])) {
+        const match = String(step.name || '').match(/^Truck App result: ([a-z_]+)$/);
+        if (match) return match[1];
+      }
+    }
+  } catch {}
   return null;
 }
 
@@ -1417,7 +1521,7 @@ let cmdInFlight = false;
 async function sendCommand(cmd, btn) {
   const c = COMMANDS[cmd];
   if (!c) return;
-  if (!getPat()) {
+  if (!getPat() && !VISUAL_LOCK_COMMAND_TEST) {
     promptForToken();
     return;
   }
@@ -1425,7 +1529,7 @@ async function sendCommand(cmd, btn) {
     toast('Another command is still running — wait for it to finish');
     return;
   }
-  if (c.confirm && !confirm(c.confirm)) return;
+  if (c.confirm && !VISUAL_LOCK_COMMAND_TEST && !confirm(c.confirm)) return;
 
   cmdInFlight = true;
   btn.classList.add('loading');
@@ -1438,26 +1542,30 @@ async function sendCommand(cmd, btn) {
     const res = await dispatch(CMD_WORKFLOW, { command: cmd, tag });
     if (res.status === 204) {
       toast(`${c.label} sent — waiting for the truck…`);
-      const conclusion = await trackRun(CMD_WORKFLOW, since, tag);
+      const run = await trackRun(CMD_WORKFLOW, since, tag);
+      const conclusion = run?.conclusion;
       if (conclusion === 'success') {
         toast(`${c.label} confirmed by the truck ✓`);
         if (cmd === 'refresh_location') setTimeout(load, 150000); // chained poll redeploys in ~2.5 min
       } else if (conclusion === 'cancelled') {
         toast(`${c.label} was dropped — send it again`);
       } else if (conclusion) {
-        toast(c.rejected || `${c.label} failed — check the Actions log`);
+        const result = await readRunResult(run.id);
+        toast(commandResultMessage(cmd, result));
       } else {
         toast(`${c.label} still running — check Actions for the result`);
       }
     } else if (res.status === 401 || res.status === 403) {
       promptForToken('GitHub auth failed — check your token');
     } else if (res.status === 404) {
-      toast('Workflow not found');
+      toast('Command workflow is unavailable — check the GitHub repository setup');
     } else {
-      toast(`HTTP ${res.status}`);
+      toast(`GitHub could not start the command (HTTP ${res.status}) — try again`);
     }
-  } catch (err) {
-    toast(`Error: ${err.message}`);
+  } catch {
+    toast(navigator.onLine === false
+      ? 'You appear to be offline — reconnect and try again'
+      : 'Could not reach GitHub — check your connection and try again');
   } finally {
     cmdInFlight = false;
     btn.classList.remove('loading');
@@ -1481,7 +1589,8 @@ async function resetOil(btn) {
     const res = await dispatch(RESET_OIL_WORKFLOW, { tag });
     if (res.status === 204) {
       toast('Reset sent — anchoring baseline…');
-      const conclusion = await trackRun(RESET_OIL_WORKFLOW, since, tag);
+      const run = await trackRun(RESET_OIL_WORKFLOW, since, tag);
+      const conclusion = run?.conclusion;
       if (conclusion === 'success') {
         // The reset run chains a poll + Pages deploy; the tile reads 5,000
         // once that lands (~2-3 min). Second load catches a slow builder.
@@ -1501,8 +1610,10 @@ async function resetOil(btn) {
       const txt = await res.text();
       toast(`HTTP ${res.status}: ${txt.slice(0, 80)}`);
     }
-  } catch (err) {
-    toast(`Error: ${err.message}`);
+  } catch {
+    toast(navigator.onLine === false
+      ? 'You appear to be offline — reconnect and try again'
+      : 'Could not reach GitHub — check your connection and try again');
   } finally {
     btn.disabled = false;
     btn.textContent = original;

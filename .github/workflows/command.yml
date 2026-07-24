@@ -3,7 +3,8 @@ name: Send vehicle command
 # Triggered manually (or via the GitHub API from the PWA) to send a remote
 # command to the Ram via py-uconnect. Lock / unlock / remote start, etc.
 # send_command.py uses command_verify(), so this run's conclusion reflects
-# whether the TRUCK acknowledged the command — the dashboard polls it.
+# whether the TRUCK acknowledged the command. It emits one sanitized result
+# class that the dashboard reads from the completed job's step names.
 
 # The tag makes each dispatch findable by the device that fired it: the
 # dashboard polls the runs list and matches its tag in the run name, so two
@@ -60,7 +61,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Send command
+      - name: Attempt vehicle command
+        id: command
+        continue-on-error: true
         # Step cap so a hung Stellantis call fails fast and frees the
         # vehicle-command concurrency group for the next queued command.
         timeout-minutes: 4
@@ -73,12 +76,18 @@ jobs:
           CMD: ${{ inputs.command }}
         run: python scripts/send_command.py "$CMD"
 
+      - name: "Truck App result: ${{ steps.command.outcome == 'skipped' && 'workflow_setup' || steps.command.outputs.result || 'timeout' }}"
+        if: ${{ always() && steps.command.outputs.result != 'confirmed' }}
+        run: |
+          echo "Vehicle command was not confirmed: ${{ steps.command.outcome == 'skipped' && 'workflow_setup' || steps.command.outputs.result || 'timeout' }}"
+          exit 1
+
       - name: Chain a data refresh
         # After the truck acks a location/telemetry refresh, kick the poll
         # workflow so the dashboard shows the fresh fix in ~2 min instead of
         # waiting for cron. workflow_dispatch is exempt from GITHUB_TOKEN's
         # no-recursive-runs rule.
-        if: ${{ inputs.command == 'refresh_location' || inputs.command == 'deep_refresh' }}
+        if: ${{ steps.command.outputs.result == 'confirmed' && (inputs.command == 'refresh_location' || inputs.command == 'deep_refresh') }}
         env:
           GH_TOKEN: ${{ github.token }}
         # Non-fatal: this run's conclusion must reflect what the TRUCK did

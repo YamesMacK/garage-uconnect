@@ -39,9 +39,12 @@ conflicts with the corrections below.
   8. Settings and Reload Data
 - Command Center grouping remains Access / Engine / Find with all six commands.
 - Start Engine remains the centered circular primary control.
-- Oil mileage uses a second line for `mi remaining`.
-- The oil card shows only miles remaining until the next oil change; do not
-  add a redundant oil-life percentage or replacement metric.
+- The oil card is centered and shows miles remaining against the configured
+  interval, a proportional copper progress line, and miles driven since the
+  last oil-change reset. For the locked fixture this reads `4,083 of 5,000
+  miles remaining` and `917 miles driven since reset`.
+- Do not add a redundant oil-life percentage or substitute the truck's oil
+  level percentage for the mileage-based reminder.
 - Range shows miles to empty only. The Fuel percentage card is the only
   telemetry card with a fuel-level bar, using the labeled E-to-F treatment.
 - The oil graphic is the approved iOS-style asset at
