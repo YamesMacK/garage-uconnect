@@ -32,24 +32,12 @@ def source_sha256(path: Path) -> str:
 def visual_surface_sha256() -> str:
     html = (REPO_ROOT / "dashboard" / "index.html").read_text(encoding="utf-8")
     active_start = html.index("</template>") + len("</template>")
+    head_end = html.index("</head>") + len("</head>")
     script_start = html.index("<script>", active_start)
     script_end = html.index("</script>", script_start) + len("</script>")
 
-    head_tokens = "\n".join(
-        line.strip()
-        for line in html[:active_start].splitlines()
-        if any(
-            token in line
-            for token in (
-                "theme-color",
-                "apple-mobile-web-app",
-                "Roboto+Condensed",
-                "cinematic.css",
-            )
-        )
-    )
     surface = (
-        head_tokens
+        html[:head_end]
         + "\n"
         + html[active_start:script_start]
         + "\n"
