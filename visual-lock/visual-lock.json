@@ -24,7 +24,7 @@
     "visual-lock/fixtures/data.json": "7bccabe2d46ab3d070fe2dfc1933b4e9ff4ecc27a55c882a456447ea4d610775",
     "visual-lock/fixtures/location.json": "2c8b21f72b20dbeb1860e111a38a736fbfebc1b1447ee9df4e4f4eea92b9c923"
   },
-  "visual_surface_sha256": "0738e7bc9c05824770ee9467a1f2ddf2371f91cf02d9f2ac3f6d8c3faac679d5",
+  "visual_surface_sha256": "dbb1c0d6cc8ab4d6b250153e1bb26cb97ac375ccf2194caea6fc1a76dcc81065",
   "baselines": {
     "approved-concept.png": {
       "width": 794,

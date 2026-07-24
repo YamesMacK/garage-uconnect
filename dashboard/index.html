@@ -1520,7 +1520,7 @@ let cmdInFlight = false;
 async function sendCommand(cmd, btn) {
   const c = COMMANDS[cmd];
   if (!c) return;
-  if (!getPat()) {
+  if (!getPat() && !VISUAL_LOCK_COMMAND_TEST) {
     promptForToken();
     return;
   }
