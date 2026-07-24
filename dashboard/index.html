@@ -1099,6 +1099,21 @@ function setVehicleStatus(title, sub, warn = false) {
   if (symbol) symbol.classList.toggle('warn', warn);
 }
 
+function resetLocationPanel(message = 'No vehicle data loaded') {
+  const panel = document.getElementById('locationPanel');
+  if (!panel) return;
+  panel.innerHTML = `
+    <div class="location-map"><span class="location-pin"></span></div>
+    <div class="location-info">
+      <div class="location-copy">
+        <div class="location-kicker">Location</div>
+        <div class="location-place">Location unavailable</div>
+        <div class="location-age">${message}</div>
+      </div>
+      <i class="chevron"></i>
+    </div>`;
+}
+
 function render(data, locations) {
   const grid = document.getElementById('grid');
   if (!data || !data.vehicles || !data.vehicles.length) {
@@ -1108,16 +1123,7 @@ function render(data, locations) {
         The latest dashboard snapshot does not contain a vehicle.
       </div>`;
     setVehicleStatus('Vehicle Data Unavailable', 'No vehicle was found in the latest snapshot', true);
-    document.getElementById('locationPanel').innerHTML = `
-      <div class="location-map"><span class="location-pin"></span></div>
-      <div class="location-info">
-        <div class="location-copy">
-          <div class="location-kicker">Location</div>
-          <div class="location-place">Location unavailable</div>
-          <div class="location-age">No vehicle data loaded</div>
-        </div>
-        <i class="chevron"></i>
-      </div>`;
+    resetLocationPanel();
     return;
   }
 
@@ -1329,6 +1335,7 @@ async function load() {
     document.getElementById('sync').textContent = 'Update unavailable';
     document.getElementById('sync').classList.add('stale');
     setVehicleStatus('Vehicle Data Unavailable', 'Reload Data to try again', true);
+    resetLocationPanel('Reload failed · last location cleared');
     return false;
   }
 }
