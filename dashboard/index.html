@@ -615,10 +615,10 @@
         </span>
         <span class="spinner"></span>
       </button>
-      <button class="btn" data-cmd="engine_off">
+      <button class="btn" data-cmd="engine_off" aria-label="Cancel Remote Start">
         <span class="label-wrap">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-          <span class="label">Stop</span>
+          <span class="label">Cancel</span>
         </span>
         <span class="spinner"></span>
       </button>
@@ -715,8 +715,8 @@
               </span>
               <span class="spinner"></span>
             </button>
-            <button class="btn stop-btn" type="button" data-cmd="engine_off">
-              <span class="label-wrap"><span class="label">Stop Engine</span></span>
+            <button class="btn stop-btn" type="button" data-cmd="engine_off" aria-label="Cancel Remote Start">
+              <span class="label-wrap"><span class="label">Cancel<br>Remote Start</span></span>
               <span class="spinner"></span>
             </button>
           </div>
@@ -836,7 +836,11 @@ const COMMANDS = {
   lock:             { label: 'Lock' },
   unlock:           { label: 'Unlock', confirm: 'Unlock the truck?' },
   engine_on:        { label: 'Start',  confirm: 'Remote-start the engine?' },
-  engine_off:       { label: 'Stop',   confirm: 'Shut the remote-started engine off?' },
+  engine_off:       {
+    label: 'Cancel Remote Start',
+    confirm: 'Cancel the active remote start?',
+    rejected: 'Cancel rejected — the truck may already be off or not in Remote Start mode',
+  },
   lights_horn:      { label: 'Horn',   confirm: 'Sound the horn and flash the lights?' },
   refresh_location: { label: 'Locate' },
 };
@@ -1441,7 +1445,7 @@ async function sendCommand(cmd, btn) {
       } else if (conclusion === 'cancelled') {
         toast(`${c.label} was dropped — send it again`);
       } else if (conclusion) {
-        toast(`${c.label} failed — check the Actions log`);
+        toast(c.rejected || `${c.label} failed — check the Actions log`);
       } else {
         toast(`${c.label} still running — check Actions for the result`);
       }

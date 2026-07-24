@@ -12,6 +12,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 LOCK_FILE = REPO_ROOT / "visual-lock" / "visual-lock.json"
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 
 def sha256(path: Path) -> str:
@@ -20,6 +21,11 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def is_png(path: Path) -> bool:
+    with path.open("rb") as handle:
+        return handle.read(len(PNG_SIGNATURE)) == PNG_SIGNATURE
 
 
 def source_sha256(path: Path) -> str:
@@ -124,6 +130,8 @@ def main() -> int:
         if not path.exists():
             failures.append(f"missing baseline: {filename}")
             continue
+        if path.suffix.lower() == ".png" and not is_png(path):
+            failures.append(f"baseline is not PNG-encoded: {filename}")
         actual = sha256(path)
         if actual != metadata["sha256"]:
             failures.append(f"baseline changed: {filename}")
@@ -136,6 +144,13 @@ def main() -> int:
             candidate = candidate_dir / filename
             if not candidate.exists():
                 failures.append(f"missing candidate screenshot: {filename}")
+                continue
+            if candidate.suffix.lower() == ".png" and not is_png(candidate):
+                detail = "file is not PNG-encoded"
+                print(f"  FAIL {filename}: {detail}")
+                failures.append(
+                    f"invalid candidate screenshot: {filename} ({detail})"
+                )
                 continue
             passed, detail = compare_images(
                 reference,

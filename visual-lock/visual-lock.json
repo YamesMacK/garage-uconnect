@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 5,
   "status": "approved",
   "approved_at": "2026-07-24",
   "comparison_files": [
@@ -24,7 +24,7 @@
     "visual-lock/fixtures/data.json": "7bccabe2d46ab3d070fe2dfc1933b4e9ff4ecc27a55c882a456447ea4d610775",
     "visual-lock/fixtures/location.json": "2c8b21f72b20dbeb1860e111a38a736fbfebc1b1447ee9df4e4f4eea92b9c923"
   },
-  "visual_surface_sha256": "2a89b6c1eb13ebf2eefe76f71423bc023896fe78d2357063107b57e41a977e32",
+  "visual_surface_sha256": "36bffacca100a852872ff083abae534afa04cb0e5862cec64b9f6bb4adcaeb6c",
   "baselines": {
     "approved-concept.png": {
       "width": 794,
@@ -34,20 +34,20 @@
     "iphone-393.png": {
       "viewport_width": 393,
       "width": 378,
-      "height": 1092,
-      "sha256": "2ede5c71ce703e1e1ddf4f0f4e512ec738b03108202602c19c06ed129d63e656"
+      "height": 1090,
+      "sha256": "852f00fd70330e60aacffcf74de1b2bdf7893825ada2189f5574dd05259f4450"
     },
     "iphone-320.png": {
       "viewport_width": 320,
       "width": 320,
       "height": 1058,
-      "sha256": "31ca9fd45cc220e5ff0098cfa82c78e30297ac518d69016600c633ccb8deae09"
+      "sha256": "24542e1bc2145b839f7c9634b5c7b10712fae245337301f7ed7b60af389a8b8f"
     },
     "settings-393.png": {
       "viewport_width": 393,
       "width": 393,
       "height": 1132,
-      "sha256": "d6d4ed61b14ac6058ea49856bcd8b6d59cc506d72f45830f0f5010ddd16e7dc6"
+      "sha256": "ae2c16664ab13b1ec55ecece1ff620ec3237d95b243f127a10d7b8cc8411b18f"
     }
   }
 }
