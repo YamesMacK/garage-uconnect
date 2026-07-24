@@ -2,7 +2,7 @@
 
 Status: **LOCKED**
 
-Approved by James MacKinnon on July 23, 2026. This contract protects the
+Approved by James MacKinnon on July 24, 2026. This contract protects the
 cinematic iPhone interface from accidental redesign.
 
 ## Source of truth
@@ -10,12 +10,12 @@ cinematic iPhone interface from accidental redesign.
 The approved evidence is stored in `visual-lock/baselines/`:
 
 - `approved-concept.png` — original cinematic direction (794×1981)
-- `iphone-393.png` — 393px Browser viewport; 377×1061 saved artifact after
-  the Browser excludes its persistent chrome and gutter space
-- `iphone-320.png` — 320px Browser viewport; 304×1058 artifact after the
-  Browser excludes its persistent scrollbar gutter
-- `settings-393.png` — 393px Browser viewport and 393×1092 artifact because
-  the open sheet locks page scrolling
+- `iphone-393.png` — 393px Browser viewport; 378×1092 full-page artifact
+  after the Browser excludes its 15px persistent scrollbar gutter
+- `iphone-320.png` — 320px Browser viewport; 320×1058 viewport artifact;
+  the current Browser uses an overlay scrollbar at this narrow width
+- `settings-393.png` — 393px Browser viewport and 393×1132 full-page artifact
+  because the open sheet locks page scrolling
 
 The implementation screenshots override the concept wherever the concept
 conflicts with the corrections below.
@@ -23,7 +23,7 @@ conflicts with the corrections below.
 ## Locked design decisions
 
 - iPhone-first, portrait-only composition; no desktop redesign is required.
-- Cinematic silver Ram hero on a dark mountain road.
+- Cinematic pearl-white Ram hero on a dark mountain road.
 - Vehicle identity: **2022 RAM 2500** and **Laramie Crew Cab 4x4**.
 - The overhead Laramie asset has **no sunroof**.
 - Dark graphite surfaces, restrained copper accents, subtle borders and
@@ -50,6 +50,7 @@ conflicts with the corrections below.
 - Status retains its copper ring, detail affordance, and expandable text.
 - With a GPS fix, the Location panel shows the truck's map position and the
   entire panel opens those coordinates in Google Maps.
+- The embedded Google map uses its native colors at full opacity for legibility.
 - Minimum interactive target size is 44 by 44 CSS pixels.
 - No horizontal overflow at 393px or 320px.
 

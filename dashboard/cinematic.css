@@ -98,7 +98,7 @@ body:has(.sheet.show) {
   isolation: isolate;
   background:
     linear-gradient(180deg, rgba(5, 6, 7, 0.02), rgba(5, 6, 7, 0.12)),
-    url("img/hero-cinematic-v1.png") 57% 61% / auto 136% no-repeat;
+    url("img/hero-cinematic-white-v2.png") 57% 61% / auto 136% no-repeat;
 }
 
 .hero::before {
@@ -802,8 +802,8 @@ body:has(.sheet.show) {
   height: 100%;
   border: 0;
   pointer-events: none;
-  filter: grayscale(0.9) invert(0.88) hue-rotate(178deg) brightness(0.45) contrast(1.18);
-  opacity: 0.68;
+  filter: none;
+  opacity: 1;
 }
 
 .location-pin {

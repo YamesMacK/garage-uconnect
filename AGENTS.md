@@ -37,9 +37,9 @@ For any authorized frontend change:
 3. Open the printed `?visual-lock=1` URL in the in-app Browser at the locked
    393px and 320px viewport widths. The fixture route only activates on
    localhost. The in-app Browser excludes persistent chrome and gutter space
-   from saved dashboard artifacts, producing the approved 377×1061 and
-   304×1058 images; the open Settings sheet is 393×1092 because scrolling is
-   locked.
+   from saved dashboard artifacts. Capture the 393px dashboard full-page as
+   378×1092, the 320px dashboard viewport as 320×1058, and the open
+   Settings sheet full-page as 393×1132 because scrolling is locked.
 4. Capture the dashboard, narrow dashboard, and open Settings sheet using the
    filenames documented in `VISUAL_LOCK.md`.
 5. Run
