@@ -10,7 +10,7 @@ cinematic iPhone interface from accidental redesign.
 The approved evidence is stored in `visual-lock/baselines/`:
 
 - `approved-concept.png` — original cinematic direction (794×1981)
-- `iphone-393.png` — 393px Browser viewport; 378×1092 full-page artifact
+- `iphone-393.png` — 393px Browser viewport; 378×1090 full-page artifact
   after the Browser excludes its 15px persistent scrollbar gutter
 - `iphone-320.png` — 320px Browser viewport; 320×1058 viewport artifact;
   the current Browser uses an overlay scrollbar at this narrow width
