@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-07-28T17:43:03.327623+00:00",
+  "last_updated": "2026-07-28T19:46:27.318286+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -8,15 +8,15 @@
       "model": "2500",
       "nickname": null,
       "odometer_mi": 152381.3,
-      "range_mi": 354.8,
-      "fuel_pct": 94,
+      "range_mi": 336.2,
+      "fuel_pct": 95,
       "fuel_low": false,
-      "battery_v": 13.4,
+      "battery_v": 13.5,
       "tires_psi": {
         "front_left": 63.0,
-        "front_right": 64.0,
-        "rear_left": 63.0,
-        "rear_right": 63.0
+        "front_right": 65.0,
+        "rear_left": 64.0,
+        "rear_right": 64.0
       },
       "tires_warning": {
         "front_left": false,
