@@ -1142,13 +1142,15 @@ const ICON_OIL_CINEMATIC =
 
 const clampPct = (value) => Math.max(0, Math.min(100, Number(value) || 0));
 
-function setVehicleStatus(title, sub, warn = false) {
+function setVehicleStatus(title, sub, warn = false, detailTarget = '') {
   const titleEl = document.getElementById('statusTitle');
   const subEl = document.getElementById('statusSub');
   const symbol = document.getElementById('statusSymbol');
+  const panel = document.querySelector('.status-panel');
   if (titleEl) titleEl.textContent = title;
   if (subEl) subEl.textContent = sub;
   if (symbol) symbol.classList.toggle('warn', warn);
+  if (panel) panel.dataset.detailTarget = detailTarget;
 }
 
 function resetLocationPanel(message = 'No vehicle data loaded') {
@@ -1265,7 +1267,8 @@ function render(data, locations) {
     setVehicleStatus(
       warningLabels.length === 1 ? warningLabels[0] : `${warningLabels.length} Active Alerts`,
       warningDetails.join(' · '),
-      true
+      true,
+      warningLabels.length === 1 && warningTires.length ? '.tire-panel' : ''
     );
   } else if (coreKnown) {
     setVehicleStatus(
@@ -1632,6 +1635,14 @@ if (resetOilButton) {
 
 const statusPanel = document.querySelector('.status-panel');
 const toggleStatusDetails = () => {
+  const detailTarget = statusPanel.dataset.detailTarget;
+  if (detailTarget) {
+    const targetPanel = document.querySelector(detailTarget);
+    if (targetPanel) {
+      targetPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+  }
   const expanded = statusPanel.classList.toggle('expanded');
   statusPanel.setAttribute('aria-expanded', String(expanded));
   const detailLabel = statusPanel.querySelector('.status-detail-label span');
