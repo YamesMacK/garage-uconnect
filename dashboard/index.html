@@ -1635,18 +1635,18 @@ if (resetOilButton) {
 
 const statusPanel = document.querySelector('.status-panel');
 const toggleStatusDetails = () => {
-  const detailTarget = statusPanel.dataset.detailTarget;
-  if (detailTarget) {
-    const targetPanel = document.querySelector(detailTarget);
-    if (targetPanel) {
-      targetPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-  }
   const expanded = statusPanel.classList.toggle('expanded');
   statusPanel.setAttribute('aria-expanded', String(expanded));
   const detailLabel = statusPanel.querySelector('.status-detail-label span');
   if (detailLabel) detailLabel.textContent = expanded ? 'Hide Details' : 'View Details';
+
+  const detailTarget = statusPanel.dataset.detailTarget;
+  if (expanded && detailTarget) {
+    const targetPanel = document.querySelector(detailTarget);
+    if (targetPanel) {
+      targetPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
 };
 statusPanel.setAttribute('aria-expanded', 'false');
 statusPanel.addEventListener('click', toggleStatusDetails);
