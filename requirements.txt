@@ -1,4 +1,4 @@
 # Pinned exactly: this runs every 30 min in CI with the Mopar credentials and
 # a contents:write token, so new upstream releases should be adopted
 # deliberately (Dependabot opens the bump PR), never picked up silently.
-py-uconnect==0.4.3
+py-uconnect==0.4.6
