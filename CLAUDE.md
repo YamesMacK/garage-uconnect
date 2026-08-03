@@ -284,9 +284,27 @@ step names and extracts the result class.
 > **Invariant:** the dashboard parses the literal step name
 > `` `Truck App result: <class>` `` out of the GitHub jobs API. Renaming that
 > step in `command.yml`, or changing the `^Truck App result: ([a-z_]+)$` regex
-> on one side only, silently breaks all command feedback. The allowlist of
-> classes lives in `RESULTS` in `send_command.py` and must stay in sync with
-> `COMMAND_RESULT_MESSAGES` in index.html.
+> on one side only, silently breaks all command feedback.
+
+Result classes come from **three** places, and the two lists deliberately do
+**not** match. Do not "sync" them into one:
+
+- `RESULTS` in `send_command.py` is the allowlist of classes *the script* may
+  emit through `GITHUB_OUTPUT`. It includes `confirmed` and `rejected`.
+- `command.yml` can mint a class the script never emits: the result step falls
+  back to `workflow_setup` when the command step was skipped, and to `timeout`
+  when the step produced no output at all.
+- `COMMAND_RESULT_MESSAGES` in index.html holds the *toast copy* for the
+  classes that need a generic message. It therefore omits `confirmed` (the
+  success path) and `rejected` (which falls through to the per-command
+  `rejected` string in `COMMANDS`), and it includes `workflow_setup`, which
+  `send_command.py` has no way to produce.
+
+The real rule: every class reachable by the dashboard — whether emitted by
+`send_command.py` or minted by `command.yml` — needs either an entry in
+`COMMAND_RESULT_MESSAGES` or a deliberate fall-through in
+`commandResultMessage()`. Adding a class to `RESULTS` means checking that path;
+it does not mean copying the name into both files.
 
 The PAT lives in `localStorage['gh_pat']` on the phone only. It is never
 committed and never leaves the device except as a GitHub API `Authorization`
@@ -441,18 +459,27 @@ Preserve unless explicitly told otherwise:
 7. Miles and PSI at the boundary; all conversion happens in `poll.py`.
 8. Keep the paired constants in sync: interval miles (`poll.py` /
    `reset_oil.py`), command list (`index.html` / `command.yml` /
-   `send_command.py`), result classes (`send_command.py` / `index.html`), the
-   `Truck App result:` step name (`command.yml` / `index.html`), and the CSS
-   cache-bust string (`index.html` / `sw.js`).
+   `send_command.py`), the `Truck App result:` step name (`command.yml` /
+   `index.html`), and the CSS cache-bust string (`index.html` / `sw.js`).
+   Result classes are the exception — `RESULTS` and `COMMAND_RESULT_MESSAGES`
+   are intentionally different sets; see §5.
 
 ### The VIN
 
-`3C6UR5FJ6NG305274` is hardcoded in `scripts/poll.py` (`ALLOWED_VINS`),
-`scripts/reset_oil_baseline.py` (`ALLOWED_VINS`), `scripts/send_command.py`
-(`TARGET_VIN`), and `.github/workflows/diagnose_capabilities.yml`
-(`MOPAR_VIN`). The allowlist exists to filter out a sibling 2023 Dodge
-Challenger on the same Mopar account that errors on every status call. Adding a
-vehicle means editing all of those *and* the dashboard layout.
+`3C6UR5FJ6NG305274` is hardcoded in four *operative* places:
+`scripts/poll.py` (`ALLOWED_VINS`), `scripts/reset_oil_baseline.py`
+(`ALLOWED_VINS`), `scripts/send_command.py` (`TARGET_VIN`), and
+`.github/workflows/diagnose_capabilities.yml` (`MOPAR_VIN`). The allowlist
+exists to filter out a sibling 2023 Dodge Challenger on the same Mopar account
+that errors on every status call. Adding a vehicle means editing all four *and*
+the dashboard layout.
+
+Those four are the ones that *do* anything. If the task is instead to remove
+the VIN from this public repo, grep for it — it also appears in two dead
+prototypes (`dashboard/proto/2-cluster.html`, `dashboard/proto/8-tesla.html`)
+and in the committed data (`dashboard/data.json`, `dashboard/oil_baseline.json`,
+`visual-lock/fixtures/data.json`, plus the gitignored `location.json`). Four is
+the answer for adding a vehicle; ten is the answer for scrubbing one.
 
 ---
 
@@ -474,6 +501,10 @@ vehicle means editing all of those *and* the dashboard layout.
 - **"STALE" on the dashboard** usually means GitHub throttled the cron, not
   that the code broke. Check the Actions tab first.
 - **`.env.example` is documentation, not configuration.** Nothing loads it.
-- The `<link>` to Google Fonts and the Google Maps `<iframe>` are the only
-  permitted external origins; they're enumerated in the CSP. Adding an origin
-  means editing the CSP, which is inside the hashed surface.
+- **The CSP allows more than fonts and maps.** The permitted external origins
+  are `fonts.googleapis.com` (stylesheet) and `fonts.gstatic.com` (font files)
+  under `style-src`/`font-src`; `maps.google.com` and `www.google.com` under
+  `frame-src`; and **`api.github.com` under `connect-src`**. That last one is
+  load-bearing — every command dispatch and every run-status poll goes through
+  it, so a CSP "tightening" that drops it kills the whole Command Center.
+  Adding an origin means editing the CSP, which is inside the hashed surface.
