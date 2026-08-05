@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-08-05T21:52:51.630446+00:00",
+  "last_updated": "2026-08-05T23:12:39.597580+00:00",
   "vehicles": [
     {
       "vin": "3C6UR5FJ6NG305274",
@@ -7,15 +7,15 @@
       "make": "Ram",
       "model": "2500",
       "nickname": null,
-      "odometer_mi": 154052.2,
-      "range_mi": 367.9,
-      "fuel_pct": 95,
+      "odometer_mi": 154091.3,
+      "range_mi": 320.6,
+      "fuel_pct": 81,
       "fuel_low": false,
       "battery_v": 13.5,
       "tires_psi": {
-        "front_left": 68.0,
-        "front_right": 67.0,
-        "rear_left": 67.0,
+        "front_left": 67.0,
+        "front_right": 66.0,
+        "rear_left": 66.0,
         "rear_right": 66.0
       },
       "tires_warning": {
@@ -28,12 +28,12 @@
       "doors_locked": null,
       "days_to_service": null,
       "service_mi": null,
-      "oil_level_pct": 62,
+      "oil_level_pct": 61,
       "oil": {
         "interval_mi": 5000,
         "baseline_mi": 150917,
-        "miles_since": 3135,
-        "miles_to_next": 1865,
+        "miles_since": 3174,
+        "miles_to_next": 1826,
         "baseline_set_at": "2026-07-17T17:38:55.192557+00:00",
         "auto_anchored": false
       }
