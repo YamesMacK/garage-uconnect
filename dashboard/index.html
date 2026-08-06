@@ -9,7 +9,7 @@
 <!-- CSP: the PAT in localStorage can start the engine — cut off script
      injection + exfiltration paths. connect-src covers data fetches and the
      GitHub API; frame-src covers the Google Maps embed. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com; frame-src https://maps.google.com https://www.google.com; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com; frame-src https://maps.google.com https://www.google.com; base-uri 'none'; form-action 'none'; object-src 'none'">
 <title>Ram Truck 2500</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -824,6 +824,9 @@
 
 <script>
 const REPO = 'YamesMacK/garage-uconnect';
+// Telemetry is already committed to this public repository. Reading it from
+// GitHub avoids a full Pages deployment for every routine vehicle poll.
+const LIVE_DATA_URL = `https://raw.githubusercontent.com/${REPO}/main/dashboard/data.json`;
 const CMD_WORKFLOW = 'command.yml';
 const RESET_OIL_WORKFLOW = 'reset_oil.yml';
 const PAGE_PARAMS = new URLSearchParams(location.search);
@@ -1390,7 +1393,7 @@ async function load() {
 
     const bust = Date.now();
     const [dataRes, locRes] = await Promise.allSettled([
-      fetch('data.json?t=' + bust, { cache: 'no-store' }),
+      fetch(LIVE_DATA_URL + '?t=' + bust, { cache: 'no-store' }),
       fetch('location.json?t=' + bust, { cache: 'no-store' }),
     ]);
     if (dataRes.status !== 'fulfilled' || !dataRes.value.ok) {

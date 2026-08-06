@@ -2,8 +2,9 @@ name: Reset oil baseline
 
 # Triggered by the dashboard's "Reset" pill on the Oil tile (via the GitHub
 # API workflow_dispatch). Re-anchors dashboard/oil_baseline.json to the
-# current odometer reading from data.json so miles_to_next reads 5,000,
-# then chains a poll.yml run to redeploy Pages with the fresh numbers.
+# current odometer reading from data.json so miles_to_next reads 5,000.
+# The dashboard reads data.json directly from the public repository, so it
+# reflects this committed change without a Pages deployment.
 
 # The tag makes each dispatch findable by the device that fired it — the
 # dashboard polls the runs list and matches its tag in the run name (same
@@ -21,7 +22,6 @@ on:
 
 permissions:
   contents: write
-  actions: write  # to chain the poll/deploy run after the baseline commit
 
 concurrency:
   group: oil-baseline
@@ -85,16 +85,3 @@ jobs:
           done
           echo "Push failed after 5 attempts" >&2
           exit 1
-
-      - name: Chain a Pages deploy
-        # The push above is authenticated with GITHUB_TOKEN, which never
-        # fires poll.yml's on:push (GitHub's no-recursive-runs rule — the
-        # [skip ci] in the commit message is belt-and-suspenders). Dispatch
-        # poll.yml explicitly (workflow_dispatch is exempt) so the dashboard
-        # shows the reset in ~3 min instead of waiting for the next cron
-        # slot. Non-fatal: this run's conclusion should reflect whether the
-        # baseline was reset — a failed chained dispatch only means the tile
-        # waits for cron.
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run poll.yml --ref main || echo "::warning::poll dispatch failed — next cron poll will deploy the new baseline"

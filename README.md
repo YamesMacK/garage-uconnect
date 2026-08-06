@@ -9,11 +9,11 @@ on free GitHub Actions + free GitHub Pages. Not affiliated with any employer.
         ↓
 [poll.py in GitHub Actions every 30 min]
         ↓
-[data.json committed · location.json deployed only (never committed)]
+[data.json committed and read directly · location.json deployed only (never committed)]
         ↓
-[GitHub Pages serves the PWA from /dashboard]
+[GitHub Pages serves the PWA and private GPS artifact from /dashboard]
         ↓
-[iPhone home screen icon → reads data.json + location.json]
+[iPhone home screen icon → reads telemetry from GitHub + private location.json from Pages]
         ↓
 [lock / unlock / start / stop / horn / locate → workflow_dispatch → send_command.py]
 ```
@@ -69,9 +69,8 @@ a fixed **5,000 mile** interval against a baseline odometer reading stored in
 - After your next oil change, hit the **Reset** pill on the Oil tile (fires
   `reset_oil.yml` → `scripts/reset_oil.py`), or run
   `scripts/reset_oil_baseline.py` from a PC. The reset re-anchors the
-  baseline, rewrites data.json's oil block, and chains a poll + Pages
-  deploy — the pill tracks the run and the tile reads 5,000 again in
-  ~3 minutes.
+  baseline and rewrites data.json's oil block; the tile reads 5,000 once the
+  commit reaches GitHub, without a Pages deployment.
 - The "Oil · 5K" tile shows miles remaining; turns red and reads "DUE" once
   past 5,000 mi since the baseline.
 
@@ -170,7 +169,7 @@ garage-uconnect/
 │  ├─ location.json            # ← GPS fix — deployed to Pages only, NEVER committed
 │  └─ oil_baseline.json        # Per-VIN baseline odometer for 5k tracker
 ├─ .github/workflows/
-│  ├─ poll.yml                 # Cron + Pages deploy (poll job / deploy job split)
+│  ├─ poll.yml                 # Cron + GPS-aware Pages deploy (poll job / deploy job split)
 │  ├─ command.yml              # workflow_dispatch for remote commands
 │  └─ reset_oil.yml            # workflow_dispatch for the Reset pill
 ├─ .github/dependabot.yml      # Keeps SHA-pinned actions + py-uconnect current
@@ -193,7 +192,8 @@ needs a small layout change.
 **Dashboard shows "STALE"** — Check the Actions tab for the latest poll run.
 "STALE" means data.json is older than 90 minutes; cron runs at :07/:37 so
 you should normally be < 35 min fresh. (GitHub throttles schedules under
-load; occasional gaps are normal.)
+load; occasional gaps are normal.) A location may be older while the truck
+is parked: Pages publishes it only when the coordinates or place change.
 
 **Authentication failed in Actions** — Re-create the three Mopar secrets at
 Settings → Secrets and variables → Actions.

@@ -19,6 +19,8 @@ concurrency:
 
 jobs:
   poll:
+    outputs:
+      pages_deploy: ${{ steps.deploy_gate.outputs.pages_deploy }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     # Only what this job needs. pages/id-token live in the deploy job so the
@@ -47,6 +49,11 @@ jobs:
           curl -fsSL --max-time 20 \
             https://yamesmack.github.io/garage-uconnect/location.json \
             -o dashboard/location.json || true
+          if [ -f dashboard/location.json ] && python -c "import json; json.load(open('dashboard/location.json'))" 2>/dev/null; then
+            cp dashboard/location.json "$RUNNER_TEMP/location-before-poll.json"
+          else
+            rm -f dashboard/location.json
+          fi
 
       - name: Poll Stellantis API
         # Don't gate the Pages deploy on a successful poll. If Stellantis
@@ -84,6 +91,43 @@ jobs:
           fi
           [ -f dashboard/location.json ] || echo "::warning::deploying without location.json (bootstrap, or last-good unreachable after 3 retries)"
 
+      - name: Decide whether Pages needs deployment
+        id: deploy_gate
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PREVIOUS_LOCATION: ${{ runner.temp }}/location-before-poll.json
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          previous = Path(os.environ['PREVIOUS_LOCATION'])
+          current = Path('dashboard/location.json')
+
+          def deploy_relevant_location(path):
+              if not path.is_file():
+                  return None
+              try:
+                  locations = json.loads(path.read_text()).get('locations') or {}
+              except (OSError, json.JSONDecodeError):
+                  return None
+              # A new timestamp at the same parked coordinates does not need a
+              # Pages publish. The rendered location age remains truthful to
+              # the last private artifact that actually reached the device.
+              return {
+                  vin: {key: item.get(key) for key in ('lat', 'lng', 'place')}
+                  for vin, item in locations.items()
+                  if isinstance(item, dict)
+              }
+
+          is_source_push = os.environ['EVENT_NAME'] == 'push'
+          pages_deploy = is_source_push or deploy_relevant_location(previous) != deploy_relevant_location(current)
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f"pages_deploy={'true' if pages_deploy else 'false'}\n")
+          print('Pages deployment required' if pages_deploy else 'Location unchanged; skipping Pages deployment')
+          PY
+
       - name: Commit updated data
         run: |
           # Validity gate: never stage a data.json without vehicles. poll.py
@@ -118,15 +162,18 @@ jobs:
           fi
 
       - name: Upload dashboard artifact
+        if: steps.deploy_gate.outputs.pages_deploy == 'true'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: ./dashboard
 
   deploy:
     needs: poll
+    if: needs.poll.outputs.pages_deploy == 'true'
     runs-on: ubuntu-latest
-    # Generous: deploy-pages' own poll waits up to 10 m on a slow builder queue.
-    timeout-minutes: 15
+    # Three 11-minute attempts plus backoffs need a job limit that can actually
+    # accommodate them. The previous 15-minute cap cancelled retry 1 early.
+    timeout-minutes: 37
     permissions:
       pages: write
       id-token: write

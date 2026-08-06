@@ -1,6 +1,6 @@
 /* sw.js — minimal service worker for PWA installability.
    Strategy:
-   - data.json / location.json — network first, cached under a CANONICAL key
+   - raw GitHub data.json / local location.json — network first, cached under a CANONICAL key
      (the page fetches with a ?t= cache-buster, so caching the raw request
      URL would never match again and would grow the cache without bound).
    - navigations / index.html — network first so dashboard updates reach
@@ -8,6 +8,7 @@
    - everything else same-origin (icons, images, manifest) — cache first. */
 
 const CACHE = 'garage-v20260724-cinematic-v15';
+const LIVE_DATA_URL = 'https://raw.githubusercontent.com/YamesMacK/garage-uconnect/main/dashboard/data.json';
 const SHELL = [
   './',
   './index.html',
@@ -36,15 +37,13 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
-  // Cross-origin (fonts, maps, GitHub API) — let the browser handle it.
-  if (url.origin !== self.location.origin) return;
-
   // Live data — network first under a canonical key. Fall back to the
-  // cached last-good copy on network failure AND on HTTP errors (a Pages
-  // deploy propagation miss can 404 exactly when the cache matters most).
-  const dataMatch = url.pathname.match(/\/(data|location)\.json$/);
-  if (dataMatch) {
-    const key = `./${dataMatch[1]}.json`;
+  // cached last-good copy on network failure AND on HTTP errors. Telemetry
+  // comes from the public repository; GPS remains the private Pages artifact.
+  const isLiveData = url.href.startsWith(LIVE_DATA_URL);
+  const isLocation = url.origin === self.location.origin && url.pathname.endsWith('/location.json');
+  if (isLiveData || isLocation) {
+    const key = isLiveData ? './data.json' : './location.json';
     e.respondWith(
       fetch(e.request)
         .then((res) => {
@@ -59,6 +58,9 @@ self.addEventListener('fetch', (e) => {
     );
     return;
   }
+
+  // Cross-origin (fonts, maps, GitHub API) — let the browser handle it.
+  if (url.origin !== self.location.origin) return;
 
   // App shell — network first so edits deploy without a CACHE bump.
   if (e.request.mode === 'navigate' || url.pathname.endsWith('/index.html')) {
