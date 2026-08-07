@@ -4,7 +4,7 @@ This repository contains an explicitly approved iPhone interface. Before
 editing any frontend file, read `VISUAL_LOCK.md` and run:
 
 ```powershell
-python scripts/check_visual_lock.py
+py -3 scripts/check_visual_lock.py
 ```
 
 ## Non-negotiable workflow
@@ -28,12 +28,12 @@ python scripts/check_visual_lock.py
 For any authorized frontend change:
 
 0. Install the visual-QA dependency with
-   `python -m pip install -r requirements-visual-lock.txt`. The source-only
+   `py -3 -m pip install -r requirements-visual-lock.txt`. The source-only
    lock command above intentionally runs without third-party packages.
 1. Validate the deterministic fixtures and print the locked URL with
-   `python scripts/prepare_visual_fixture.py --port 4174`.
+   `py -3 scripts/prepare_visual_fixture.py --port 4174`.
 2. Serve the repository root on that port with
-   `python -m http.server 4174 --bind 127.0.0.1 --directory .`.
+   `py -3 -m http.server 4174 --bind 127.0.0.1 --directory .`.
 3. Open the printed `?visual-lock=1` URL in the in-app Browser at the locked
    393px and 320px viewport widths. The fixture route only activates on
    localhost. The in-app Browser excludes persistent chrome and gutter space
@@ -43,7 +43,7 @@ For any authorized frontend change:
 4. Capture the dashboard, narrow dashboard, and open Settings sheet using the
    filenames documented in `VISUAL_LOCK.md`.
 5. Run
-   `python scripts/check_visual_lock.py --candidate-dir <screenshot-folder>`.
+   `py -3 scripts/check_visual_lock.py --candidate-dir <screenshot-folder>`.
 6. Stop if the gate fails. Do not update the baselines to make a failure pass.
 7. Show James the comparison and obtain explicit approval before changing the
    lock, committing, pushing, or deploying.

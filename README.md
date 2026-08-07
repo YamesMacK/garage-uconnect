@@ -27,7 +27,7 @@ and a screenshot comparison gate.
 Before any frontend work, run:
 
 ```powershell
-python scripts/check_visual_lock.py
+py -3 scripts/check_visual_lock.py
 ```
 
 The baselines must not be changed without explicit visual approval. See
@@ -155,9 +155,12 @@ garage-uconnect/
 ├─ scripts/
 │  ├─ poll.py                  # Polling script (CI). 5k oil tracker lives here.
 │  ├─ test_connection.py       # One-off diagnostic — dumps everything the API returns
+│  ├─ probe_capabilities.py    # Read-only diagnostic — sanitized service-code probe (diagnose_capabilities.yml)
 │  ├─ reset_oil.py             # Re-anchor baseline + data.json oil block (Reset pill via reset_oil.yml)
 │  ├─ reset_oil_baseline.py    # CLI variant — hits Stellantis for a live odometer
-│  └─ send_command.py          # CLI + CI: lock/unlock/start/stop/horn/locate/deep_refresh
+│  ├─ send_command.py          # CLI + CI: lock/unlock/start/stop/horn/locate/deep_refresh
+│  ├─ check_visual_lock.py     # The visual gate (source-only + --candidate-dir modes)
+│  └─ prepare_visual_fixture.py  # Validates visual-lock fixtures, prints the locked URL
 ├─ dashboard/
 │  ├─ index.html               # The PWA (single file, embedded CSS/JS)
 │  ├─ manifest.json
@@ -171,7 +174,9 @@ garage-uconnect/
 ├─ .github/workflows/
 │  ├─ poll.yml                 # Cron + GPS-aware Pages deploy (poll job / deploy job split)
 │  ├─ command.yml              # workflow_dispatch for remote commands
-│  └─ reset_oil.yml            # workflow_dispatch for the Reset pill
+│  ├─ reset_oil.yml            # workflow_dispatch for the Reset pill
+│  ├─ diagnose_capabilities.yml  # workflow_dispatch — sanitized capability probe
+│  └─ visual-lock.yml          # push/pull_request — source-only visual gate check
 ├─ .github/dependabot.yml      # Keeps SHA-pinned actions + py-uconnect current
 ├─ requirements.txt            # py-uconnect, exact-pinned
 ├─ .env.example                # Not auto-loaded — reference for env vars
@@ -212,7 +217,7 @@ the kPa → PSI conversion broke. Check the raw `unit` field in the API
 response and adjust `normalize_pressure()` in `poll.py`.
 
 **Stale GPS** — The truck only updates location when it wakes up. Tap
-**Locate** on the dashboard (or `python scripts/send_command.py
+**Locate** on the dashboard (or `py -3 scripts/send_command.py
 refresh_location`) to force a fresh fix; the map updates ~2-3 min later.
 
 ## Caveats

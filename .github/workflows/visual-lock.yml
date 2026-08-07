@@ -1,0 +1,38 @@
+name: Visual lock check
+
+# F-028: this repo had a visual-regression gate (scripts/check_visual_lock.py)
+# that ran in NO workflow, so a change to the hashed HTML/render surface
+# could land without anyone noticing it broke the lock (see F-008, discovered
+# this way by manual audit rather than by CI). This wires the same
+# source-only check AGENTS.md tells a human to run before any frontend
+# change into CI, on every push and pull request.
+#
+# Deliberately does NOT run the --candidate-dir screenshot comparison (that
+# needs a served fixture + a real browser capture per AGENTS.md's Required
+# Visual Validation steps 1-4, meant for a human reviewing an approved visual
+# change) - only the source-only structural check, which is what this
+# workflow can run unattended.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  visual-lock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Check visual lock (source-only, no third-party deps)
+        run: python scripts/check_visual_lock.py

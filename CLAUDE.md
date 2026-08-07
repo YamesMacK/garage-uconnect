@@ -33,7 +33,7 @@ Live site: `https://yamesmack.github.io/garage-uconnect/`
 Repo constant in the frontend: `REPO = 'YamesMacK/garage-uconnect'`
 
 **Stack:** Python 3.12 (CI) with exactly one runtime dependency
-(`py-uconnect==0.4.3`); vanilla HTML/CSS/JS with zero build step, zero npm, zero
+(`py-uconnect==0.4.6`); vanilla HTML/CSS/JS with zero build step, zero npm, zero
 bundler. Keep it that way — "preserve the dependency-free static PWA
 architecture" is an explicit project rule.
 
@@ -48,7 +48,7 @@ be violated by an assistant acting helpfully.
 Before touching *any* frontend file, run:
 
 ```bash
-python scripts/check_visual_lock.py
+py -3 scripts/check_visual_lock.py
 ```
 
 It must print `Visual lock PASSED` before you start, so you know your baseline.
@@ -109,9 +109,9 @@ of pixels may change, mean channel delta ≤ 1.5.
 ### Required workflow for an authorized frontend change
 
 ```bash
-python -m pip install -r requirements-visual-lock.txt        # Pillow, QA only
-python scripts/prepare_visual_fixture.py --port 4174         # validates fixtures, prints URL
-python -m http.server 4174 --bind 127.0.0.1 --directory .    # serve REPO ROOT, not dashboard/
+py -3 -m pip install -r requirements-visual-lock.txt        # Pillow, QA only
+py -3 scripts/prepare_visual_fixture.py --port 4174         # validates fixtures, prints URL
+py -3 -m http.server 4174 --bind 127.0.0.1 --directory .    # serve REPO ROOT, not dashboard/
 ```
 
 Open the printed `http://127.0.0.1:4174/dashboard/?visual-lock=1`. That mode is
@@ -124,12 +124,16 @@ deterministic. Capture at the locked sizes:
 | `iphone-320.png` | 320 px | 320×1058 viewport |
 | `settings-393.png` | 393 px, Settings sheet open | 393×1132 full page |
 
-Then `python scripts/check_visual_lock.py --candidate-dir <folder>`. **Stop if
+Then `py -3 scripts/check_visual_lock.py --candidate-dir <folder>`. **Stop if
 it fails.** Show James the comparison and get explicit approval before changing
 the lock, committing, pushing, or deploying.
 
-The gate is **not** wired into CI. Nothing stops a bad frontend push except
-this discipline.
+The gate's source-only mode also runs in CI (`.github/workflows/visual-lock.yml`,
+added 2026-08-06 — audit finding F-028), on every push and pull request, so a
+change that fails it can't land silently. CI only runs the no-args mode; it
+can't do the `--candidate-dir` screenshot comparison (that needs a served
+fixture and a real browser capture), so the discipline above is still what
+catches a visual regression that keeps the surface hash the same.
 
 ---
 
@@ -142,8 +146,8 @@ garage-uconnect/
 ├─ CLAUDE.md                  # This file
 ├─ README.md                  # Owner-facing setup, troubleshooting, caveats
 ├─ THIRD_PARTY_NOTICES.md     # Icons8 attribution for oil-can-ios.png
-├─ requirements.txt           # py-uconnect==0.4.3 (production, exact-pinned)
-├─ requirements-visual-lock.txt  # Pillow==12.2.0 (visual QA only)
+├─ requirements.txt           # py-uconnect==0.4.6 (production, exact-pinned)
+├─ requirements-visual-lock.txt  # Pillow==12.3.0 (visual QA only)
 ├─ .env.example               # Reference only — nothing auto-loads it
 ├─ scripts/
 │  ├─ poll.py                 # CI poller; owns the 5k oil tracker
@@ -170,7 +174,7 @@ garage-uconnect/
 │  ├─ baselines/*.png         # approved screenshots
 │  └─ fixtures/               # deterministic data for ?visual-lock=1
 └─ .github/
-   ├─ workflows/{poll,command,reset_oil,diagnose_capabilities}.yml
+   ├─ workflows/{poll,command,reset_oil,diagnose_capabilities,visual-lock}.yml
    └─ dependabot.yml
 ```
 
@@ -391,6 +395,7 @@ emitted via `GITHUB_OUTPUT` — never raw Stellantis responses.
 | `command.yml` | `workflow_dispatch` (`command`, `tag`) | `contents:read`, `actions:write` | Send one vehicle command |
 | `reset_oil.yml` | `workflow_dispatch` (`tag`) | `contents:write`, `actions:write` | Re-anchor the oil baseline |
 | `diagnose_capabilities.yml` | `workflow_dispatch` | `contents:read` | Sanitized capability probe |
+| `visual-lock.yml` | `push`, `pull_request`, `workflow_dispatch` | `contents:read` | Source-only visual gate check (F-028) |
 
 Details that look odd but are deliberate:
 
@@ -423,9 +428,9 @@ Details that look odd but are deliberate:
 There is **no test suite, linter, formatter, or build step.** Verification is:
 
 ```bash
-python scripts/check_visual_lock.py                 # always, before and after frontend work
-python -c "import json; json.load(open('dashboard/data.json'))"   # JSON sanity
-python -m http.server 4174 --bind 127.0.0.1 --directory .          # serve from REPO ROOT
+py -3 scripts/check_visual_lock.py                 # always, before and after frontend work
+py -3 -c "import json; json.load(open('dashboard/data.json'))"   # JSON sanity
+py -3 -m http.server 4174 --bind 127.0.0.1 --directory .          # serve from REPO ROOT
 ```
 
 The fixture route resolves `../visual-lock/fixtures/...`, which is why the
@@ -504,7 +509,11 @@ the answer for adding a vehicle; ten is the answer for scrubbing one.
 - **The CSP allows more than fonts and maps.** The permitted external origins
   are `fonts.googleapis.com` (stylesheet) and `fonts.gstatic.com` (font files)
   under `style-src`/`font-src`; `maps.google.com` and `www.google.com` under
-  `frame-src`; and **`api.github.com` under `connect-src`**. That last one is
-  load-bearing — every command dispatch and every run-status poll goes through
-  it, so a CSP "tightening" that drops it kills the whole Command Center.
-  Adding an origin means editing the CSP, which is inside the hashed surface.
+  `frame-src`; and **`api.github.com` and `raw.githubusercontent.com` under
+  `connect-src`**. `api.github.com` is load-bearing — every command dispatch
+  and every run-status poll goes through it, so a CSP "tightening" that drops
+  it kills the whole Command Center. `raw.githubusercontent.com` was added by
+  commit `14a0a49` ("Decouple dashboard data from Pages deploys") alongside
+  the new `LIVE_DATA_URL` fetch. Adding an origin means editing the CSP,
+  which is inside the hashed surface — and that commit is exactly why the
+  lock currently fails; see F-008, operator decision, not fixed here.
