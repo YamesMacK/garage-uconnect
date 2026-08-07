@@ -162,7 +162,8 @@ garage-uconnect/
 │  ├─ check_visual_lock.py     # The visual gate (source-only + --candidate-dir modes)
 │  └─ prepare_visual_fixture.py  # Validates visual-lock fixtures, prints the locked URL
 ├─ dashboard/
-│  ├─ index.html               # The PWA (single file, embedded CSS/JS)
+│  ├─ index.html               # The PWA markup (JS embedded; CSS lives in cinematic.css)
+│  ├─ cinematic.css            # The cinematic interface stylesheet — a protected_file in the visual lock
 │  ├─ manifest.json
 │  ├─ sw.js                    # Service worker (network-first shell + data)
 │  ├─ icon-192.png · icon-512.png
