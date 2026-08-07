@@ -515,5 +515,7 @@ the answer for adding a vehicle; ten is the answer for scrubbing one.
   it kills the whole Command Center. `raw.githubusercontent.com` was added by
   commit `14a0a49` ("Decouple dashboard data from Pages deploys") alongside
   the new `LIVE_DATA_URL` fetch. Adding an origin means editing the CSP,
-  which is inside the hashed surface — and that commit is exactly why the
-  lock currently fails; see F-008, operator decision, not fixed here.
+  which is inside the hashed surface — that commit is why the lock failed for
+  a day (F-008). James approved the new `visual_surface_sha256` on 2026-08-07
+  and the gate is green again. The lesson stands: a CSP or fetch change with
+  no visual effect whatsoever still breaks the hash and still needs approval.
