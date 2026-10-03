@@ -195,7 +195,7 @@ jobs:
       # here: up to 3 attempts with a short backoff between them.
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
         # Let the action's own 10-minute poll govern; a 5-minute step cap
         # guillotines a slow-but-healthy Pages queue (it builds in 2-3m fast,
         # but the builder backlog can sit in deployment_queued past 5m).
@@ -209,7 +209,7 @@ jobs:
       - name: Deploy to GitHub Pages (retry 1)
         id: deployment_retry1
         if: steps.deployment.outcome == 'failure'
-        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
         timeout-minutes: 11
         continue-on-error: true
 
@@ -220,7 +220,7 @@ jobs:
       - name: Deploy to GitHub Pages (retry 2)
         id: deployment_retry2
         if: steps.deployment.outcome == 'failure' && steps.deployment_retry1.outcome == 'failure'
-        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
         timeout-minutes: 11
         # No continue-on-error here — if this last attempt also fails, the
         # job should fail loudly rather than silently reporting a stale URL.
