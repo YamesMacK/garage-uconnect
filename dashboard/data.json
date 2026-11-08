@@ -31,10 +31,10 @@
       "oil_level_pct": 20,
       "oil": {
         "interval_mi": 5000,
-        "baseline_mi": 159246,
-        "miles_since": 6474,
-        "miles_to_next": -1474,
-        "baseline_set_at": "2026-09-10T16:19:26.560929+00:00",
+        "baseline_mi": 165720,
+        "miles_since": 0,
+        "miles_to_next": 5000,
+        "baseline_set_at": "2026-11-08T20:51:00.715495+00:00",
         "auto_anchored": false
       }
     }
