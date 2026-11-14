@@ -14,6 +14,7 @@ Usage (PowerShell):
   python scripts\probe_capabilities.py
 """
 
+import asyncio
 import json
 import os
 import sys
@@ -54,7 +55,7 @@ def summarize_vehicle_entry(entry: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def main() -> None:
+async def async_main() -> None:
     email = os.environ.get("MOPAR_EMAIL")
     password = os.environ.get("MOPAR_PASSWORD")
     pin = os.environ.get("MOPAR_PIN")
@@ -68,13 +69,13 @@ def main() -> None:
         sys.exit(1)
 
     try:
-        client = Client(
+        async with Client(
             email=email,
             password=password,
             pin=pin,
             brand=brands.RAM_US,
-        )
-        vehicles = client.api.list_vehicles()
+        ) as client:
+            vehicles = await client.api.list_vehicles()
     except Exception as exc:
         # Public logs must never receive raw API errors, URLs, or payloads.
         print(
@@ -96,6 +97,10 @@ def main() -> None:
         sys.exit(2)
 
     print(json.dumps(summarize_vehicle_entry(entry), indent=2))
+
+
+def main() -> None:
+    asyncio.run(async_main())
 
 
 if __name__ == "__main__":

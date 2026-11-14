@@ -21,6 +21,7 @@ Usage (PowerShell):
   python scripts\send_command.py lock
 """
 
+import asyncio
 import os
 import sys
 
@@ -37,7 +38,10 @@ from py_uconnect.command import (
     COMMAND_TRUNK_LOCK,
     COMMAND_TRUNK_UNLOCK,
 )
-from requests.exceptions import HTTPError, RequestException, Timeout
+from py_uconnect import (
+    APIError, AuthenticationError, CommandError, CommandTimeoutError,
+    UconnectConnectionError,
+)
 
 # Hardcoded — your Ram only. Edit if you want to send commands to a different vehicle.
 TARGET_VIN = "3C6UR5FJ6NG305274"
@@ -81,31 +85,25 @@ def emit_result(result: str) -> None:
 
 
 def classify_exception(exc: Exception) -> str:
-    """Map exceptions to public-safe categories without exposing API payloads."""
-    if isinstance(exc, (Timeout, TimeoutError)):
+    """Map async library errors to public-safe result classes."""
+    if isinstance(exc, (CommandTimeoutError, TimeoutError)):
         return "timeout"
-
-    if isinstance(exc, HTTPError):
-        response = getattr(exc, "response", None)
-        status = getattr(response, "status_code", None)
-        if status in {401, 403}:
+    if isinstance(exc, AuthenticationError):
+        return "authorization"
+    if isinstance(exc, APIError):
+        if exc.status in {401, 403}:
             return "authorization"
-        if status == 404:
+        if exc.status == 404:
             return "unsupported"
-        if status == 429:
+        if exc.status == 429:
             return "rate_limited"
-        if isinstance(status, int) and status >= 500:
+        if isinstance(exc.status, int) and exc.status >= 500:
             return "service_unavailable"
         return "unexpected"
-
-    if isinstance(exc, RequestException):
-        return "connection"
-
-    message = str(exc).lower()
-    if "timed out" in message or "timeout" in message:
-        return "timeout"
-    if "authenticate" in message or "unauthorized" in message:
-        return "authorization"
+    if isinstance(exc, CommandError):
+        return "rejected"
+    if isinstance(exc, UconnectConnectionError):
+        return "timeout" if isinstance(exc.__cause__, TimeoutError) else "connection"
     return "unexpected"
 
 
@@ -115,7 +113,7 @@ def fail(result: str, message: str) -> None:
     raise SystemExit(1)
 
 
-def main() -> None:
+async def async_main() -> None:
     if len(sys.argv) < 2:
         print(f"Usage: python {sys.argv[0]} <command>")
         print(f"Available: {', '.join(CMD_MAP.keys())}")
@@ -138,21 +136,21 @@ def main() -> None:
         )
 
     try:
-        client = Client(
+        async with Client(
             email=email,
             password=password,
             pin=pin,
             brand=brands.RAM_US,
-        )
-        cmd = CMD_MAP[cmd_name]
-        print(
-            f"Sending {cmd.name} to the configured Ram and waiting "
-            "for the vehicle to acknowledge it…"
-        )
-        ok = client.command_verify(TARGET_VIN, cmd)
+        ) as client:
+            cmd = CMD_MAP[cmd_name]
+            print(
+                f"Sending {cmd.name} to the configured Ram and waiting "
+                "for the vehicle to acknowledge it…"
+            )
+            ok = await client.command_verify(TARGET_VIN, cmd)
     except Exception as exc:
         result = classify_exception(exc)
-        status = getattr(getattr(exc, "response", None), "status_code", None)
+        status = getattr(exc, "status", None)
         detail = f" (HTTP {status})" if isinstance(status, int) else ""
         fail(
             result,
@@ -168,6 +166,10 @@ def main() -> None:
             "The vehicle rejected the command or it was not applicable "
             "in its current state.",
         )
+
+
+def main() -> None:
+    asyncio.run(async_main())
 
 
 if __name__ == "__main__":
