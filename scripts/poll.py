@@ -8,22 +8,16 @@ to Pages via the workflow artifact only, so GPS history never lands in
 public git history; see poll.yml).
 
 Architecture notes (do not regress):
-  * py-uconnect's `client.api.get_vehicle(vin)` returns a raw dict.
-    The Vehicle dataclass is populated by passing that dict through
-    `_update_vehicle(v, dict)`. We do this manually per VIN so a bad
-    sibling vehicle (the broken Challenger) doesn't kill the whole
-    poll — `client.refresh()` also makes extra per-vehicle calls we
-    don't need every 30 minutes.
-  * Since py-uconnect 0.4.x, get_vehicle() returns {} on HTTP
-    400/404/502 instead of raising. An empty dict must be treated as
-    a failed fetch or the poll would silently write an all-null row.
-  * Door lock / window / engine state come from a SEPARATE endpoint
-    (get_vehicle_status). It's called best-effort: subscriptions
-    without that data just leave the fields null.
-  * Vehicle attribute names from py-uconnect (NOT obvious):
-      - tire pressure: `wheel_front_left_pressure`, etc. (not tire_pressure_*)
-      - fuel level pct: `fuel_amount` (not fuel_level_percent)
-      - oil life pct: `oil_level` (informational only; we use a 5k baseline)
+  * Use one async client context per run and filter the raw vehicle list before
+    reading details. Never refresh unrelated account vehicles.
+  * Populate Vehicle with the supported list/info/status/location model helpers.
+    get_vehicle_info is required; failed or empty responses must not replace
+    last-good data with an all-null row.
+  * get_remote_status and get_vehicle_location are optional. A missing endpoint
+    leaves unknown state and preserves the last-good location.
+  * Serialize the established dashboard schema: miles, PSI, string model year,
+    and the mileage-based oil baseline. Credentials and response bodies never
+    enter public error logs.
 
 Oil tracking strategy (since 2026-04-29):
   Use a baseline-counter against a 5,000-mile interval. Ignore the truck's
@@ -32,6 +26,7 @@ Oil tracking strategy (since 2026-04-29):
   then only changes when the user re-anchors after an oil change.
 """
 
+import asyncio
 import json
 import os
 import sys
@@ -40,8 +35,10 @@ import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 
-from py_uconnect import Client, brands
-from py_uconnect.client import Vehicle, Location, _update_vehicle
+from py_uconnect import Client, Vehicle, brands
+from py_uconnect.models import (
+    apply_list_item, apply_remote_status, apply_vehicle_info, parse_location,
+)
 
 ROOT = Path(__file__).parent.parent
 DATA_FILE = ROOT / "dashboard" / "data.json"
@@ -108,10 +105,10 @@ def normalize_pressure(value, unit):
 
 
 def sanitize_err(e: Exception) -> str:
-    """Error text safe for PUBLIC Actions logs: exception type plus a short,
-    single-line excerpt. Never a traceback — request internals could leak."""
-    msg = " ".join(str(e).split())
-    return f"{type(e).__name__}: {msg[:120]}"
+    """Keep credentials, URLs, and provider response bodies out of public logs."""
+    status = getattr(e, "status", None)
+    detail = f" (HTTP {status})" if isinstance(status, int) else ""
+    return f"{type(e).__name__}{detail}"
 
 
 def write_json_atomic(path: Path, obj) -> None:
@@ -280,91 +277,31 @@ def compute_oil(vin: str, odometer_mi, baseline: dict):
 
 
 # ─── Resilient per-vehicle fetch ───────────────────────────────────────────
-def apply_remote_status(vehicle: Vehicle, status: dict) -> None:
-    """Map the get_vehicle_status (remote/status) payload onto the Vehicle.
-    Mirrors what client.refresh() does internally — doors/windows/engine/
-    trunk state lives on this endpoint only. Every field is optional."""
-    def _eq(d: dict, *path, value):
-        cur = d
-        for k in path:
-            if not isinstance(cur, dict):
-                return None
-            cur = cur.get(k)
-        if cur is None:
-            return None
-        return cur == value
-
-    doors = status.get("doors") or {}
-    vehicle.door_driver_locked = _eq(doors, "driver", "status", value="LOCKED")
-    vehicle.door_passenger_locked = _eq(doors, "passenger", "status", value="LOCKED")
-    vehicle.door_rear_left_locked = _eq(doors, "leftRear", "status", value="LOCKED")
-    vehicle.door_rear_right_locked = _eq(doors, "rightRear", "status", value="LOCKED")
-
-    windows = status.get("windows") or {}
-    vehicle.window_driver_closed = _eq(windows, "driver", "status", value="CLOSED")
-    vehicle.window_passenger_closed = _eq(windows, "passenger", "status", value="CLOSED")
-
-    engine_on = _eq(status, "engine", "status", value="ON")
-    if engine_on is not None:
-        vehicle.ignition_on = engine_on
-
-    trunk = _eq(status, "trunk", "status", value="LOCKED")
-    if trunk is not None:
-        vehicle.trunk_locked = trunk
-
-
-def fetch_vehicle(client, vin_entry: dict) -> Vehicle:
-    """Build a populated Vehicle for a single VIN without using
-    client.refresh() (extra calls, and historically it crashed on the
-    broken Challenger)."""
+async def fetch_vehicle(client, vin_entry: dict) -> Vehicle:
+    """Read one allowlisted vehicle without refreshing unrelated account vehicles."""
     vin = vin_entry["vin"]
-
-    vehicle = Vehicle(
-        vin=vin,
-        nickname=vin_entry.get("nickname") or "",
-        make=vin_entry.get("make") or "",
-        model=vin_entry.get("modelDescription") or "",
-        year=str(vin_entry.get("year") or vin_entry.get("tsoModelYear") or ""),
-        region=vin_entry.get("soldRegion") or "",
+    vehicle = Vehicle(vin=vin)
+    apply_list_item(vehicle, vin_entry)
+    info = await client.api.get_vehicle_info(
+        vin, "v4" if "CPCOOP" in vehicle.enabled_services else "v3"
     )
-    vehicle.sdp = vin_entry.get("sdp")
-    vehicle.image_url = vin_entry.get("vehicleImageURL")
-    vehicle.fuel_type = vin_entry.get("fuelType")
+    if not isinstance(info, dict) or not info:
+        raise RuntimeError("get_vehicle_info returned an empty payload")
+    apply_vehicle_info(vehicle, info)
 
-    info = client.api.get_vehicle(vin)
-    if not info:
-        # py-uconnect 0.4.x returns {} on HTTP 400/404/502 instead of
-        # raising. Treat that as a failed fetch, not an all-null vehicle.
-        raise RuntimeError("get_vehicle returned an empty payload")
-    _update_vehicle(vehicle, info)
-
-    # Doors/windows/engine state — separate endpoint, best-effort.
+    # Optional endpoints must not discard otherwise valid core telemetry.
     try:
-        status = client.api.get_vehicle_status(vin)
+        status = await client.api.get_remote_status(vin)
         if status:
             apply_remote_status(vehicle, status)
     except Exception as e:
         print(f"  · {vin}: no remote status ({sanitize_err(e)})")
-
-    # Location is a separate API call; tolerate failure.
     try:
-        loc = client.api.get_vehicle_location(vin)
-        updated = (
-            datetime.fromtimestamp(loc["timeStamp"] / 1000, tz=timezone.utc)
-            if "timeStamp" in loc
-            else None
-        )
-        vehicle.location = Location(
-            longitude=loc.get("longitude"),
-            latitude=loc.get("latitude"),
-            altitude=loc.get("altitude"),
-            bearing=loc.get("bearing"),
-            is_approximate=loc.get("isLocationApprox"),
-            updated=updated,
-        )
+        location = await client.api.get_vehicle_location(vin)
+        if location:
+            vehicle.location = parse_location(location)
     except Exception:
         pass
-
     return vehicle
 
 
@@ -414,7 +351,7 @@ def serialize_vehicle(v: Vehicle, oil_baseline: dict, prev_locations: dict):
 
     return ({
         "vin": v.vin,
-        "year": v.year or None,
+        "year": str(v.year) if v.year is not None else None,
         "make": v.make or None,
         "model": v.model or None,
         "nickname": v.nickname or None,
@@ -439,7 +376,7 @@ def serialize_vehicle(v: Vehicle, oil_baseline: dict, prev_locations: dict):
 
 
 # ─── Main ──────────────────────────────────────────────────────────────────
-def main() -> None:
+async def async_main() -> None:
     email = os.environ.get("MOPAR_EMAIL")
     password = os.environ.get("MOPAR_PASSWORD")
     pin = os.environ.get("MOPAR_PIN")
@@ -448,69 +385,73 @@ def main() -> None:
         print("ERROR: MOPAR_EMAIL, MOPAR_PASSWORD, MOPAR_PIN must be set", file=sys.stderr)
         sys.exit(1)
 
-    client = Client(email=email, password=password, pin=pin, brand=brands.RAM_US)
-
-    try:
-        listed = client.api.list_vehicles()
-    except Exception as e:
-        print(f"ERROR listing vehicles: {sanitize_err(e)}", file=sys.stderr)
-        sys.exit(1)
-
-    oil_baseline = load_oil_baseline()
-    baseline_before = json.dumps(oil_baseline, sort_keys=True, default=str)
-    prev_locations = load_prev_locations()
-    vehicles_out = []
-    locations_out = {}
-
-    for entry in listed:
-        vin = entry.get("vin")
-        if not vin:
-            continue
-        if vin not in ALLOWED_VINS:
-            print(f"  · {vin} — skipped (not in allowlist)")
-            continue
+    async with Client(email=email, password=password, pin=pin, brand=brands.RAM_US) as client:
 
         try:
-            vehicle = fetch_vehicle(client, entry)
-            vd, loc, oil_baseline = serialize_vehicle(vehicle, oil_baseline, prev_locations)
-            vehicles_out.append(vd)
-            if loc:
-                locations_out[vin] = loc
-            mtn = (vd.get("oil") or {}).get("miles_to_next")
-            print(f"  ✓ {vin}: odo={vd.get('odometer_mi')} mi · oil_to_next={mtn} mi")
+            listed = await client.api.list_vehicles()
         except Exception as e:
-            print(f"  ! {vin}: fetch failed — {sanitize_err(e)}", file=sys.stderr)
+            print(f"ERROR listing vehicles: {sanitize_err(e)}", file=sys.stderr)
+            sys.exit(1)
 
-    if not vehicles_out:
-        print("No vehicles fetched successfully — leaving data.json untouched", file=sys.stderr)
-        sys.exit(1)
+        oil_baseline = load_oil_baseline()
+        baseline_before = json.dumps(oil_baseline, sort_keys=True, default=str)
+        prev_locations = load_prev_locations()
+        vehicles_out = []
+        locations_out = {}
 
-    now_iso = datetime.now(timezone.utc).isoformat()
-    write_json_atomic(DATA_FILE, {
-        "last_updated": now_iso,
-        "vehicles": vehicles_out,
-    })
-    print(f"Wrote {DATA_FILE}")
+        for entry in listed:
+            vin = entry.get("vin")
+            if not vin:
+                continue
+            if vin not in ALLOWED_VINS:
+                print(f"  · {vin} — skipped (not in allowlist)")
+                continue
 
-    # Preserve last-good fixes for VINs that didn't report one this poll.
-    for vin, prev in prev_locations.items():
-        locations_out.setdefault(vin, prev)
-    if locations_out:
-        write_json_atomic(LOCATION_FILE, {
+            try:
+                vehicle = await fetch_vehicle(client, entry)
+                vd, loc, oil_baseline = serialize_vehicle(vehicle, oil_baseline, prev_locations)
+                vehicles_out.append(vd)
+                if loc:
+                    locations_out[vin] = loc
+                mtn = (vd.get("oil") or {}).get("miles_to_next")
+                print(f"  ✓ {vin}: odo={vd.get('odometer_mi')} mi · oil_to_next={mtn} mi")
+            except Exception as e:
+                print(f"  ! {vin}: fetch failed — {sanitize_err(e)}", file=sys.stderr)
+
+        if not vehicles_out:
+            print("No vehicles fetched successfully — leaving data.json untouched", file=sys.stderr)
+            sys.exit(1)
+
+        now_iso = datetime.now(timezone.utc).isoformat()
+        write_json_atomic(DATA_FILE, {
             "last_updated": now_iso,
-            "locations": locations_out,
+            "vehicles": vehicles_out,
         })
-        print(f"Wrote {LOCATION_FILE}")
-    else:
-        # Monotonic: never deploy an EMPTY location set over a possibly
-        # nonempty one (curl of last-good can miss AND the location call can
-        # fail in the same run). Leaving the file alone keeps whatever the
-        # workflow fetched; absence just renders "No fix" on the dashboard.
-        print("No locations this poll and no last-good copy — leaving location.json untouched")
+        print(f"Wrote {DATA_FILE}")
 
-    if json.dumps(oil_baseline, sort_keys=True, default=str) != baseline_before:
-        save_oil_baseline(oil_baseline)
-        print(f"Wrote {OIL_BASELINE_FILE} (baseline changed)")
+        # Preserve last-good fixes for VINs that didn't report one this poll.
+        for vin, prev in prev_locations.items():
+            locations_out.setdefault(vin, prev)
+        if locations_out:
+            write_json_atomic(LOCATION_FILE, {
+                "last_updated": now_iso,
+                "locations": locations_out,
+            })
+            print(f"Wrote {LOCATION_FILE}")
+        else:
+            # Monotonic: never deploy an EMPTY location set over a possibly
+            # nonempty one (curl of last-good can miss AND the location call can
+            # fail in the same run). Leaving the file alone keeps whatever the
+            # workflow fetched; absence just renders "No fix" on the dashboard.
+            print("No locations this poll and no last-good copy — leaving location.json untouched")
+
+        if json.dumps(oil_baseline, sort_keys=True, default=str) != baseline_before:
+            save_oil_baseline(oil_baseline)
+            print(f"Wrote {OIL_BASELINE_FILE} (baseline changed)")
+
+
+def main() -> None:
+    asyncio.run(async_main())
 
 
 if __name__ == "__main__":

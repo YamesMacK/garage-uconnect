@@ -33,7 +33,7 @@ Live site: `https://yamesmack.github.io/garage-uconnect/`
 Repo constant in the frontend: `REPO = 'YamesMacK/garage-uconnect'`
 
 **Stack:** Python 3.12 (CI) with exactly one runtime dependency
-(`py-uconnect==0.4.6`); vanilla HTML/CSS/JS with zero build step, zero npm, zero
+(`py-uconnect==1.0.2`); vanilla HTML/CSS/JS with zero build step, zero npm, zero
 bundler. Keep it that way — "preserve the dependency-free static PWA
 architecture" is an explicit project rule.
 
@@ -146,7 +146,7 @@ garage-uconnect/
 ├─ CLAUDE.md                  # This file
 ├─ README.md                  # Owner-facing setup, troubleshooting, caveats
 ├─ THIRD_PARTY_NOTICES.md     # Icons8 attribution for oil-can-ios.png
-├─ requirements.txt           # py-uconnect==0.4.6 (production, exact-pinned)
+├─ requirements.txt           # py-uconnect==1.0.2 (production, exact-pinned)
 ├─ requirements-visual-lock.txt  # Pillow==12.3.0 (visual QA only)
 ├─ .env.example               # Reference only — nothing auto-loads it
 ├─ scripts/
@@ -334,12 +334,13 @@ env vars locally; CI uses repository secrets of the same names.
 Deliberate design choices that must not be regressed (they're documented in the
 module docstring too):
 
-- Does **not** call `client.refresh()`. It builds each `Vehicle` manually via
-  `client.api.get_vehicle(vin)` + `_update_vehicle()`, so one broken sibling
-  vehicle can't kill the whole poll and we skip per-vehicle calls we don't need.
-- py-uconnect 0.4.x returns `{}` (not an exception) on HTTP 400/404/502. An
-  empty dict **must** be treated as a failed fetch, or the poll writes an
-  all-null row over good data.
+- Uses one async client context and awaits API calls. Does **not** call
+  client.refresh(): the raw list is filtered to the allowlisted Ram first, so
+  an unrelated account vehicle cannot break the poll. Supported model helpers
+  populate the Vehicle from the list, required info, and optional status/location.
+- A failed or empty get_vehicle_info result must leave last-good data intact.
+  Version 1 raises typed API/auth/connection errors; public logs show only
+  exception type and HTTP status, never provider response bodies.
 - Non-obvious py-uconnect attribute names: tire pressure is
   `wheel_front_left_pressure` (not `tire_pressure_*`), fuel percentage is
   `fuel_amount` (not `fuel_level_percent`), oil life is `oil_level`.
@@ -425,9 +426,10 @@ Details that look odd but are deliberate:
 
 ## 8. Development workflows
 
-There is **no test suite, linter, formatter, or build step.** Verification is:
+Verification includes offline async-runtime contracts and the visual lock:
 
 ```bash
+py -3 -m unittest discover -s tests -p "test_*.py"  # fictional responses, no vehicle/account calls
 py -3 scripts/check_visual_lock.py                 # always, before and after frontend work
 py -3 -c "import json; json.load(open('dashboard/data.json'))"   # JSON sanity
 py -3 -m http.server 4174 --bind 127.0.0.1 --directory .          # serve from REPO ROOT

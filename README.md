@@ -239,3 +239,20 @@ refresh_location`) to force a fresh fix; the map updates ~2-3 min later.
   https://github.com/settings/personal-access-tokens to kill it instantly.
 - **No real-time data.** Cron runs every 30 minutes (GitHub may skip some).
   For live data, use the Mopar app — or tap Locate / fire `deep_refresh`.
+
+
+## Offline Python runtime checks
+
+The pinned py-uconnect 1.x client is asynchronous. The scripts await API calls
+and close their client context on success and failure, while retaining the
+existing dashboard data format and per-vehicle failure isolation.
+
+After installing requirements.txt, run:
+
+    python -m unittest discover -s tests -p "test_*.py"
+
+These tests use fictional responses and block real HTTP requests. They cover
+telemetry, last-good files, capability output, oil baselines, command result
+classes, and client cleanup. The Uconnect offline contracts workflow runs them
+on pushes and pull requests without account credentials. The production polling
+workflow remains separate.
